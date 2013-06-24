@@ -1,0 +1,117 @@
+<project name="CMSContent" default="compile" basedir=".">
+
+	<!--Use the portal settings, if available. Once set, variable cannot be overwritten-->
+	<property file="../../../build.properties"/>
+	<condition property="tomcat.home" value="${server.home}">
+		<isset property="server.home"/>
+	</condition>
+
+
+  <property file="build.properties"/>
+  <property file="${user.home}/build.properties"/>
+
+  <property name="app.name"            value="CMSContent"/>
+  <property name="app.version"         value="1.0"/>
+  <property name="compile.debug"       value="true"/>
+  <property name="compile.deprecation" value="true"/>
+  <property name="compile.optimize"    value="true"/>
+  <property name="src.home"            value="src"/>
+  <property name="lib.home"            value="lib"/>
+  <property name="build.home"          value="build"/>
+  <property name="dist.home"           value="dist"/>
+  <property name="classes.home"        value="${build.home}/WEB-INF/classes"/>
+
+
+  <!-- ==================== Compilation Classpath =========================== -->
+  <path id="compile.classpath">
+
+    <!-- Include all JAR files that will be included in /WEB-INF/lib -->
+    <fileset dir="lib"><include name="*.jar"/></fileset>
+    
+    <!-- Reference the Servlet/JSP/Portlet jars from tomcat -->
+    <fileset dir="${tomcat.home}/lib"><include name="*.jar"/></fileset>
+    <fileset dir="${tomcat.home}/shared/lib"><include name="*.jar"/></fileset>
+    
+    <!-- include the compiled classes and the source directory just to be safe -->
+    <pathelement path="${classes.home}"/>
+    <pathelement path="${src.home}"/>
+  </path>
+
+
+  <!-- ==================== Clean Target ==================================== -->
+  <target name="clean" description="Delete the build files">
+    <!--<delete><fileset dir="${build.home}"><include name="**"/></fileset></delete>-->
+  	<delete dir="${build.home}"/>
+  	<!-- mkdir classes directory immediately to make Eclipse happy -->
+  	<mkdir dir="${build.home}/WEB-INF/classes"/>
+    <delete dir="${dist.home}/${app.name}.war"/>
+  </target>
+
+
+  <!-- ==================== Compile Target ================================== -->
+  <target name="compile" description="Compile Java sources">
+
+    <!-- Compile Java classes as necessary to build location -->
+    <mkdir dir="${build.home}/WEB-INF/classes"/>
+    <javac srcdir="${src.home}"
+           destdir="${classes.home}"
+           debug="${compile.debug}"
+           deprecation="${compile.deprecation}"
+           optimize="${compile.optimize}">
+      <classpath refid="compile.classpath"/>
+    </javac>
+    
+    <!-- Copy all jar files to build location -->
+    <copy todir="${build.home}/WEB-INF/lib">
+      <fileset dir="${lib.home}">
+      	<exclude name="portlet-api-1.0.jar"/>
+      	<exclude name="servlet-api.jar"/>
+      </fileset>
+    </copy>
+    
+    <!-- Copy all other webapp files to build location -->
+    <copy todir="${build.home}">
+      <fileset dir="webapp"/>
+    </copy>   
+
+  </target>
+
+
+  <!-- ==================== Dist Target =================================== -->
+  <target name="dist" depends="compile" description="Deploy application to servlet container">
+  	
+    <!-- Copy the classes of the build directory -->
+    <jar destfile="${dist.home}/${app.name}.war">
+      <fileset dir="${build.home}"/>
+    </jar>
+
+  </target>
+
+
+  <!-- ==================== Javadoc Target ================================== -->
+  <target name="javadoc" depends="compile" description="Create Javadoc API documentation">
+
+    <javadoc packagenames="*"
+             sourcepath="src"
+             classpathref="compile.classpath"
+             destdir="doc/api"
+             author="true"
+             version="true"
+             windowtitle="${app.name} ${app.version} API Documentation">
+      <doctitle><![CDATA[${app.name} ${app.version}<br/>API Documentation]]></doctitle>
+      <header><![CDATA[${app.name} ${app.version}<br/>API Documentation]]></header>
+      <bottom><![CDATA[<i>Copyright &#169; 2006 UNICON, Inc. All Rights Reserved.</i>]]></bottom>
+    </javadoc>
+
+  </target>
+
+  <!-- ==================== Deploy Target ================================== -->
+  <!--
+  <target name="deploy" depends="dist" description="Deploy Portlet using uPortal Ant Task">
+	<ant antfile="../uPortal_rel-2-5-2/build.xml" target="deployPortletApp" dir="../uPortal_rel-2-5-2">
+	  <property name="portletApp" value="C:/Training/Hello/${dist.home}/${app.name}.war"/>
+	</ant>
+  </target>
+  -->
+
+</project>

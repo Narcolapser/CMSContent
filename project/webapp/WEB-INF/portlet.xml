@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<portlet-app xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd"
+    version="1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd">
+
+    <portlet>
+        <description xml:lang="en">CMSContent</description>
+        <portlet-name>CMSContent</portlet-name>
+        <display-name xml:lang="en">CMSContent</display-name>
+        <portlet-class>usd.its.code.Code</portlet-class>
+        <expiration-cache>0</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>view</portlet-mode>
+        	<portlet-mode>edit</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <portlet-info>
+            <title>CMSContent</title>
+            <short-title>CMSContent</short-title>
+            <keywords>portlet</keywords>
+        </portlet-info>
+    </portlet>
+
+    <user-attribute>  
+        <description></description>
+	  <name>username</name>
+    </user-attribute>
+	<user-attribute>  
+        <description></description>
+	  <name>cn</name>
+    </user-attribute>
+	<user-attribute>  
+        <description></description>
+	  <name>datatelid</name>
+    </user-attribute>  
+    
+</portlet-app>
