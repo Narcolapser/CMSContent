@@ -27,14 +27,17 @@ import javax.sql.DataSource;
 import java.security.*;
 import javax.crypto.*;
 import javax.crypto.spec.*;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+//import sun.misc.BASE64Decoder;
+//import sun.misc.BASE64Encoder;
 import java.io.*;
 import java.util.Random;
 import java.util.Date;
 import java.lang.Math;
 import java.util.*;
 import java.net.*;
+
+//--database
+import edu.usd.its.UsdSql;
 /**
  * 
  *
@@ -56,68 +59,34 @@ public class Code extends GenericPortlet {
     	Map userInfo = (Map)request.getAttribute(PortletRequest.USER_INFO);
     	PortletPreferences prefs = request.getPreferences();
     	String contentURI=prefs.getValue("contentURI", "");
-    	String proxyFile=prefs.getValue("proxyFile", ""); //---Web Development Channel ONLY!
-    	String isPrivate=prefs.getValue("isPrivate", "true");
+
+		PreparedStatement selectStatement = null;
+		ResultSet resultSet = null;
+		Connection connection = null;
+		String content="";
 		
-		//--proxy the file
-		if(!proxyFile.equals("")){
-			Random generator = new Random();
-			String randNum = "commonspotCMS_"+String.valueOf(Math.abs(generator.nextInt()))+new java.util.Date().getTime();
-			
-			out.print("<span id='"+randNum+"'><img src='/html/portalCMImages/ajax.gif' alt='loading' /></span>");
-	    	out.print("<script>var "+randNum+"_var = new ajaxObject('"+randNum+"', '"+proxyFile+"?isPrivate="+isPrivate+"&xmlURL="+URLEncoder.encode(contentURI, "UTF-8")+"',true);"+randNum+"_var.update();</script>");
-		//--get the content from the database
-		}else{
-			PreparedStatement pStmt = null;
-			ResultSet rst = null;
-			Connection conn = null;
-			String content="";
-			try {
-				Context initContext = new InitialContext();
-				Context envContext = (Context) initContext.lookup("java:/comp/env");
-	
-				if(envContext != null){
-					DataSource ds = null;
-					ds = (DataSource) envContext.lookup("jdbc/PortalDb");
-	
-					if(ds != null){
-						conn = ds.getConnection();
-						pStmt = conn.prepareStatement("SELECT cachedContent FROM UPC_USD_WEB_CONTENT_CACHE WHERE url=?");
-						pStmt.setString(1,contentURI);
-						rst = pStmt.executeQuery();
-						if(rst.next()){
-							content = (String) rst.getString("cachedContent");
-						}
-					 }
-				 }
-				 
-	
-			} catch (Exception e) { 
-				content = "";
+		
+		try{
+			connection = UsdSql.getPoolConnection();
+			selectStatement = connection.prepareStatement("SELECT cachedContent FROM channelCache WHERE url=?");
+			selectStatement.setString(1,contentURI);
+			resultSet = selectStatement.executeQuery();
+			if(resultSet.next()){
+				content = (String) resultSet.getString("cachedContent");
 			}
-			finally{//release the connection and other resources
-				try{
-					if(rst!=null){
-						rst.close();
-					}
-				}catch(Exception e1){}
-				try{
-					if(pStmt != null){
-						pStmt.close();
-					}
-				}catch(Exception e2){}
-				try{
-					if(conn != null){
-						conn.close();	
-					}
-				}catch(Exception e3){}
-			}//end finally
-			
-			if(content.equals("")){
-				content = "This channel contains no data.";
-			}
-			out.println("<span class='cmsContent'>"+content+"</span>");
+		}catch(Exception e){
+			content = "There was a problem retrieving the requested content.";
+		}finally{
+			UsdSql.closeResultSet(resultSet);
+			UsdSql.closePreparedStatement(selectStatement);
+			UsdSql.closePoolConnection(connection);
 		}
+		
+		
+		if(content.equals("")){
+			content = "This channel contains no data.";
+		}
+		out.println(content);
 		
 
 	    /* *************************************** */
