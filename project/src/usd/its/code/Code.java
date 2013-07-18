@@ -55,10 +55,14 @@ public class Code extends GenericPortlet {
 	{
     	response.setContentType("text/html");
     	PrintWriter out = response.getWriter();
-    	/*Get the publish params from the portlet */
-    	Map userInfo = (Map)request.getAttribute(PortletRequest.USER_INFO);
+    	
+    	
+		Map userInfo = (Map)request.getAttribute(PortletRequest.USER_INFO);
+		String username = (String)userInfo.get("username");
+		
+		
     	PortletPreferences prefs = request.getPreferences();
-    	String contentURI=prefs.getValue("contentURI", "");
+    	String pageUri = prefs.getValue("pageUri", "");
 
 		PreparedStatement selectStatement = null;
 		ResultSet resultSet = null;
@@ -68,14 +72,16 @@ public class Code extends GenericPortlet {
 		
 		try{
 			connection = UsdSql.getPoolConnection();
-			selectStatement = connection.prepareStatement("SELECT cachedContent FROM channelCache WHERE url=?");
-			selectStatement.setString(1,contentURI);
+			selectStatement = connection.prepareStatement("exec dbo.selectChannelContentForUser ?, ?");
+			selectStatement.setString(1, username);
+			selectStatement.setString(2, pageUri);
 			resultSet = selectStatement.executeQuery();
-			if(resultSet.next()){
-				content = (String) resultSet.getString("cachedContent");
+			while(resultSet.next()){
+				content += (String) resultSet.getString("cachedContent");
 			}
 		}catch(Exception e){
 			content = "There was a problem retrieving the requested content.";
+			out.print(e.getMessage());
 		}finally{
 			UsdSql.closeResultSet(resultSet);
 			UsdSql.closePreparedStatement(selectStatement);
@@ -84,7 +90,7 @@ public class Code extends GenericPortlet {
 		
 		
 		if(content.equals("")){
-			content = "This channel contains no data.";
+			content = "No Content Available.";
 		}
 		out.println(content);
 		
