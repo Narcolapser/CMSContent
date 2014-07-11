@@ -92,7 +92,7 @@ public class Code extends GenericPortlet {
 		if(content.equals("")){
 			content = "No Content Available.";
 		}
-		out.println(content);
+		out.println("<div class=\"usdChannel\">"+content+"</div>");
 		
 
 	    /* *************************************** */
