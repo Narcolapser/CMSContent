@@ -9,7 +9,7 @@
         <portlet-name>CMSContent</portlet-name>
         <display-name xml:lang="en">CMSContent</display-name>
         <portlet-class>usd.its.code.Code</portlet-class>
-        <expiration-cache>0</expiration-cache>
+        <expiration-cache>300</expiration-cache>
         <supports>
             <mime-type>text/html</mime-type>
             <portlet-mode>view</portlet-mode>
