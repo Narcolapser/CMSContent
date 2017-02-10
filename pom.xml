@@ -60,19 +60,7 @@
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <overlays>
-                        <overlay>
-                            <groupId>org.jasig.resourceserver</groupId>
-                            <artifactId>resource-server-content</artifactId>
-                            <includes>
-                                <include>rs/fluid/1.5.0/</include>
-                                <include>rs/jquery/1.10.2/</include>
-                                <include>rs/jquery-migrate</include>
-                                <include>rs/jqueryui/1.10.3/</include>
-                                <include>rs/jquery/form/2.28/</include>
-                            </includes>
-                        </overlay>
-                    </overlays>
+                    <warName>CMSContent</warName> 
                 </configuration>
             </plugin>
             <plugin>
@@ -338,13 +326,6 @@
     </dependencyManagement>
     
     <dependencies>
-        <dependency>
-            <groupId>org.jasig.resourceserver</groupId>
-            <artifactId>resource-server-content</artifactId>
-            <version>${resourceServerVersion}</version>
-            <type>war</type>
-        </dependency>
-
         <!-- Unit test dependencies. -->
         <dependency>
             <groupId>junit</groupId>
