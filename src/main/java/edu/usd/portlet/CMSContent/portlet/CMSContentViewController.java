@@ -50,12 +50,7 @@ public class CMSContentViewController {
     protected final Log logger = LogFactory.getLog(this.getClass());
 
     @RequestMapping
-    public ModelAndView viewWeather(RenderRequest request, RenderResponse response) {
-        String viewName = "view";
-        
-        //show view.jsp with a model named 'weather' populated weather data
-        final Map<String, Object> model = new LinkedHashMap<String, Object>();
-        model.put("Test","like a Bosch.");
-        return new ModelAndView(viewName,model);
+    public ModelAndView viewContent(RenderRequest request, RenderResponse response) {
+        return new ModelAndView("view");
     }
 }
