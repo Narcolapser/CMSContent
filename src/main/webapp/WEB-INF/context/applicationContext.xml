@@ -29,12 +29,12 @@
 	<!-- Default ExceptionHandler -->
 	<bean id="defaultExceptionHandlerTemplate" class="org.springframework.web.portlet.handler.SimpleMappingExceptionResolver">
 	<property name="order" value="10"/>
-		<property name="defaultErrorView" value="error"/>
+		<property name="defaultErrorView" value="view"/>
 		<property name="exceptionMappings">
 			<props>
-				<prop key="javax.portlet.PortletSecurityException">notAuthorized</prop>
-				<prop key="javax.portlet.UnavailableException">unavailable</prop>
-				<prop key="java.lang.RuntimeException">error</prop>
+				<prop key="javax.portlet.PortletSecurityException">view</prop>
+				<prop key="javax.portlet.UnavailableException">view</prop>
+				<prop key="java.lang.RuntimeException">view</prop>
 			</props>
 		</property>
 	</bean>
