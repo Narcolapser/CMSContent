@@ -31,7 +31,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Savepoint;
-//import java.sql.Statement; //optional
 import java.sql.PreparedStatement;
 import javax.sql.DataSource;
 
@@ -43,8 +42,11 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.portlet.ModelAndView;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import edu.usd.portlet.cmscontent.dao.UsdSql;
+//import edu.usd.portlet.cmscontent.dao.UsdSql;
+import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
+import edu.usd.portlet.cmscontent.dao.CMSDataDao;
 
 /**
  * This class handles retrieves information and displays the view page.
@@ -57,53 +59,20 @@ import edu.usd.portlet.cmscontent.dao.UsdSql;
 public class CMSContentViewController {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
+	private CMSDataDao dbo = null; // Spring managed
+
+	@Autowired
+	public void setdbo(CMSDataDao dbo) {
+		this.dbo = dbo;
+	}
+
 	@RequestMapping
 	public ModelAndView viewContent(RenderRequest request, RenderResponse response) {
-		final PortletPreferences preferences = request.getPreferences();
 		final Map<String, Object> refData = new HashMap<String, Object>();
 
+		CMSDataDao dbo = new CommonSpotDaoImpl();
+		String content = dbo.getContent(request);
 
-		Connection connection = null;
-		PreparedStatement selectStatement = null;
-		ResultSet resultSet = null;
-
-//		String pageUri = "/Channels/myUSDhelp";
-		String pageUri = preferences.getValue("pageUri","/Channels/myUSDhelp");
-		String content = "";
-		refData.put("pageUri",pageUri);
-
-		Map userInfo = (Map)request.getAttribute(PortletRequest.USER_INFO);
-		String username = (String)userInfo.get("username");
-		refData.put("username",username);
-
-		try
-		{
-				connection = UsdSql.getPoolConnection();
-				selectStatement = connection.prepareStatement("exec dbo.selectChannelContentForUser ?, ?");
-				selectStatement.setString(1, username);
-				selectStatement.setString(2, pageUri);
-
-				resultSet = selectStatement.executeQuery();
-				while(resultSet.next())
-				{
-						content += (String) resultSet.getString("cachedContent");
-				}
-//				content = content.replace("&lt;","<");
-//				content = content.replace("&gt;",">");
-//				content = content.replace("&quot;","\"");
-//				content = content.replace("&amp;nbsp;","\n");
-//				content = content.replace("&amp;#39;","'");
-		}
-		catch(Exception e)
-		{
-				content = "There was a problem retrieving the requested content.";
-		}
-		finally
-		{
-				UsdSql.closeResultSet(resultSet);
-				UsdSql.closePreparedStatement(selectStatement);
-				UsdSql.closePoolConnection(connection);
-		}
 		refData.put("content",content);
 
 		return new ModelAndView("view",refData);
