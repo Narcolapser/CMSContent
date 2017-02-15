@@ -24,18 +24,22 @@
 		http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
+	<context:annotation-config/>
+	<context:component-scan base-package="edu.usd.portlet.cmscontent"/>
+	<bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
+
 	<!-- ========================= PORTLET SPECIFIC DEFINITIONS ========================= -->
 
 	<!-- Default ExceptionHandler -->
 	<bean id="defaultExceptionHandlerTemplate" class="org.springframework.web.portlet.handler.SimpleMappingExceptionResolver">
 	<property name="order" value="10"/>
-		<property name="defaultErrorView" value="view"/>
+		<property name="defaultErrorView" value="error"/>
 		<property name="exceptionMappings">
 			<props>
-				<prop key="javax.portlet.PortletSecurityException">view</prop>
-				<prop key="javax.portlet.UnavailableException">view</prop>
-				<prop key="java.lang.RuntimeException">view</prop>
+				<prop key="javax.portlet.PortletSecurityException">notAuthorized</prop>
+				<prop key="javax.portlet.UnavailableException">unavailable</prop>
+				<prop key="java.lang.RuntimeException">error</prop>
 			</props>
 		</property>
-	</bean>
+</bean>
 </beans>

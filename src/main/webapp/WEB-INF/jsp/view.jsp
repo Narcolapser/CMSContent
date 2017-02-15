@@ -19,48 +19,7 @@
 
 --%>
 
-<%@ page contentType="text/html"
-        import="edu.usd.its.UsdSql,
-        java.sql.*"
-        %>
-<%
-        Connection connection = null;
-        PreparedStatement selectStatement = null;
-        ResultSet resultSet = null;
+<%@ include file="/WEB-INF/jsp/include.jsp" %>
 
-        String pageUri = "/Channels/myUSDhelp";
-        String content = "";
-
-        try
-        {
-                connection = UsdSql.getPoolConnection();
-                selectStatement = connection.prepareStatement("exec dbo.selectEvoqContent ?");
-                selectStatement.setString(1, pageUri);
-
-                resultSet = selectStatement.executeQuery();
-                while(resultSet.next())
-                {
-                        content += (String) resultSet.getString("Content");
-                }
-                content = content.replace("&lt;","<");
-                content = content.replace("&gt;",">");
-                content = content.replace("&quot;","\"");
-                content = content.replace("&amp;nbsp;","\n");
-                content = content.replace("&amp;#39;","'");
-        }
-        catch(Exception e)
-        {
-                content = "There was a problem retrieving the requested content. test 1";
-                out.print(e.getMessage());
-        }
-        finally
-        {
-                UsdSql.closeResultSet(resultSet);
-                UsdSql.closePreparedStatement(selectStatement);
-                UsdSql.closePoolConnection(connection);
-        }
-
-        out.print("<div class=\"usdChannel\">"+content+"</div>");
-
-%>
-
+<p>Username: ${username}<br/>pageUri: ${pageUri}</p>
+<div class=\"usdChannel\">${content}</div>
