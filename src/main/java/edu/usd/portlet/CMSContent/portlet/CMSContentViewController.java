@@ -70,7 +70,7 @@ public class CMSContentViewController {
 	public ModelAndView viewContent(RenderRequest request, RenderResponse response) {
 		final Map<String, Object> refData = new HashMap<String, Object>();
 
-		CMSDataDao dbo = new CommonSpotDaoImpl();
+//		CMSDataDao dbo = new CommonSpotDaoImpl();
 		String content = dbo.getContent(request);
 
 		refData.put("content",content);
