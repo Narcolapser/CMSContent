@@ -27,12 +27,7 @@ import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.ResultSet;
-import java.sql.Savepoint;
-import java.sql.PreparedStatement;
-import javax.sql.DataSource;
+import java.sql.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,6 +42,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 //import edu.usd.portlet.cmscontent.dao.UsdSql;
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.CMSDataDao;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+
 
 /**
  * This class handles retrieves information and displays the view page.
@@ -70,11 +69,39 @@ public class CMSContentViewController {
 	public ModelAndView viewContent(RenderRequest request, RenderResponse response) {
 		final Map<String, Object> refData = new HashMap<String, Object>();
 
-//		CMSDataDao dbo = new CommonSpotDaoImpl();
 		String content = dbo.getContent(request);
 
 		refData.put("content",content);
 
+
+//		(Connection)((DataSource)((Context)new InitialContext().lookup("java:/comp/env")).lookup("jdbc/uPortalUSD")).getConnection();
+
+//		try{
+//			Context val = (Context)new InitialContext().lookup("java:/comp/env");
+//			refData.put("context",val.getNameInNamespace());
+//		}catch(Exception e){
+//			refData.put("context","it broked!: " + e.getMessage());
+//		}
+
+
 		return new ModelAndView("view",refData);
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
