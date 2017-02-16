@@ -18,9 +18,7 @@
  */
 package edu.usd.portlet.cmscontent.portlet;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
+import java.util.*;
 
 import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
@@ -38,7 +36,9 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.portlet.ModelAndView;
+import org.springframework.beans.factory.annotation.Autowired;
 
+//import edu.usd.portlet.cmscontent.dao.UsdSql;
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.CMSDataDao;
 import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
@@ -54,11 +54,13 @@ import javax.naming.InitialContext;
  * @version $Id$
  */
 @Controller
-@RequestMapping("VIEW")
-public class CMSContentViewController {
+@RequestMapping("CONFIG")
+public class CMSContentConfigController
+{
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	private CMSDataDao dbo = null; // Spring managed
+
 	@Autowired
 	public void setdbo(CMSDataDao dbo) {
 		this.dbo = dbo;
@@ -66,13 +68,27 @@ public class CMSContentViewController {
 
 	@RequestMapping
 	public ModelAndView viewContent(RenderRequest request, RenderResponse response) {
-		//Create the model object that will be passed.
 		final Map<String, Object> refData = new HashMap<String, Object>();
-		//Get the page content. 
-		String content = dbo.getContent(request);
-		//Save the content into the model for the .jsp to display.
-		refData.put("content",content);
-		//send to "view".jsp the object refData.
-		return new ModelAndView("view",refData);
+		final PortletPreferences preferences = request.getPreferences();
+
+		ArrayList<CMSPageInfo> pages = dbo.getAvailablePages();
+
+		refData.put("availablePages",pages);
+
+		String[] pageUris = preferences.getValues("pageUri",null);
+		refData.put("pageUris",pageUris);
+
+//		Enumeration<String> props = request.getPropertyNames();
+//		Enumeration<String> props = preferences.getNames();
+		Enumeration<String> props = request.getParameterNames();
+		ArrayList<String> propnames = new ArrayList<String>();
+		while (props.hasMoreElements())
+		{
+			propnames.add(props.nextElement());
+		}
+//		String[] a = ;
+		refData.put("propNames",propnames.toArray());
+
+		return new ModelAndView("config",refData);
 	}
 }

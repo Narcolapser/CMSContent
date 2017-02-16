@@ -15,6 +15,15 @@ import javax.sql.DataSource;
 
 import edu.usd.portlet.cmscontent.dao.UsdSql;
 
+/**
+ * This is an implementation of the CMSDataDao. It is responsible for pulling in
+ * data from our old CMS, CommonSpot. It is realatively straight forward as all
+ * the heavy lifting is done in the database. 
+ * 
+ * @author Toben Archer
+ * @version $Id$
+ */
+
 public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 {
 
@@ -43,11 +52,6 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 				{
 						content += (String) resultSet.getString("cachedContent");
 				}
-//				content = content.replace("&lt;","<");
-//				content = content.replace("&gt;",">");
-//				content = content.replace("&quot;","\"");
-//				content = content.replace("&amp;nbsp;","\n");
-//				content = content.replace("&amp;#39;","'");
 		}
 		catch(Exception e)
 		{
@@ -63,9 +67,9 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 		return content;
 	}
 
-	public Collection<String> getAvailablePages()
+	public ArrayList<CMSPageInfo> getAvailablePages()
 	{
-		return new ArrayList<String>();
+		return new ArrayList<CMSPageInfo>();
 	}
 
 	public Collection<String> getAvailableGroups()

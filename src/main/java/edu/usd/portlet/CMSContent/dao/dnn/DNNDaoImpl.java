@@ -9,6 +9,7 @@ import java.util.*;
 import java.sql.*;
 
 import edu.usd.portlet.cmscontent.dao.UsdSql;
+import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
 
 public class DNNDaoImpl implements CMSDataDao, DisposableBean
 {
@@ -27,9 +28,8 @@ public class DNNDaoImpl implements CMSDataDao, DisposableBean
 
 		try
 		{
-//				connection = UsdSql.getPoolConnection();
-				connection = DriverManager.getConnection("jdbc:sqlserver://***REMOVED***USD","uPortal","password yo");
-				selectStatement = connection.prepareStatement("exec dbo.selectEvoqContent ?");
+				connection = UsdSql.getPoolConnection();
+				selectStatement = connection.prepareStatement("exec dbo.selectDNNContent ?");
 				selectStatement.setString(1, pageUri);
 
 				resultSet = selectStatement.executeQuery();
@@ -57,9 +57,42 @@ public class DNNDaoImpl implements CMSDataDao, DisposableBean
 		return content;
 	}
 
-	public Collection<String> getAvailablePages()
+	public ArrayList<CMSPageInfo> getAvailablePages()
 	{
-		return new ArrayList<String>();
+		ArrayList<CMSPageInfo> pages = new ArrayList<CMSPageInfo>();
+
+		Connection connection = null;
+		PreparedStatement selectStatement = null;
+		ResultSet resultSet = null;
+
+		try
+		{
+			connection = UsdSql.getPoolConnection();
+			selectStatement = connection.prepareStatement("exec dbo.selectDNNAvailablePages");
+
+			resultSet = selectStatement.executeQuery();
+			String title;
+			String path;
+			while(resultSet.next())
+			{
+				title = (String)(resultSet.getString("Title"));
+				path  = (String)(resultSet.getString("PagePath"));
+				CMSPageInfo pageInfo = new CMSPageInfo(title,path);
+				pages.add(pageInfo);
+			}
+		}
+		catch(Exception e)
+		{
+			
+		}
+		finally
+		{
+			UsdSql.closeResultSet(resultSet);
+			UsdSql.closePreparedStatement(selectStatement);
+			UsdSql.closePoolConnection(connection);
+		}
+
+		return pages;
 	}
 
 	public Collection<String> getAvailableGroups()
