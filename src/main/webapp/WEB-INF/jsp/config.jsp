@@ -9,18 +9,21 @@
 <!--		<p>Path: ${page.path}</p>-->
 <!--	</c:forEach>-->
 
-<!--	<p>prop names: ${propNames}</p>-->
-<!--	<c:forEach var="prop" items="${propNames}">-->
-<!--		<p>prop: ${prop}</p>-->
-<!--	</c:forEach>-->
+<!--	<p>page uris:</p>-->
+<!--	<p>${pageUris[0]}</p>-->
 
-<!--	<p>val: ${username}</p>-->
+	<c:forEach var="pageUri" items="${pageUris}">
+		<div class="pageUri" style="display:block">
+			<h3>Page: ${pageUri}</h3>
+		</div>
+	</c:forEach>
 
-<!--	<p>Group name:</p>-->
-<!--	<p>${content}</p>-->
+	<portlet:actionURL var="addPage">
+		<portlet:param name="action" value="add"/>
+	</portlet:actionURL>
 
-	
-	<p>page uris:</p>
-	<p>${pageUris[0]}</p>
+	<button type="button" onclick="${addPage}" class="portlet-form-button">Change it.</button>
+	<portlet:renderURL var="formDoneAction" portletMode="VIEW" windowState="NORMAL"/>
+	<button type="button" onclick="window.location='${formDoneAction}'" class="portlet-form-button">Done</button>
 
 </div>
