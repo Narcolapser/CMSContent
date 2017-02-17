@@ -80,15 +80,24 @@ public class CMSContentConfigController
 
 //		Enumeration<String> props = request.getPropertyNames();
 //		Enumeration<String> props = preferences.getNames();
-		Enumeration<String> props = request.getParameterNames();
-		ArrayList<String> propnames = new ArrayList<String>();
-		while (props.hasMoreElements())
-		{
-			propnames.add(props.nextElement());
-		}
-//		String[] a = ;
-		refData.put("propNames",propnames.toArray());
+//		Enumeration<String> props = request.getParameterNames();
+//		Enumeration<String> props = request.getAttributeNames();
+//		ArrayList<String> propnames = new ArrayList<String>();
+//		String val;
+//		while (props.hasMoreElements())
+//		{
+//			val = props.nextElement();
+//			propnames.add(val);
+//			propnames.add(request.getProperty(val));
+//		}
+
+//		Map userInfo = (Map)request.getAttribute(PortletRequest.USER_INFO);
+//		String username = (String)userInfo.get("username");
+
+//		refData.put("propNames",propnames);
+//		refData.put("username",username);
 
 		return new ModelAndView("config",refData);
 	}
 }
+
