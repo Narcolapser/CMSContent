@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.portlet.ModelAndView;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,15 +86,71 @@ public class CMSContentConfigController
 	}
 
 	@RequestMapping(params = {"action=add"})
-	public void addPage(ActionRequest request, ActionResponse response) throws Exception 
+	public void addPage(ActionRequest request, ActionResponse response
+	) throws Exception 
 	{
+		//get the portlets preferences.
 		PortletPreferences prefs = request.getPreferences();
-		
-//		String[] pageUriArray = preferences.getValues("pageUri",null);
-//		ArrayList<String> pageUris = new ArrayList<String>(pageUriArray);
-		logger.error("Not actually an error, just saying that I'm now going to set the value.");
-		prefs.setValue("pageUri","did it work");
+
+		//get the current list of channel paths.
+		String[] pageUriArray = prefs.getValues("pageUri",null);
+		//convert to an array list.
+		ArrayList<String> pageUris = new ArrayList<String>(Arrays.asList(pageUriArray));
+		//add an item to that list.
+		pageUris.add("");
+
+		//convert back and save it as the new list of channels.
+		prefs.setValues("pageUri",pageUris.toArray(pageUriArray));
+		//Save.
 		prefs.store();
-		logger.error("Done setting value. should be in there now.");
+	}
+
+	@RequestMapping(params = {"action=update"})
+	public void updatePage(ActionRequest request, ActionResponse response,
+		@RequestParam(value = "channel", required = false) String channel,
+		@RequestParam(value = "index", required = false) String index_str
+	) throws Exception 
+	{
+		logger.info("attempting to set page uri #" + index_str + " to: " + channel);
+		//get the portlets preferences.
+		PortletPreferences prefs = request.getPreferences();
+
+		//get the current list of channel paths.
+		String[] pageUriArray = prefs.getValues("pageUri",null);
+		//convert to an array list.
+		ArrayList<String> pageUris = new ArrayList<String>(Arrays.asList(pageUriArray));
+
+		int path_index = Integer.parseInt(index_str);
+		//beware the off by 1 errors!
+		pageUris.set(path_index - 1,channel);
+		
+		prefs.setValues("pageUri",pageUris.toArray(pageUriArray));
+		prefs.store();
+		
+		logger.error("Done setting value.");
+	}
+
+		@RequestMapping(params = {"action=remove"})
+	public void updatePage(ActionRequest request, ActionResponse response,
+		@RequestParam(value = "index", required = false) String index_str
+	) throws Exception 
+	{
+		logger.info("attempting to remove page uri #" + index_str);
+		//get the portlets preferences.
+		PortletPreferences prefs = request.getPreferences();
+
+		//get the current list of channel paths.
+		String[] pageUriArray = prefs.getValues("pageUri",null);
+		//convert to an array list.
+		ArrayList<String> pageUris = new ArrayList<String>(Arrays.asList(pageUriArray));
+
+		int path_index = Integer.parseInt(index_str);
+		//beware the off by 1 errors!
+		pageUris.remove(path_index - 1);
+		
+		prefs.setValues("pageUri",pageUris.toArray(pageUriArray));
+		prefs.store();
+		
+		logger.error("Done removing page.");
 	}
 }
