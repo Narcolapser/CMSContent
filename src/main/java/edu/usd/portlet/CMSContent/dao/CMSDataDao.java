@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletPreferences;
 import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
+import edu.usd.portlet.cmscontent.dao.CMSPageContent;
 
 /**
  * This is the interface definition for external CMS content. Any CMS content
@@ -19,7 +20,7 @@ import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
 public interface CMSDataDao
 {
 
-	public ArrayList<String> getContent(PortletRequest request);
+	public ArrayList<CMSPageContent> getContent(PortletRequest request);
 	// This method's purpose is to take the portlet page request and return the
 	// HTML code that is to be displayed. If security is managed internally you
 	// must handle the security in this method. After you return the string for

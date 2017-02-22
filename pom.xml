@@ -13,7 +13,7 @@
     <packaging>war</packaging>
     
     <name>CMS Content</name>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <description>USD's portlet for displaying external CMS content.</description>
     <url>https://bitbucket.org/usd/cms-content/</url>
 
@@ -396,6 +396,7 @@
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
             <scope>runtime</scope>
+
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>

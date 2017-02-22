@@ -14,11 +14,12 @@ import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
 public class DNNDaoImpl implements CMSDataDao, DisposableBean
 {
 
-	public ArrayList<String> getContent(PortletRequest request)
+	public ArrayList<CMSPageContent> getContent(PortletRequest request)
 	{
 		final PortletPreferences preferences = request.getPreferences();
-		String content = "";
-		ArrayList<String> ret = new ArrayList<String>();
+		String content = "", title = "";
+		CMSPageContent page;
+		ArrayList<CMSPageContent> ret = new ArrayList<CMSPageContent>();
 
 		Connection connection = null;
 		PreparedStatement selectStatement = null;
@@ -42,14 +43,17 @@ public class DNNDaoImpl implements CMSDataDao, DisposableBean
 				content = content.replace("&quot;","\"");
 				content = content.replace("&amp;nbsp;","\n");
 				content = content.replace("&amp;#39;","'");
-				ret.add(content);
+				title = (String) resultSet.getString("title");
+				page = new CMSPageContent(content,title);
+				ret.add(page);
+				title = "";
 				content = "";
 			}
 			
 		}
 		catch(Exception e)
 		{
-			content = "There was a problem retrieving the requested content. " + e.getMessage();
+//			content = "There was a problem retrieving the requested content. " + e.getMessage();
 		}
 		finally
 		{

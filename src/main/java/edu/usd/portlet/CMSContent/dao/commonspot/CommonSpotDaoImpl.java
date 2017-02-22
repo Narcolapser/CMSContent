@@ -30,7 +30,7 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	public ArrayList<String> getContent(PortletRequest request)
+	public ArrayList<CMSPageContent> getContent(PortletRequest request)
 	{
 		final PortletPreferences preferences = request.getPreferences();
 		PreparedStatement selectStatement = null;
@@ -40,8 +40,9 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 		Connection connection = null;
 
 		String pageUri = preferences.getValue("pageUri","");
-		String content = "";
-		ArrayList<String> ret = new ArrayList<String>();
+		String content = "", title = "";
+		CMSPageContent page;
+		ArrayList<CMSPageContent> ret = new ArrayList<CMSPageContent>();
 
 		Map userInfo = (Map)request.getAttribute(PortletRequest.USER_INFO);
 		String username = (String)userInfo.get("username");
@@ -66,6 +67,7 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 				String delimiter = ";";
 				sectionData = ((String) resultSet.getString("cachedContent")).split(delimiter);
 				url = sectionData[2];
+				title = sectionData[0];
 
 				logger.info("First URL:" + url);
 
@@ -83,12 +85,14 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 					sectionContent = "No Content Available";
 				}
 
-				ret.add(sectionContent);
+				page = new CMSPageContent(sectionContent,title);
+				ret.add(page);
 
 				while(resultSet.next())
 				{
 					sectionData = ((String) resultSet.getString("cachedContent")).split(delimiter);
 					url = sectionData[2];
+					title = sectionData[0];
 					selectStatement2 = connection.prepareStatement("exec dbo.selectChannelContentForUser ?, ?");
 					selectStatement2.setString(1, username);
 					selectStatement2.setString(2, url);
@@ -98,18 +102,20 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 					}else{
 						sectionContent = "No Content Available";
 					}
-					ret.add(sectionContent);
+					page = new CMSPageContent(sectionContent,title);
+					ret.add(page);
 				}
 			}
 			else
 			{
 				logger.info("Single page. printing content");
-				ret.add(content);
+				page = new CMSPageContent(content,title);
+				ret.add(page);
 			}
 		}
 		catch(Exception e)
 		{
-			ret.add("There was a problem retrieving the requested content: " + e.getMessage());
+//			ret.add("There was a problem retrieving the requested content: " + e.getMessage());
 		}
 		finally
 		{

@@ -56,27 +56,30 @@
 
 <c:choose>
 	<c:when  test="${displayType == 'single'}">
-		<div class="usdChannel">${content[0]}</div>
+		<div class="usdChannel">${content[0].content}</div>
 	</c:when>
 	<c:when test="${displayType == 'collapsing'}">
-		<div id="head_links">
-			<div>
-				<a href="javascript: expandingCms_expandAll('${channelId}');">Expand all</a>
-				<a href="javascript: expandingCms_collapseAll('${channelId}');">Collapse all</a>
+		<div id="wrapper_${channelId}">
+			<div id="head_links">
+				<div>
+					<a href="javascript: expandingCms_expandAll('${channelId}');">Expand all</a> |
+					<a href="javascript: expandingCms_collapseAll('${channelId}');">Collapse all</a>
+				</div>
 			</div>
+			<c:set var="counter" value="${0}"/>
+			<c:forEach var="page" items="${content}">
+				<div class="section">
+					<div class="section_title section_collapsed" id="${channelId}_${counter}_title" 
+						onClick="expandingCms_toggleSection('${channelId}_${counter}','${channelId}');">
+						${page.title}
+					</div>
+					<div class="section_body" id="${channelId}_${counter}_body" style="display: none;">
+						${page.content}
+					</div>
+				</div>
+				<c:set var="counter" value="${counter + 1}"/>
+			</c:forEach>
 		</div>
-		<c:set var="counter" value="${0}"/>
-		<c:forEach var="page" items="${content}">
-			<div class="section">
-				<div class="section_title section_collapsed" id="${channelId}_${counter}_title" onClick="expandingCms_toggleSection('${sectionId}','${channelId}');">
-					${page}
-				</div>
-				<div class="section_body" id="${channelId}_${counter}_body" style="display: none;">
-					${page}
-				</div>
-			</div>
-			<c:set var="counter" value="${counter + 1}"/>
-		</c:forEach>
 	</c:when>
 	<c:otherwise>
 		<p>${displayType}</p>

@@ -44,6 +44,7 @@ import org.springframework.web.portlet.ModelAndView;
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.CMSDataDao;
 import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
+import edu.usd.portlet.cmscontent.dao.CMSPageContent;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -73,7 +74,7 @@ public class CMSContentViewController {
 		//Create the model object that will be passed.
 		final Map<String, Object> refData = new HashMap<String, Object>();
 		//Get the page content.
-		ArrayList<String> content = dbo.getContent(request);
+		ArrayList<CMSPageContent> content = dbo.getContent(request);
 		//Save the content into the model for the .jsp to display.
 		refData.put("content",content);
 
