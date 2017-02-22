@@ -49,15 +49,20 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 
 		try
 		{
-			logger.info("Preparing to get information");
+			logger.info("Preparing to get information for user: " + username + " requesting page: " + pageUri);
 			connection = UsdSql.getPoolConnection();
+			logger.info("Check 1");
 			selectStatement = connection.prepareStatement("exec dbo.selectChannelContentForUser ?, ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			selectStatement.setString(1, username);
+			logger.info("Check 2");
 			selectStatement.setString(2, pageUri);
+			logger.info("Check 3");
 
 			resultSet = selectStatement.executeQuery();
+			logger.info("Check 4");
 			resultSet.next();
-			content += (String) resultSet.getString("cachedContent");
+			logger.info("Check 5");
+			content = (String) resultSet.getString("cachedContent");
 			logger.info("Information returned in first query: " + content.substring(10));
 			if (!resultSet.isLast())
 			{
@@ -79,6 +84,7 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 				if(resultSet2.next())
 				{
 					sectionContent = resultSet2.getString("cachedContent");
+					title = resultSet2.getString("Title");
 				}
 				else
 				{
@@ -99,6 +105,7 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 					resultSet2 = selectStatement2.executeQuery();
 					if(resultSet2.next()){
 						sectionContent = resultSet2.getString("cachedContent");
+						title = resultSet2.getString("Title");
 					}else{
 						sectionContent = "No Content Available";
 					}
@@ -109,13 +116,16 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 			else
 			{
 				logger.info("Single page. printing content");
+				title = resultSet2.getString("Title");
 				page = new CMSPageContent(content,title);
 				ret.add(page);
 			}
 		}
 		catch(Exception e)
 		{
-//			ret.add("There was a problem retrieving the requested content: " + e.getMessage());
+			logger.info("Error fetching content: " + e.getMessage());
+			page = new CMSPageContent("There was a problem retrieving the requested content: " + e.getMessage(),"error");
+			ret.add(page);
 		}
 		finally
 		{
@@ -139,7 +149,7 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 		try
 		{
 			connection = UsdSql.getPoolConnection();
-			selectStatement = connection.prepareStatement("SELECT [url] as Title, [url] as PagePath FROM [uPortalUSD].[dbo].[channelCache]");
+			selectStatement = connection.prepareStatement("SELECT Title, url as PagePath FROM [commonspot-site-portal].synSitePages as csp JOIN [uPortalUSD].[search].[vwCmsChannelContentUrls] as ccu on ccu.pageId = csp.ID");
 
 			resultSet = selectStatement.executeQuery();
 			String title;
