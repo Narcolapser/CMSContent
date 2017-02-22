@@ -39,6 +39,12 @@ function removePage(path,index)
 	var params = "&index=" + index;
 	callURL(val+params);
 }
+function updateDisplay(path)
+{
+	var val = "https://localhost.usd.edu" + path;
+	var params = "&disp_type=" + document.getElementById("disp_type").value;
+	callURL(val+params);
+}
 </script>
 <div class=\"usdChannel\">
 	<portlet:actionURL name="addPage" var="addPage">
@@ -53,6 +59,18 @@ function removePage(path,index)
 		<portlet:param name="action" value="remove"/>
 	</portlet:actionURL>
 
+	<portlet:actionURL name="updateDisplay" var="updateDisplay">
+		<portlet:param name="action" value="updateDisplay"/>
+	</portlet:actionURL>
+
+	<select id="disp_type">
+		<option value="single">Single Page<option>
+		<option value="collapsing">Collapsing<option>
+		<option value="tabbed">Tabbed<option>
+	</select>
+	<br/>
+	<button type="button" onclick="updateDisplay('${updateDisplay}');" class="portlet-form-button">Update Display</button>
+
 	<c:set var="counter" value="${0}"/>
 	<c:forEach var="pageUri" items="${pageUris}">
 		<div class="pageUri" style="display:block">
@@ -65,7 +83,7 @@ function removePage(path,index)
 			</select>
 			</br>
 			<button type="button" onclick="updatePage('${updatePage}','${counter}');" class="portlet-form-button">Update page</button>
-			<button type="button" onclick="updatePage('${removePage}','${counter}');" class="portlet-form-button">Remove page</button>
+			<button type="button" onclick="removePage('${removePage}','${counter}');" class="portlet-form-button">Remove page</button>
 		</div>
 	</c:forEach>
 

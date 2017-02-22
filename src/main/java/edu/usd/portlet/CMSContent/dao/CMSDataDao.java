@@ -19,7 +19,7 @@ import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
 public interface CMSDataDao
 {
 
-	public String getContent(PortletRequest request);
+	public ArrayList<String> getContent(PortletRequest request);
 	// This method's purpose is to take the portlet page request and return the
 	// HTML code that is to be displayed. If security is managed internally you
 	// must handle the security in this method. After you return the string for

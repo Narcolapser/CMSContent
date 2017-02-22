@@ -14,10 +14,11 @@ import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
 public class DNNDaoImpl implements CMSDataDao, DisposableBean
 {
 
-	public String getContent(PortletRequest request)
+	public ArrayList<String> getContent(PortletRequest request)
 	{
 		final PortletPreferences preferences = request.getPreferences();
 		String content = "";
+		ArrayList<String> ret = new ArrayList<String>();
 
 		Connection connection = null;
 		PreparedStatement selectStatement = null;
@@ -28,33 +29,35 @@ public class DNNDaoImpl implements CMSDataDao, DisposableBean
 
 		try
 		{
-				connection = UsdSql.getPoolConnection();
-				selectStatement = connection.prepareStatement("exec dbo.selectDNNContent ?");
-				selectStatement.setString(1, pageUri);
+			connection = UsdSql.getPoolConnection();
+			selectStatement = connection.prepareStatement("exec dbo.selectDNNContent ?");
+			selectStatement.setString(1, pageUri);
 
-				resultSet = selectStatement.executeQuery();
-				while(resultSet.next())
-				{
-						content += (String) resultSet.getString("content");
-				}
+			resultSet = selectStatement.executeQuery();
+			while(resultSet.next())
+			{
+				content += (String) resultSet.getString("content");
 				content = content.replace("&lt;","<");
 				content = content.replace("&gt;",">");
 				content = content.replace("&quot;","\"");
 				content = content.replace("&amp;nbsp;","\n");
 				content = content.replace("&amp;#39;","'");
+				ret.add(content);
+				content = "";
+			}
+			
 		}
 		catch(Exception e)
 		{
-				content = "There was a problem retrieving the requested content. " + e.getMessage();
+			content = "There was a problem retrieving the requested content. " + e.getMessage();
 		}
 		finally
 		{
-				UsdSql.closeResultSet(resultSet);
-				UsdSql.closePreparedStatement(selectStatement);
-				UsdSql.closePoolConnection(connection);
+			UsdSql.closeResultSet(resultSet);
+			UsdSql.closePreparedStatement(selectStatement);
+			UsdSql.closePoolConnection(connection);
 		}
-
-		return content;
+		return ret;
 	}
 
 	public ArrayList<CMSPageInfo> getAvailablePages()

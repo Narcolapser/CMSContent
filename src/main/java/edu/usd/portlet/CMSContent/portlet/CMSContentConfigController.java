@@ -130,7 +130,7 @@ public class CMSContentConfigController
 		logger.error("Done setting value.");
 	}
 
-		@RequestMapping(params = {"action=remove"})
+	@RequestMapping(params = {"action=remove"})
 	public void updatePage(ActionRequest request, ActionResponse response,
 		@RequestParam(value = "index", required = false) String index_str
 	) throws Exception 
@@ -152,5 +152,20 @@ public class CMSContentConfigController
 		prefs.store();
 		
 		logger.error("Done removing page.");
+	}
+
+	@RequestMapping(params = {"action=updateDisplay"})
+	public void updateDisplay(ActionRequest request, ActionResponse response,
+		@RequestParam(value = "disp_type", required = false) String disp_type
+	) throws Exception 
+	{
+		logger.info("attempting to update diplay type to: " + disp_type);
+		//get the portlets preferences.
+		PortletPreferences prefs = request.getPreferences();
+
+		prefs.setValue("displayType",disp_type);
+		prefs.store();
+
+		logger.error("Done updating display type.");
 	}
 }

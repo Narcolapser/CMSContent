@@ -21,6 +21,8 @@ package edu.usd.portlet.cmscontent.portlet;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Random;
 
 import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
@@ -65,13 +67,29 @@ public class CMSContentViewController {
 	}
 
 	@RequestMapping
-	public ModelAndView viewContent(RenderRequest request, RenderResponse response) {
+	public ModelAndView viewContent(RenderRequest request, RenderResponse response)
+	{
+		final PortletPreferences preferences = request.getPreferences();
 		//Create the model object that will be passed.
 		final Map<String, Object> refData = new HashMap<String, Object>();
-		//Get the page content. 
-		String content = dbo.getContent(request);
+		//Get the page content.
+		ArrayList<String> content = dbo.getContent(request);
 		//Save the content into the model for the .jsp to display.
 		refData.put("content",content);
+
+		//get display type. e.g. single, collapsing, tabbed.
+		String displayType = preferences.getValue("displayType","single");
+		refData.put("displayType",displayType);
+
+		//Get channel ID:
+		Random randomGenerator = new Random();
+		String channelId = "cmsContentExpanding"+String.valueOf(Math.abs(randomGenerator.nextInt()))+new Date().getTime();
+		refData.put("channelId",channelId);
+
+		//Get portlet path:
+		String portletPath = request.getContextPath();
+		refData.put("portletPath",portletPath);
+
 		//send to "view".jsp the object refData.
 		return new ModelAndView("view",refData);
 	}
