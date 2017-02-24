@@ -80,6 +80,8 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 				for(String uri:pageUriArray)
 				{
 					logger.info("fetching uri: " + uri);
+					if (uri == null || uri.equals("blank"))
+						continue;
 					selectStatement = connection.prepareStatement("exec dbo.selectChannelContentForUser ?, ?");
 					selectStatement.setString(1, username);
 					selectStatement.setString(2, uri);
@@ -88,10 +90,11 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 					while (resultSet.next())
 					{
 						content += (String) resultSet.getString("cachedContent");
+						title = resultSet.getString("Title");
 					}
+					page = new CMSPageContent(content,title);
+					ret.add(page);
 				}
-				page = new CMSPageContent(content,title);
-				ret.add(page);
 			}
 		}
 		catch(Exception e)
