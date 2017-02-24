@@ -1,94 +1,65 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
-<script type="text/javascript">
-function callURL(val)
-{
-	var xmlHttp = new XMLHttpRequest();
-	xmlHttp.onreadystatechange = function()
-	{
-		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-			callback(xmlHttp.responseText);
-	}
-	xmlHttp.open("GET",val, true); // true for asynchronous 
-	xmlHttp.send(null);
-}
-function addPage(path)
-{
-	var val = "https://localhost.usd.edu" + path;
-	callURL(val)
-
-}
-function updatePage(path,index)
-{
-	var val = "https://localhost.usd.edu" + path;
-	var params = "&index=" + index;
-	var x = document.getElementsByName("pageUris");
-	var i;
-
-	for(i = 0; i < x.length ; i++)
-	{
-		if (x[i].id == index)
-		{
-			params += "&channel="+x[i].value;
-		}
-	}
-	callURL(val+params);
-}
-function removePage(path,index)
-{
-	var val = "https://localhost.usd.edu" + path;
-	var params = "&index=" + index;
-	callURL(val+params);
-}
-function updateDisplay(path)
-{
-	var val = "https://localhost.usd.edu" + path;
-	var params = "&disp_type=" + document.getElementById("disp_type").value;
-	callURL(val+params);
-}
-</script>
 <div class=\"usdChannel\">
-	<portlet:actionURL name="addPage" var="addPage">
-		<portlet:param name="action" value="add"/>
-	</portlet:actionURL>
-
-	<portlet:actionURL name="updatePage" var="updatePage">
-		<portlet:param name="action" value="update"/>
-	</portlet:actionURL>
-
-	<portlet:actionURL name="removePage" var="removePage">
-		<portlet:param name="action" value="remove"/>
-	</portlet:actionURL>
-
 	<portlet:actionURL name="updateDisplay" var="updateDisplay">
 		<portlet:param name="action" value="updateDisplay"/>
 	</portlet:actionURL>
 
-	<select id="disp_type">
-		<option value="single">Single Page<option>
-		<option value="collapsing">Collapsing<option>
-		<option value="tabbed">Tabbed<option>
-	</select>
-	<br/>
-	<button type="button" onclick="updateDisplay('${updateDisplay}');" class="portlet-form-button">Update Display</button>
+	<h2>Portlet display type:</h2></br>
+	<form id="disp_type_form" action="${updateDisplay}">
+		<select id="disp_type" name="disp_type">
+			<c:forEach var="disp" items="${displayTypes}">
+				<c:choose>
+					<c:when test="${disp == displayType}">
+						<option value="${disp}" selected="selected">${disp}<option>
+					</c:when>
+					<c:otherwise>
+						<option value="${disp}">${disp}<option>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</select>
+		<input type="submit" name="action" class="btn btn-default" value="updateDisplay"/>
+	</form>
 
+	<h2>Pages</h2>
 	<c:set var="counter" value="${0}"/>
 	<c:forEach var="pageUri" items="${pageUris}">
 		<div class="pageUri" style="display:block">
 			<h3>Page: ${pageUri}</h3>
 			<c:set var="counter" value="${counter + 1}"/>
-			<select id="${counter}" name="pageUris">
-				<c:forEach var="page" items="${availablePages}">
-					<option value="${page.path}">Title: ${page.title}, Full Path: ${page.path}</option>
-				</c:forEach>
-			</select>
-			</br>
-			<button type="button" onclick="updatePage('${updatePage}','${counter}');" class="portlet-form-button">Update page</button>
-			<button type="button" onclick="removePage('${removePage}','${counter}');" class="portlet-form-button">Remove page</button>
+
+			<portlet:actionURL name="updatePage" var="updatePage"/>
+			<form id="page_uri_form_${counter}" action="${updatePage}">
+				<select id="${counter}" name="channel">
+					<c:forEach var="page" items="${availablePages}">
+						<c:choose>
+							<c:when test="${page.path == pageUri}">
+								<option value="${page.path}" selected="selected">Title: ${page.title}, Full Path: ${page.path}</option>
+							</c:when>
+							<c:otherwise>
+								<option value="${page.path}">Title: ${page.title}, Full Path: ${page.path}</option>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
+				</select>
+				</br>
+				<input type="hidden" name="index" value="${counter}"/>
+				<input type="submit" name="action" value="update" class="btn btn-default"/>
+				<portlet:actionURL name="removePage" var="removePage">
+					<portlet:param name="action" value="remove"/>
+					<portlet:param name="index" value="${counter}"/>
+				</portlet:actionURL>
+				<a type="button" href="${removePage}" class="btn btn-default">Remove page</a>
+			</form>
 		</div>
 	</c:forEach>
 
-	<button type="button" onclick="addPage('${addPage}');" class="portlet-form-button">Add page</button>
-	<portlet:renderURL var="formDoneAction" portletMode="VIEW" windowState="NORMAL"/>
-	<button type="button" onclick="window.location='${formDoneAction}'" class="portlet-form-button">Done</button>
+	<portlet:actionURL name="addPage" var="addPage">
+		<portlet:param name="action" value="add"/>
+	</portlet:actionURL>
+	<a type="button" href="${addPage}" class="btn btn-default">Add page</a>
 
+	</br></br>
+	<portlet:renderURL var="formDoneAction" portletMode="VIEW" windowState="NORMAL"/>
+	<a type="button" href="${formDoneAction}" class="btn btn-default">Done</a>
 </div>

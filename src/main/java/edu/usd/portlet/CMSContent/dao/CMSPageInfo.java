@@ -35,4 +35,10 @@ public class CMSPageInfo
 	{
 		this.path = val;
 	}
+	public String toString()
+	{
+		String ret = "Title: " + this.title;
+		ret += " Path: " + this.path;
+		return ret;
+	}
 }

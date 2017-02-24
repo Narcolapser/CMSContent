@@ -18,7 +18,11 @@
  */
 package edu.usd.portlet.cmscontent.portlet;
 
-import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Arrays;
 
 import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
@@ -29,7 +33,7 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 
 
-import java.sql.*;
+//import java.sql.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -80,7 +84,21 @@ public class CMSContentConfigController
 		refData.put("availablePages",pages);
 
 		String[] pageUris = preferences.getValues("pageUri",null);
-		refData.put("pageUris",pageUris);
+		ArrayList<String> cleanedUri = new ArrayList<String>();
+		for(String page: pageUris)
+		{
+			logger.info("The page: " + page);
+			if (page != null)
+				cleanedUri.add(page);
+		}
+		refData.put("pageUris",cleanedUri);
+
+		//get display type. e.g. single, collapsing, tabbed.
+		String displayType = preferences.getValue("displayType","single");
+		refData.put("displayType",displayType);
+
+		String[] displayTypes = {"Single","Collapsing","Tabbed"};
+		refData.put("displayTypes",displayTypes);
 
 		return new ModelAndView("config",refData);
 	}
@@ -89,6 +107,7 @@ public class CMSContentConfigController
 	public void addPage(ActionRequest request, ActionResponse response
 	) throws Exception 
 	{
+		logger.info("attempting to add a page");
 		//get the portlets preferences.
 		PortletPreferences prefs = request.getPreferences();
 
@@ -97,7 +116,7 @@ public class CMSContentConfigController
 		//convert to an array list.
 		ArrayList<String> pageUris = new ArrayList<String>(Arrays.asList(pageUriArray));
 		//add an item to that list.
-		pageUris.add("");
+		pageUris.add("blank");
 
 		//convert back and save it as the new list of channels.
 		prefs.setValues("pageUri",pageUris.toArray(pageUriArray));
@@ -142,12 +161,14 @@ public class CMSContentConfigController
 		//get the current list of channel paths.
 		String[] pageUriArray = prefs.getValues("pageUri",null);
 		//convert to an array list.
-		ArrayList<String> pageUris = new ArrayList<String>(Arrays.asList(pageUriArray));
+		LinkedList<String> pageUris = new LinkedList<String>(Arrays.asList(pageUriArray));
 
 		int path_index = Integer.parseInt(index_str);
 		//beware the off by 1 errors!
 		pageUris.remove(path_index - 1);
-		
+
+		prefs.reset("pageUri");
+		prefs.store();
 		prefs.setValues("pageUri",pageUris.toArray(pageUriArray));
 		prefs.store();
 		

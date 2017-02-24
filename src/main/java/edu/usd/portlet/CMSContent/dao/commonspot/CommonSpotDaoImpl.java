@@ -39,8 +39,10 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 		ResultSet resultSet2 = null;
 		Connection connection = null;
 
-		String pageUri = preferences.getValue("pageUri","");
-		String content = "", title = "";
+		PortletPreferences prefs = request.getPreferences();
+		String[] pageUriArray = prefs.getValues("pageUri",null);
+		String pageUri = pageUriArray[0];
+		String content = "", title = "", type = "normal";
 		CMSPageContent page;
 		ArrayList<CMSPageContent> ret = new ArrayList<CMSPageContent>();
 
@@ -49,81 +51,52 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 
 		try
 		{
-			logger.info("Preparing to get information for user: " + username + " requesting page: " + pageUri);
 			connection = UsdSql.getPoolConnection();
-			logger.info("Check 1");
-			selectStatement = connection.prepareStatement("exec dbo.selectChannelContentForUser ?, ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			logger.info("Preparing to get information for user: " + username + " requesting page: " + pageUri);
+			selectStatement = connection.prepareStatement("exec dbo.selectChannelContentForUser ?, ?");
 			selectStatement.setString(1, username);
-			logger.info("Check 2");
 			selectStatement.setString(2, pageUri);
-			logger.info("Check 3");
 
 			resultSet = selectStatement.executeQuery();
-			logger.info("Check 4");
 			resultSet.next();
-			logger.info("Check 5");
-			content = (String) resultSet.getString("cachedContent");
-			logger.info("Information returned in first query: " + content.substring(10));
-			if (!resultSet.isLast())
+
+			type = (String) resultSet.getString("contentType");
+			logger.debug("Got infomration from the query.");
+			if (!type.equals("normal"))
 			{
-				logger.info("Multi Page");
-				String[] sectionData;
-				String label, showOnLoad, url, sectionClass, bodyStyle, sectionId, sectionContent;
-				String delimiter = ";";
-				sectionData = ((String) resultSet.getString("cachedContent")).split(delimiter);
-				url = sectionData[2];
-				title = sectionData[0];
-
-				logger.info("First URL:" + url);
-
-				selectStatement2 = connection.prepareStatement("exec dbo.selectChannelContentForUser ?, ?");
-				selectStatement2.setString(1, username);
-				selectStatement2.setString(2, url);
-				logger.info("Next URL: " + url);
-				resultSet2 = selectStatement2.executeQuery();
-				if(resultSet2.next())
-				{
-					sectionContent = resultSet2.getString("cachedContent");
-					title = resultSet2.getString("Title");
-				}
-				else
-				{
-					sectionContent = "No Content Available";
-				}
-
-				page = new CMSPageContent(sectionContent,title);
+				logger.debug("Multi Page");
+				page = getSubPageContent(resultSet,connection,username);
 				ret.add(page);
-
 				while(resultSet.next())
 				{
-					sectionData = ((String) resultSet.getString("cachedContent")).split(delimiter);
-					url = sectionData[2];
-					title = sectionData[0];
-					selectStatement2 = connection.prepareStatement("exec dbo.selectChannelContentForUser ?, ?");
-					selectStatement2.setString(1, username);
-					selectStatement2.setString(2, url);
-					resultSet2 = selectStatement2.executeQuery();
-					if(resultSet2.next()){
-						sectionContent = resultSet2.getString("cachedContent");
-						title = resultSet2.getString("Title");
-					}else{
-						sectionContent = "No Content Available";
-					}
-					page = new CMSPageContent(sectionContent,title);
+					page = getSubPageContent(resultSet,connection,username);
 					ret.add(page);
 				}
 			}
 			else
 			{
-				logger.info("Single page. printing content");
-				title = resultSet2.getString("Title");
+				title = resultSet.getString("Title");
+				logger.debug("Single page. printing content");
+				for(String uri:pageUriArray)
+				{
+					logger.info("fetching uri: " + uri);
+					selectStatement = connection.prepareStatement("exec dbo.selectChannelContentForUser ?, ?");
+					selectStatement.setString(1, username);
+					selectStatement.setString(2, uri);
+
+					resultSet = selectStatement.executeQuery();
+					while (resultSet.next())
+					{
+						content += (String) resultSet.getString("cachedContent");
+					}
+				}
 				page = new CMSPageContent(content,title);
 				ret.add(page);
 			}
 		}
 		catch(Exception e)
 		{
-			logger.info("Error fetching content: " + e.getMessage());
+			logger.info(e);
 			page = new CMSPageContent("There was a problem retrieving the requested content: " + e.getMessage(),"error");
 			ret.add(page);
 		}
@@ -138,6 +111,29 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 		return ret;
 	}
 
+	private CMSPageContent getSubPageContent(ResultSet resultSet, Connection con, String username) throws SQLException
+	{
+		PreparedStatement selectStatement = null;
+		ResultSet resultSet2 = null;
+
+		String title, sectionContent, url;
+		String[] sectionData;
+		sectionData = ((String) resultSet.getString("cachedContent")).split(";");
+		title = sectionData[0];
+		url = sectionData[2];
+		selectStatement = con.prepareStatement("exec dbo.selectChannelContentForUser ?, ?");
+		selectStatement.setString(1, username);
+		selectStatement.setString(2, url);
+		resultSet2 = selectStatement.executeQuery();
+		if(resultSet2.next()){
+			sectionContent = resultSet2.getString("cachedContent");
+		}else{
+			sectionContent = "No Content Available";
+		}
+		CMSPageContent page = new CMSPageContent(sectionContent,title);
+		return page;
+	}
+
 	public ArrayList<CMSPageInfo> getAvailablePages()
 	{
 		ArrayList<CMSPageInfo> pages = new ArrayList<CMSPageInfo>();
@@ -149,7 +145,7 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 		try
 		{
 			connection = UsdSql.getPoolConnection();
-			selectStatement = connection.prepareStatement("SELECT Title, url as PagePath FROM [commonspot-site-portal].synSitePages as csp JOIN [uPortalUSD].[search].[vwCmsChannelContentUrls] as ccu on ccu.pageId = csp.ID");
+			selectStatement = connection.prepareStatement("SELECT [url] as PagePath,[Title] FROM [uPortalUSD].[dbo].[vwCommonSpotExtraInfo]");
 
 			resultSet = selectStatement.executeQuery();
 			String title;

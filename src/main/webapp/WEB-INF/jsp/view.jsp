@@ -55,10 +55,10 @@
 </script>
 
 <c:choose>
-	<c:when  test="${displayType == 'single'}">
+	<c:when  test="${displayType == 'Single'}">
 		<div class="usdChannel">${content[0].content}</div>
 	</c:when>
-	<c:when test="${displayType == 'collapsing'}">
+	<c:when test="${displayType == 'Collapsing'}">
 		<div id="wrapper_${channelId}">
 			<div id="head_links">
 				<div>
