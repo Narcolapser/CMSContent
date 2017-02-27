@@ -1,5 +1,7 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
-
+<script src=\"/ResourceServingWebapp/rs/jquery/1.10.2/jquery-1.10.2.min.js\" type=\"text/javascript\"></script>
+<script src=\"/ResourceServingWebapp/rs/jqueryui/1.10.3/jquery-ui-1.10.3.min.js\" type=\"text/javascript\"></script>
+<link rel=\"stylesheet\" href=\"/ResourceServingWebapp/rs/jqueryui/1.10.3/theme/smoothness/jquery-ui-1.10.3-smoothness.min.css\">
 <style type="text/css">
 	#wrapper_${channelId} #head_links{text-align:right; width:100%; border-bottom:solid 1px black;}
 	#wrapper_${channelId} .section:not(:first-child){margin-top:1em;}
@@ -52,6 +54,7 @@
 		expandingCms_hideEle("#wrapper_" + randId +" .section_body");
 		expandingCms_swapClasses("#wrapper_" + randId +" .section_title","section_expanded","section_collapsed");
 	}
+
 </script>
 
 <c:choose>
@@ -59,26 +62,44 @@
 		<div class="usdChannel">${content[0].content}</div>
 	</c:when>
 	<c:when test="${displayType == 'Collapsing'}">
-		<div id="wrapper_${channelId}">
-			<div id="head_links">
-				<div>
-					<a href="javascript: expandingCms_expandAll('${channelId}');">Expand all</a> |
-					<a href="javascript: expandingCms_collapseAll('${channelId}');">Collapse all</a>
+		<div class="usdChannel">
+			<div id="wrapper_${channelId}">
+				<div id="head_links">
+					<div>
+						<a href="javascript: expandingCms_expandAll('${channelId}');">Expand all</a> |
+						<a href="javascript: expandingCms_collapseAll('${channelId}');">Collapse all</a>
+					</div>
+				</div>
+				<c:set var="counter" value="${0}"/>
+				<c:forEach var="page" items="${content}">
+					<div class="section">
+						<div class="section_title section_collapsed" id="${channelId}_${counter}_title" 
+							onClick="expandingCms_toggleSection('${channelId}_${counter}','${channelId}');">
+							${page.title}
+						</div>
+						<div class="section_body" id="${channelId}_${counter}_body" style="display: none;">
+							${page.content}
+						</div>
+					</div>
+					<c:set var="counter" value="${counter + 1}"/>
+				</c:forEach>
+			</div>
+		</div>
+	</c:when>
+	<c:when test="${displayType == 'Tabbed'}">
+		<div class="usdChannel">
+			<div id="${channelId}" class="tabbed-channel-content">
+				<ul>
+					<c:set var="counter" value="${0}"/>
+					<c:forEach var="page" items="${content}">
+						<li><a href="#${channelId}-${counter}">${page.title}</a></li>
+						<c:set var="counter" value="${counter + 1}"/>
+					</c:forEach>
+				</ul>
+				<div id="#${channelId}-${counter}">
+					${page.content}
 				</div>
 			</div>
-			<c:set var="counter" value="${0}"/>
-			<c:forEach var="page" items="${content}">
-				<div class="section">
-					<div class="section_title section_collapsed" id="${channelId}_${counter}_title" 
-						onClick="expandingCms_toggleSection('${channelId}_${counter}','${channelId}');">
-						${page.title}
-					</div>
-					<div class="section_body" id="${channelId}_${counter}_body" style="display: none;">
-						${page.content}
-					</div>
-				</div>
-				<c:set var="counter" value="${counter + 1}"/>
-			</c:forEach>
 		</div>
 	</c:when>
 	<c:otherwise>
