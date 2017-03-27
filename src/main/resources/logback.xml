@@ -27,7 +27,7 @@
 <!--    http://www.qos.ch/shop/products/professionalSupport         -->
 <!--                                                                -->
 <configuration scan="true" scanPeriod="30 seconds">
-  <contextName>CMSPortlet</contextName>
+  <contextName>CMSContent</contextName>
 
   <!-- 
    | Propagate log levels to java.util.logging 
@@ -44,7 +44,8 @@
   <!-- 
    | Specify a local property that sets up the logging directory
    +-->
-  <property scope="local" name="LOG_DIR" value="${CMSPortlet.webapp.root}/../../logs" />
+  <property scope="local" name="LOG_DIR" value="${catalina.base}/logs" />
+  <!--<property scope="local" name="LOG_DIR" value="${CMSPortlet.webapp.root}/../../logs" />-->
 
   <!--
    | Setup a file based logger that rolls
