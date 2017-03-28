@@ -79,7 +79,7 @@ public class CMSContentViewController {
 		refData.put("content",content);
 
 		//get display type. e.g. single, collapsing, tabbed.
-		String displayType = preferences.getValue("displayType","single");
+		String displayType = preferences.getValue("displayType","Single");
 		refData.put("displayType",displayType);
 
 		//Get channel ID:
