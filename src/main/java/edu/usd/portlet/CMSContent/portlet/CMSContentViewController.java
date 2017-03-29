@@ -84,7 +84,7 @@ public class CMSContentViewController {
 
 		//Get channel ID:
 		Random randomGenerator = new Random();
-		String channelId = "cmsContentExpanding"+String.valueOf(Math.abs(randomGenerator.nextInt()))+new Date().getTime();
+		String channelId = "cmsContent"+displayType+String.valueOf(Math.abs(randomGenerator.nextInt()))+new Date().getTime();
 		refData.put("channelId",channelId);
 
 		//Get portlet path:
@@ -92,6 +92,12 @@ public class CMSContentViewController {
 		refData.put("portletPath",portletPath);
 
 		//send to "view".jsp the object refData.
-		return new ModelAndView("view",refData);
+		if (displayType.equals("Tabbed"))
+			return new ModelAndView("view_tabbed",refData);
+		else if (displayType.equals("Expanding"))
+			return new ModelAndView("view_expanding",refData);
+		else
+			return new ModelAndView("view_single",refData);
+		//return new ModelAndView("view",refData);
 	}
 }

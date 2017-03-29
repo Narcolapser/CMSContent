@@ -79,6 +79,7 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 				logger.debug("Single page. printing content");
 				for(String uri:pageUriArray)
 				{
+					content = "";
 					logger.info("fetching uri: " + uri);
 					if (uri == null || uri.equals("blank"))
 						continue;

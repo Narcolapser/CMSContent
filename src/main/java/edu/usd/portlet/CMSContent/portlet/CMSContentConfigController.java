@@ -94,10 +94,10 @@ public class CMSContentConfigController
 		refData.put("pageUris",cleanedUri);
 
 		//get display type. e.g. single, collapsing, tabbed.
-		String displayType = preferences.getValue("displayType","single");
+		String displayType = preferences.getValue("displayType","Single");
 		refData.put("displayType",displayType);
 
-		String[] displayTypes = {"Single","Collapsing","Tabbed"};
+		String[] displayTypes = {"Single","Expanding","Tabbed"};
 		refData.put("displayTypes",displayTypes);
 
 		return new ModelAndView("config",refData);
