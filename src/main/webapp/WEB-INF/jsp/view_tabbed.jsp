@@ -11,7 +11,7 @@
 		</ul>
 		<c:set var="counter" value="${0}"/>
 		<c:forEach var="page" items="${content}">
-			<div id="#${channelId}-${counter}">
+			<div id="${channelId}-${counter}">
 				${page.content}
 				<c:set var="counter" value="${counter + 1}"/>
 			</div>

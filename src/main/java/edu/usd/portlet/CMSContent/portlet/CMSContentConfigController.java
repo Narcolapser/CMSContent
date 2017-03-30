@@ -97,7 +97,7 @@ public class CMSContentConfigController
 		String displayType = preferences.getValue("displayType","Single");
 		refData.put("displayType",displayType);
 
-		String[] displayTypes = {"Single","Expanding","Tabbed"};
+		String[] displayTypes = {"Single","Expanding","Tabbed","Verical_Tabs"};
 		refData.put("displayTypes",displayTypes);
 
 		return new ModelAndView("config",refData);

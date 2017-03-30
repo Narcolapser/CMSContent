@@ -96,6 +96,8 @@ public class CMSContentViewController {
 			return new ModelAndView("view_tabbed",refData);
 		else if (displayType.equals("Expanding"))
 			return new ModelAndView("view_expanding",refData);
+		else if (displayType.equals("Verical_Tabs"))
+			return new ModelAndView("view_vertical_tabs",refData);
 		else
 			return new ModelAndView("view_single",refData);
 		//return new ModelAndView("view",refData);
