@@ -11,8 +11,8 @@ package edu.usd.portlet.cmscontent.dao;
 
 public class CMSPageInfo
 {
-	private String title;
-	private String path;
+	protected String title;
+	protected String path;
 
 	public CMSPageInfo(String title, String path)
 	{

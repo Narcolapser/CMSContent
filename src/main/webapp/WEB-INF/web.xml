@@ -1,62 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Licensed to Apereo under one or more contributor license
-    agreements. See the NOTICE file distributed with this work
-    for additional information regarding copyright ownership.
-    Apereo licenses this file to you under the Apache License,
-    Version 2.0 (the "License"); you may not use this file
-    except in compliance with the License.  You may obtain a
-    copy of the License at the following location:
-      http://www.apache.org/licenses/LICENSE-2.0
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
+	Licensed to Apereo under one or more contributor license
+	agreements. See the NOTICE file distributed with this work
+	for additional information regarding copyright ownership.
+	Apereo licenses this file to you under the Apache License,
+	Version 2.0 (the "License"); you may not use this file
+	except in compliance with the License.	You may obtain a
+	copy of the License at the following location:
+		http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing,
+	software distributed under the License is distributed on an
+	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+	KIND, either express or implied.	See the License for the
+	specific language governing permissions and limitations
+	under the License.
 -->
 <web-app version="2.4" 
-    xmlns="http://java.sun.com/xml/ns/j2ee" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
-    <!-- Author: Dustin Schultz | Version: $Id$ -->
-    <!--
-	  - Key of the system property that should specify the root directory of this
-	  - web app. Applied by WebAppRootListener.
-	  -->
-    <context-param>
-        <param-name>webAppRootKey</param-name>
-        <param-value>CMSContent.webapp.root</param-value>
-    </context-param>
-    <!--
-	  - Location of the XML file that defines the root application context.
-	  - Applied by ContextLoaderServlet.
-	  -->
-    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>/WEB-INF/context/*.xml</param-value>
-    </context-param>
+	xmlns="http://java.sun.com/xml/ns/j2ee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<!-- Author: Dustin Schultz | Version: $Id$ -->
+	<!--
+		- Key of the system property that should specify the root directory of this
+		- web app. Applied by WebAppRootListener.
+		-->
+	<context-param>
+		<param-name>webAppRootKey</param-name>
+		<param-value>CMSContent.webapp.root</param-value>
+	</context-param>
+	<!--
+		- Location of the XML file that defines the root application context.
+		- Applied by ContextLoaderServlet.
+		-->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/context/*.xml</param-value>
+	</context-param>
 
-    <!-- Must be the first listener so the webAppRootKey gets set for logback -->
-    <listener>
-        <listener-class>org.springframework.web.util.WebAppRootListener</listener-class>
-    </listener>
-    <!-- Needed to remove JMX registration and allow for classloader GC -->
-    <listener>
-        <listener-class>ch.qos.logback.classic.selector.servlet.ContextDetachingSCL</listener-class>
-    </listener>
-    <listener>
-        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-    </listener>
+	<!-- Must be the first listener so the webAppRootKey gets set for logback -->
+	<listener>
+		<listener-class>org.springframework.web.util.WebAppRootListener</listener-class>
+	</listener>
+	<!-- Needed to remove JMX registration and allow for classloader GC -->
+	<listener>
+		<listener-class>ch.qos.logback.classic.selector.servlet.ContextDetachingSCL</listener-class>
+	</listener>
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
 
-    <servlet>
-        <servlet-name>ViewRendererServlet</servlet-name>
-        <servlet-class>org.springframework.web.servlet.ViewRendererServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
+	<servlet>
+		<servlet-name>ViewRendererServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.ViewRendererServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
 
-    <servlet-mapping>
-        <servlet-name>ViewRendererServlet</servlet-name>
-        <url-pattern>/WEB-INF/servlet/view</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ViewRendererServlet</servlet-name>
+		<url-pattern>/WEB-INF/servlet/view</url-pattern>
+	</servlet-mapping>
 </web-app>

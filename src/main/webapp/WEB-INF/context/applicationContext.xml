@@ -24,9 +24,71 @@
 		http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
-	<bean id="cmsDataDaoImpl" class="edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl"></bean>
+	<!-- Hibernate Persistence Code -->
+	<bean id="pageInfoStore" parent="abstractStoreTransactionProxy">
+		<property name="target" ref="pageInfoStoreTarget"/>
+	</bean>
+
+	<bean id="pageInfoStoreTarget" class="edu.usd.portlet.cmscontent.dao.InternalPageStore"
+		parent="abstractHibernateTemplate"> </bean>
+
+	<bean id="abstractStoreTransactionProxy"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+		abstract="true">
+		<property name="transactionManager" ref="transactionManager"/>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="create*">PROPAGATION_REQUIRED</prop>
+				<prop key="store*">PROPAGATION_REQUIRED</prop>
+				<prop key="remove*">PROPAGATION_REQUIRED</prop>
+				<prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="abstractHibernateTemplate" abstract="true">
+		<property name="sessionFactory">
+			<ref local="sessionFactory"/>
+		</property>
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="configLocation" value="classpath:hibernate.cfg.xml"/>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</prop>
+			</props>
+		</property>
+	</bean>
+
+
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName">
+			<value>com.microsoft.sqlserver.jdbc.SQLServerDriver</value>
+		</property>
+		<property name="url">
+			<value>jdbc:sqlserver://***REMOVED***</value>
+		</property>
+		<property name="username">
+			<value>uPortal</value>
+		</property>
+		<property name="password">
+
+		</property>
+	</bean>
+
+
+<!--	<bean id="cmsDataDaoImpl" class="edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl"></bean>-->
 
 <!--	<bean id="cmsDataDaoImpl" class="edu.usd.portlet.cmscontent.dao.DNNDaoImpl"></bean>-->
+
+	<bean id="cmsDataDaoImpl" class="edu.usd.portlet.cmscontent.dao.InternalDaoImpl"></bean>
 
 	<!-- ========================= PORTLET SPECIFIC DEFINITIONS ========================= -->
 
@@ -41,5 +103,5 @@
 				<prop key="java.lang.RuntimeException">error</prop>
 			</props>
 		</property>
-</bean>
+	</bean>
 </beans>

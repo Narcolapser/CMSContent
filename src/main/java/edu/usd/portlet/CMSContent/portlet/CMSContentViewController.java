@@ -42,6 +42,7 @@ import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.portlet.ModelAndView;
 
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
+import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.CMSDataDao;
 import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
 import edu.usd.portlet.cmscontent.dao.CMSPageContent;
@@ -66,6 +67,8 @@ public class CMSContentViewController {
 	public void setdbo(CMSDataDao dbo) {
 		this.dbo = dbo;
 	}
+
+//	CMSDataDao dbo = new CommonSpotDaoImpl();
 
 	@RequestMapping
 	public ModelAndView viewContent(RenderRequest request, RenderResponse response)
