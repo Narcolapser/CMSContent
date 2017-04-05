@@ -79,7 +79,7 @@
 			<value>uPortal</value>
 		</property>
 		<property name="password">
-
+			<value>***REMOVED***</value>
 		</property>
 	</bean>
 
