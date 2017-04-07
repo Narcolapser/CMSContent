@@ -1,5 +1,18 @@
 package edu.usd.portlet.cmscontent.dao;
 
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.Lob;
+import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+
+import org.hibernate.annotations.Type;
+
 import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
 
 /**
@@ -7,12 +20,14 @@ import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
  * @author Toben Archer
  * @version $Id$
  */
-
+@Entity
 public class CMSPageContent
 {
-	private String title;
-	private String content;
-	private CMSPageInfo info;
+	@Id
+	protected int id;
+	protected String title;
+	protected String content;
+	protected CMSPageInfo info;
 
 	public CMSPageContent(String content, String title)
 	{
