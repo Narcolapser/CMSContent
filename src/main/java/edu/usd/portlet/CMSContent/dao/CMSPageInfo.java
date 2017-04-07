@@ -1,18 +1,36 @@
 package edu.usd.portlet.cmscontent.dao;
 
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.Lob;
+import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+
+import org.hibernate.annotations.Type;
+
 /**
- * Java disgusts me.
- * This is a wrapper class because making tuples in java isn't a simple thing.
- * It stores a pair of strings, the title of a page and the path to it. 
- * It exists just so I can pass them back because that's idomatic java. 
  * @author Toben Archer
  * @version $Id$
  */
 
+@Entity
+@Table(name = "CMSPageInfo")
 public class CMSPageInfo
 {
+	@Column(name = "TITLE", nullable = true, unique = false)
 	protected String title;
+	@Column(name = "PATH", nullable = false, unique = true)
 	protected String path;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "ID", updatable = false)
+	protected int id;
 
 	public CMSPageInfo(String title, String path)
 	{
@@ -34,6 +52,14 @@ public class CMSPageInfo
 	public void setPath(String val)
 	{
 		this.path = val;
+	}
+	public int getId()
+	{
+		return this.id;
+	}
+	public void setId(int val)
+	{
+		this.id = val;
 	}
 	public String toString()
 	{
