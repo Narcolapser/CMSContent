@@ -32,6 +32,8 @@ public class CMSPageInfo
 	@Column(name = "ID", updatable = false)
 	protected int id;
 
+	public CMSPageInfo(){}
+
 	public CMSPageInfo(String title, String path)
 	{
 		this.title = title;
