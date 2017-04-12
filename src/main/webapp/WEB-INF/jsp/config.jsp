@@ -1,4 +1,39 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
+<script src="/ResourceServingWebapp/rs/jquery/1.10.2/jquery-1.10.2.min.js" type="text/javascript"> </script>
+<script src="/ResourceServingWebapp/rs/jqueryui/1.10.3/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
+<portlet:actionURL var="getPages" name="getPages"></portlet:actionURL>
+
+<SCRIPT LANGUAGE="javascript">
+<!--
+window.onload = function() {
+    if (window.jQuery) {  
+        // jQuery is loaded  
+        alert("Yeah!");
+    } else {
+        // jQuery is not loaded
+        alert("Doesn't Work");
+    }
+}
+function populate_pages(data, textStatus, jqXHR)
+{
+	alert("populate dem pages!");
+}
+function OnChange(sources,pages)
+{
+	var myindex = sources.selectedIndex;
+	var SelValue = sources.options[myindex].value;
+	alert(SelValue);
+
+	pages.options.length=0;
+//	pages.options[0] = new Option("Test","testval");
+//	pages.options[1] = new Option("Test2","test2val");
+	$.ajax({dataType:"json",
+			url:"${getPages}",
+			data:{"source":SelValue},
+			success:populate_pages});
+}
+//-->
+</SCRIPT>
 <div class=\"usdChannel\">
 	<portlet:actionURL name="updateDisplay" var="updateDisplay">
 		<portlet:param name="action" value="updateDisplay"/>
@@ -24,16 +59,28 @@
 	<h2>Pages</h2>
 	<c:set var="counter" value="${0}"/>
 	<c:forEach var="pageUri" items="${pageUris}">
-		<div class="pageUri" style="display:block">
-			<h3>Page: ${pageUri}</h3>
+		<div class="pageUri.key" style="display:block">
+			<h3>Page: ${pageUri.key}</h3>
 			<c:set var="counter" value="${counter + 1}"/>
 
 			<portlet:actionURL name="updatePage" var="updatePage"/>
 			<form id="page_uri_form_${counter}" action="${updatePage}">
-				<select id="${counter}" name="channel">
+				<select id="source_selector_${counter}" name="source" OnChange='OnChange(this.form.source_selector_${counter},this.form.channel_${counter});'>
+					<c:forEach var="source" items="${sources}">
+						<c:choose>
+							<c:when test="${source == pageUri.value}">
+								<option value="${source}" selected="selected">${source}</option>
+							</c:when>
+							<c:otherwise>
+								<option value="${source}">${source}</option>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
+				</select>
+				<select id="channel_${counter}" name="channel">
 					<c:forEach var="page" items="${availablePages}">
 						<c:choose>
-							<c:when test="${page.path == pageUri}">
+							<c:when test="${page.path == pageUri.key}">
 								<option value="${page.path}" selected="selected">Title: ${page.title}, Full Path: ${page.path}</option>
 							</c:when>
 							<c:otherwise>

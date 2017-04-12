@@ -42,9 +42,11 @@ import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.portlet.ModelAndView;
 
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
+import edu.usd.portlet.cmscontent.dao.DNNDaoImpl;
 import edu.usd.portlet.cmscontent.dao.CMSDataDao;
 import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
 import edu.usd.portlet.cmscontent.dao.CMSPageContent;
+import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -61,26 +63,59 @@ import javax.naming.InitialContext;
 public class CMSContentViewController {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	private CMSDataDao dbo = null; // Spring managed
 	@Autowired
+	private CMSDataDao dbo = null; // Spring managed
+	private CMSDataDao csdbo = new CommonSpotDaoImpl();
+	private CMSDataDao dnndbo = new DNNDaoImpl();
+
 	public void setdbo(CMSDataDao dbo) {
 		this.dbo = dbo;
+	}
+
+	@Autowired
+	private CMSConfigDao conf = null;
+
+	public void setConf(CMSConfigDao conf)
+	{
+		this.conf = conf;
 	}
 
 	@RequestMapping
 	public ModelAndView viewContent(RenderRequest request, RenderResponse response)
 	{
-		final PortletPreferences preferences = request.getPreferences();
+		//final PortletPreferences preferences = request.getPreferences();
 		//Create the model object that will be passed.
 		final Map<String, Object> refData = new HashMap<String, Object>();
 		//Get the page content.
-		ArrayList<CMSPageContent> content = dbo.getContent(request);
+		//ArrayList<CMSPageContent> content = dbo.getContent(request);
 		//Save the content into the model for the .jsp to display.
-		refData.put("content",content);
+
 
 		//get display type. e.g. single, collapsing, tabbed.
-		String displayType = preferences.getValue("displayType","Single");
+		//String displayType = preferences.getValue("displayType","Single");
+		String displayType = this.conf.getDisplayType(request);
 		refData.put("displayType",displayType);
+//		logger.debug("display type: "+displayType);
+
+		Map<String,String> uris = this.conf.getPageUris(request);
+//		logger.debug("Uris fetched.");
+		//CMSPageContent content;
+		ArrayList<CMSPageContent> content = new ArrayList<CMSPageContent>();
+//		logger.debug("content list created, starting loop.");
+		for(Map.Entry<String, String> entry: uris.entrySet())
+		{
+			if("DNN".equals(entry.getValue()))
+			{
+				logger.debug("The uri: " + entry.getKey() + " comes from " + entry.getValue());
+				content.add(this.dnndbo.getPageContent(entry.getKey()));
+			}
+			else
+			{
+				logger.debug("The uri: " + entry.getKey() + " comes from CommonSpot");
+				content.add(this.csdbo.getPageContent(entry.getKey()));
+			}
+		}
+		refData.put("content",content);
 
 		//Get channel ID:
 		Random randomGenerator = new Random();
@@ -96,8 +131,8 @@ public class CMSContentViewController {
 			return new ModelAndView("view_tabbed",refData);
 		else if (displayType.equals("Expanding"))
 			return new ModelAndView("view_expanding",refData);
-		else if (displayType.equals("Verical_Tabs"))
-			return new ModelAndView("view_vertical_tabs",refData);
+//		else if (displayType.equals("Verical_Tabs"))
+//			return new ModelAndView("view_vertical_tabs",refData);
 		else
 			return new ModelAndView("view_single",refData);
 		//return new ModelAndView("view",refData);

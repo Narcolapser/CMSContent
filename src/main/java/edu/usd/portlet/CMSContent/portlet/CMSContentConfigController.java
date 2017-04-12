@@ -42,14 +42,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.portlet.ModelAndView;
 import org.springframework.beans.factory.annotation.Autowired;
 
 //import edu.usd.portlet.cmscontent.dao.UsdSql;
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
+import edu.usd.portlet.cmscontent.dao.DNNDaoImpl;
+import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.CMSDataDao;
 import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
+import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -68,10 +72,20 @@ public class CMSContentConfigController
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	private CMSDataDao dbo = null; // Spring managed
+	private CMSDataDao csdbo = new CommonSpotDaoImpl();
+	private CMSDataDao dnndbo = new DNNDaoImpl();
 
 	@Autowired
 	public void setdbo(CMSDataDao dbo) {
 		this.dbo = dbo;
+	}
+
+	@Autowired
+	private CMSConfigDao conf = null;
+
+	public void setConf(CMSConfigDao conf)
+	{
+		this.conf = conf;
 	}
 
 	@RequestMapping
@@ -83,21 +97,25 @@ public class CMSContentConfigController
 
 		refData.put("availablePages",pages);
 
-		String[] pageUris = preferences.getValues("pageUri",null);
-		ArrayList<String> cleanedUri = new ArrayList<String>();
-		for(String page: pageUris)
-		{
-			logger.info("The page: " + page);
-			if (page != null)
-				cleanedUri.add(page);
-		}
-		refData.put("pageUris",cleanedUri);
+//		String[] pageUris = preferences.getValues("pageUri",null);
+//		ArrayList<String> cleanedUri = new ArrayList<String>();
+//		for(String page: pageUris)
+//		{
+//			logger.info("The page: " + page);
+//			if (page != null)
+//				cleanedUri.add(page);
+//		}
+		Map<String,String> uris = this.conf.getPageUris(request);
+		refData.put("pageUris",uris);
+
+		String[] sources = {"CommonSpot","DNN"};
+		refData.put("sources",sources);
 
 		//get display type. e.g. single, collapsing, tabbed.
 		String displayType = preferences.getValue("displayType","Single");
 		refData.put("displayType",displayType);
 
-		String[] displayTypes = {"Single","Expanding","Tabbed","Verical_Tabs"};
+		String[] displayTypes = {"Single","Expanding","Tabbed"};//,"Verical_Tabs"};
 		refData.put("displayTypes",displayTypes);
 
 		return new ModelAndView("config",refData);
@@ -127,10 +145,11 @@ public class CMSContentConfigController
 	@RequestMapping(params = {"action=update"})
 	public void updatePage(ActionRequest request, ActionResponse response,
 		@RequestParam(value = "channel", required = false) String channel,
+		@RequestParam(value = "source", required = false) String source,
 		@RequestParam(value = "index", required = false) String index_str
 	) throws Exception 
 	{
-		logger.info("attempting to set page uri #" + index_str + " to: " + channel);
+		logger.info("attempting to set page uri #" + index_str + " to: " + channel + " from: " + source);
 		//get the portlets preferences.
 		PortletPreferences prefs = request.getPreferences();
 
@@ -140,8 +159,11 @@ public class CMSContentConfigController
 		ArrayList<String> pageUris = new ArrayList<String>(Arrays.asList(pageUriArray));
 
 		int path_index = Integer.parseInt(index_str);
+		String oldUri = pageUris.get(path_index -1);
 		//beware the off by 1 errors!
 		pageUris.set(path_index - 1,channel);
+
+		prefs.reset("oldUri");
 		
 		prefs.setValues("pageUri",pageUris.toArray(pageUriArray));
 		prefs.store();
@@ -188,5 +210,14 @@ public class CMSContentConfigController
 		prefs.store();
 
 		logger.error("Done updating display type.");
+	}
+
+	@RequestMapping(params = {"javax.portlet.action=getPages"})
+	public @ResponseBody String getPages(ActionRequest request, ActionResponse response,
+		@RequestParam(value = "source", required = false) String source
+	) throws Exception 
+	{
+		logger.info("attempting to get pages for: " + source);
+		return ("{\"key\":\"value\"}");
 	}
 }

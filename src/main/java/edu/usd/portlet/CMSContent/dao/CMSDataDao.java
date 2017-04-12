@@ -26,11 +26,15 @@ public interface CMSDataDao
 	// must handle the security in this method. After you return the string for
 	// this request's content, no more security checks will occur.
 
+	public CMSPageContent getPageContent(String pageUri);
+	//Sibling method to "getContent" which returns a single page's content.
+
 	public ArrayList<CMSPageInfo> getAvailablePages();
 	// List the available pages. This is primarily used for the configuring of
 	// the portlets. When the person responsible chooses what content is to be
 	// displayed, a list populated by the content returned by this method will 
 	// display to them the available options.
+
 
 	public Collection<String> getAvailableGroups();
 	// Like the available pages method, this method gets the list of groups that

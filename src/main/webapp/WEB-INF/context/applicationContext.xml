@@ -28,6 +28,8 @@
 
 <!--	<bean id="cmsDataDaoImpl" class="edu.usd.portlet.cmscontent.dao.DNNDaoImpl"></bean>-->
 
+	<bean id="cmsConfigDaoImpl" class="edu.usd.portlet.cmscontent.dao.PropertiesDaoImpl"></bean>
+
 	<!-- ========================= PORTLET SPECIFIC DEFINITIONS ========================= -->
 
 	<!-- Default ExceptionHandler -->

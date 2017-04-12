@@ -43,4 +43,8 @@ public class CMSPageContent
 	{
 		this.info = val;
 	}
+	public String toString()
+	{
+		return this.title;
+	}
 }
