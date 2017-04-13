@@ -90,27 +90,24 @@ public class CMSContentConfigController
 
 	@RequestMapping
 	public ModelAndView viewContent(RenderRequest request, RenderResponse response) {
+		logger.debug("Started primary view");
 		final Map<String, Object> refData = new HashMap<String, Object>();
 		final PortletPreferences preferences = request.getPreferences();
 
+		logger.debug("fetching available pages");
 		ArrayList<CMSPageInfo> pages = dbo.getAvailablePages();
 
+		logger.debug("puttin the pages");
 		refData.put("availablePages",pages);
 
-//		String[] pageUris = preferences.getValues("pageUri",null);
-//		ArrayList<String> cleanedUri = new ArrayList<String>();
-//		for(String page: pageUris)
-//		{
-//			logger.info("The page: " + page);
-//			if (page != null)
-//				cleanedUri.add(page);
-//		}
+		logger.debug("getting page Uris");
 		Map<String,String> uris = this.conf.getPageUris(request);
 		refData.put("pageUris",uris);
 
 		String[] sources = {"CommonSpot","DNN"};
 		refData.put("sources",sources);
 
+		logger.debug("getting display type.");
 		//get display type. e.g. single, collapsing, tabbed.
 		String displayType = preferences.getValue("displayType","Single");
 		refData.put("displayType",displayType);
@@ -142,7 +139,7 @@ public class CMSContentConfigController
 		prefs.store();
 	}
 
-	@RequestMapping(params = {"action=update"})
+	@RequestMapping(params = {"action=Update"})
 	public void updatePage(ActionRequest request, ActionResponse response,
 		@RequestParam(value = "channel", required = false) String channel,
 		@RequestParam(value = "source", required = false) String source,
@@ -163,7 +160,8 @@ public class CMSContentConfigController
 		//beware the off by 1 errors!
 		pageUris.set(path_index - 1,channel);
 
-		prefs.reset("oldUri");
+		prefs.reset(oldUri);
+		prefs.setValue(channel,source);
 		
 		prefs.setValues("pageUri",pageUris.toArray(pageUriArray));
 		prefs.store();

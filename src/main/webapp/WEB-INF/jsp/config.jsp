@@ -5,32 +5,39 @@
 
 <SCRIPT LANGUAGE="javascript">
 <!--
-window.onload = function() {
-    if (window.jQuery) {  
-        // jQuery is loaded  
-        alert("Yeah!");
-    } else {
-        // jQuery is not loaded
-        alert("Doesn't Work");
-    }
-}
 function populate_pages(data, textStatus, jqXHR)
 {
-	alert("populate dem pages!");
+//	alert("Populating...");
+//	alert(data.toSource());
+	var CID = "channel_" + data["index"];
+	alert(CID);
+	var pages = document.getElementById(CID);
+//	alert(pages);
+	pages.options.length=0;
+	for (i = 0; i < data["pages"].length; i++)
+	{
+		pages.options[i] = new Option(
+			"Title: " + data["pages"][i]["title"] + 
+			", Full Path: " + data["pages"][i]["path"],
+			data["pages"][i]["path"]);
+	}
 }
 function OnChange(sources,pages)
 {
 	var myindex = sources.selectedIndex;
 	var SelValue = sources.options[myindex].value;
-	alert(SelValue);
+//	alert(SelValue);
 
 	pages.options.length=0;
-//	pages.options[0] = new Option("Test","testval");
-//	pages.options[1] = new Option("Test2","test2val");
+	pages.options[0] = new Option("Loading...","");
+//	$.ajax({dataType:"json",
+//			url:"/CMSContent/v1/api/getPagesWithIndex.json",
+//			data:{"source":SelValue,"index":myindex},
+//			success:populate_pages});
 	$.ajax({dataType:"json",
-			url:"${getPages}",
-			data:{"source":SelValue},
-			success:populate_pages});
+		url:"/CMSContent/v1/api/getPagesWithIndex.json",
+		data:{"source":SelValue},
+		success:populate_pages});
 }
 //-->
 </SCRIPT>
@@ -39,9 +46,10 @@ function OnChange(sources,pages)
 		<portlet:param name="action" value="updateDisplay"/>
 	</portlet:actionURL>
 
-	<h2>Portlet display type:</h2></br>
+	<h2>Portlet display type:</h2>
+	<!--</br>-->
 	<form id="disp_type_form" action="${updateDisplay}">
-		<select id="disp_type" name="disp_type">
+		<select id="disp_type" name="disp_type" class="form-control">
 			<c:forEach var="disp" items="${displayTypes}">
 				<c:choose>
 					<c:when test="${disp == displayType}">
@@ -59,13 +67,15 @@ function OnChange(sources,pages)
 	<h2>Pages</h2>
 	<c:set var="counter" value="${0}"/>
 	<c:forEach var="pageUri" items="${pageUris}">
-		<div class="pageUri.key" style="display:block">
-			<h3>Page: ${pageUri.key}</h3>
+		<div class="pageUri.key" style="display:block" class="form-group">
+<!--			<h3>Page: ${pageUri.key}</h3>-->
 			<c:set var="counter" value="${counter + 1}"/>
 
 			<portlet:actionURL name="updatePage" var="updatePage"/>
 			<form id="page_uri_form_${counter}" action="${updatePage}">
-				<select id="source_selector_${counter}" name="source" OnChange='OnChange(this.form.source_selector_${counter},this.form.channel_${counter});'>
+				<label for="source_selector_${counter}">Content Source</label>
+				<select id="source_selector_${counter}" name="source" class="form-control"
+						OnChange='OnChange(this.form.source_selector_${counter},this.form.channel_${counter});'>
 					<c:forEach var="source" items="${sources}">
 						<c:choose>
 							<c:when test="${source == pageUri.value}">
@@ -77,7 +87,8 @@ function OnChange(sources,pages)
 						</c:choose>
 					</c:forEach>
 				</select>
-				<select id="channel_${counter}" name="channel">
+				<label for="channel_${counter}">Section Content</label>
+				<select id="channel_${counter}" name="channel" class="form-control">
 					<c:forEach var="page" items="${availablePages}">
 						<c:choose>
 							<c:when test="${page.path == pageUri.key}">
@@ -91,7 +102,7 @@ function OnChange(sources,pages)
 				</select>
 				</br>
 				<input type="hidden" name="index" value="${counter}"/>
-				<input type="submit" name="action" value="update" class="btn btn-default"/>
+				<input type="submit" name="action" value="Update" class="btn btn-default"/>
 				<portlet:actionURL name="removePage" var="removePage">
 					<portlet:param name="action" value="remove"/>
 					<portlet:param name="index" value="${counter}"/>

@@ -13,7 +13,7 @@
     <packaging>war</packaging>
     
     <name>CMS Content</name>
-    <version>0.3.0</version>
+    <version>0.3.2</version>
     <description>USD's portlet for displaying external CMS content.</description>
     <url>https://bitbucket.org/usd/cms-content/</url>
 
@@ -25,7 +25,8 @@
         <logbackVersion>1.0.13</logbackVersion>
         <resourceServerVersion>1.0.43</resourceServerVersion>
         <slf4jVersion>1.7.12</slf4jVersion>
-        <spring.version>4.0.9.RELEASE</spring.version>
+        <spring.version>4.2.5.RELEASE</spring.version>
+        <jackson.version>2.7.3</jackson.version>
     </properties>
     <build>
         <finalName>CMSContent</finalName>
@@ -474,6 +475,18 @@
             <scope>runtime</scope>
         </dependency>
         <!-- End of logging section -->
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        
     </dependencies>
 
     <profiles>
