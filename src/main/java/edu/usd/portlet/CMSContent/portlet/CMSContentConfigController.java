@@ -95,16 +95,22 @@ public class CMSContentConfigController
 		final PortletPreferences preferences = request.getPreferences();
 
 		logger.debug("fetching available pages");
-		ArrayList<CMSPageInfo> pages = dbo.getAvailablePages();
+		//ArrayList<CMSPageInfo> pages = dbo.getAvailablePages();
+		ArrayList<CMSPageInfo> cspages = csdbo.getAvailablePages();
+		ArrayList<CMSPageInfo> dnnpages = dnndbo.getAvailablePages();
+		ArrayList<CMSPageInfo> pages = new ArrayList<CMSPageInfo>();
 
 		logger.debug("puttin the pages");
+		refData.put("CommonSpot",cspages);
+		refData.put("DNN",dnnpages);
 		refData.put("availablePages",pages);
+		refData.put("None",pages);
 
 		logger.debug("getting page Uris");
 		Map<String,String> uris = this.conf.getPageUris(request);
 		refData.put("pageUris",uris);
 
-		String[] sources = {"CommonSpot","DNN"};
+		String[] sources = {"CommonSpot","DNN"};//,"None"};
 		refData.put("sources",sources);
 
 		logger.debug("getting display type.");
@@ -146,7 +152,17 @@ public class CMSContentConfigController
 		@RequestParam(value = "index", required = false) String index_str
 	) throws Exception 
 	{
-		logger.info("attempting to set page uri #" + index_str + " to: " + channel + " from: " + source);
+		logger.info("attempting to set page uri #" + index_str + " to: '" + channel + "' from: '" + source + "'");
+		if(channel == null)
+		{
+			logger.debug("Cannot set page to nothing.");
+			return;
+		}
+		if(source.equals("None"))
+		{
+			logger.debug("Cannot set to no data source.");
+			return;
+		}
 		//get the portlets preferences.
 		PortletPreferences prefs = request.getPreferences();
 

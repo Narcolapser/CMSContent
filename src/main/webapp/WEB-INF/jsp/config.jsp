@@ -7,12 +7,9 @@
 <!--
 function populate_pages(data, textStatus, jqXHR)
 {
-//	alert("Populating...");
-//	alert(data.toSource());
-	var CID = "channel_" + data["index"];
-	alert(CID);
+	CID = data["index"]
 	var pages = document.getElementById(CID);
-//	alert(pages);
+
 	pages.options.length=0;
 	for (i = 0; i < data["pages"].length; i++)
 	{
@@ -26,17 +23,13 @@ function OnChange(sources,pages)
 {
 	var myindex = sources.selectedIndex;
 	var SelValue = sources.options[myindex].value;
-//	alert(SelValue);
 
 	pages.options.length=0;
 	pages.options[0] = new Option("Loading...","");
-//	$.ajax({dataType:"json",
-//			url:"/CMSContent/v1/api/getPagesWithIndex.json",
-//			data:{"source":SelValue,"index":myindex},
-//			success:populate_pages});
+
 	$.ajax({dataType:"json",
 		url:"/CMSContent/v1/api/getPagesWithIndex.json",
-		data:{"source":SelValue},
+		data:{"source":SelValue,"index":pages.id},
 		success:populate_pages});
 }
 //-->
@@ -68,8 +61,9 @@ function OnChange(sources,pages)
 	<c:set var="counter" value="${0}"/>
 	<c:forEach var="pageUri" items="${pageUris}">
 		<div class="pageUri.key" style="display:block" class="form-group">
-<!--			<h3>Page: ${pageUri.key}</h3>-->
+<!--			<h3>Page: ${pageUri}</h3>-->
 			<c:set var="counter" value="${counter + 1}"/>
+			<c:set var="selected" value="selected"/>
 
 			<portlet:actionURL name="updatePage" var="updatePage"/>
 			<form id="page_uri_form_${counter}" action="${updatePage}">
@@ -77,19 +71,37 @@ function OnChange(sources,pages)
 				<select id="source_selector_${counter}" name="source" class="form-control"
 						OnChange='OnChange(this.form.source_selector_${counter},this.form.channel_${counter});'>
 					<c:forEach var="source" items="${sources}">
+						<!--${selected} ${source} ${pageUri}"-->
 						<c:choose>
 							<c:when test="${source == pageUri.value}">
 								<option value="${source}" selected="selected">${source}</option>
+								<c:set var="selected" value=""/>
 							</c:when>
 							<c:otherwise>
 								<option value="${source}">${source}</option>
 							</c:otherwise>
 						</c:choose>
 					</c:forEach>
+					<c:if test="${selected == 'selected'}">
+						<option value="None" selected="${selected}">None</option>
+					</c:if>
 				</select>
 				<label for="channel_${counter}">Section Content</label>
+
+				<c:choose>
+					<c:when test="${pageUri.value == 'CommonSpot'}">
+						<c:set var="pageSource" value="${CommonSpot}"/>
+					</c:when>
+					<c:when test="${pageUri.value == 'DNN'}">
+						<c:set var="pageSource" value="${DNN}"/>
+					</c:when>
+					<c:otherwise>
+						<c:set var="pageSource" value="${availablePages}"/>
+					</c:otherwise>
+				</c:choose>
+
 				<select id="channel_${counter}" name="channel" class="form-control">
-					<c:forEach var="page" items="${availablePages}">
+					<c:forEach var="page" items="${pageSource}">
 						<c:choose>
 							<c:when test="${page.path == pageUri.key}">
 								<option value="${page.path}" selected="selected">Title: ${page.title}, Full Path: ${page.path}</option>

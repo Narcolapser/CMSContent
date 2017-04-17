@@ -32,17 +32,23 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 	// ret.get(page uri) -> data source.
 	public Map<String,String> getPageUris(PortletRequest request)
 	{
-		logger.debug("Getting them uris!");
+//		logger.debug("Getting them uris!");
 		PortletPreferences prefs = request.getPreferences();
-		logger.debug("Prefs got, getting values");
+//		logger.debug("Prefs got, getting values");
 		String[] pageUriArray = prefs.getValues("pageUri",null);
-		logger.debug("Vals got");
+//		logger.debug("Vals got");
 		String source;
 		Map<String,String> ret = new HashMap<String,String>();
 		try
 		{
 			for(String val:pageUriArray)
 			{
+				if(val == null)
+				{
+					ret.put("blank","blank");
+					continue;
+				}
+//				logger.debug("The value is: '" + val + "'");
 				source = prefs.getValue(val,null);
 				ret.put(val,source);
 			}
@@ -50,8 +56,9 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 		catch(Exception e)
 		{
 			logger.info("There were no values set");
+			ret.put("blank","blank");
 		}
-		logger.debug("Ready to return");
+//		logger.debug("Ready to return");
 		return ret;
 	}
 	public String getDisplayType(PortletRequest request)

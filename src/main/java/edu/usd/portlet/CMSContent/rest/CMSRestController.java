@@ -54,14 +54,28 @@ public final class CMSRestController {
 		)
 	{
 		logger.debug("Recieved request to get pages for: " + source + " with index: " + index_str);
-		int index = Integer.parseInt(index_str);
-		ArrayList<CMSPageInfo> pages;
-		if(source.equals("DNN"))
-			pages = dnndbo.getAvailablePages();
-		else
-			pages = csdbo.getAvailablePages();
-		PagesAndIndex ret = new PagesAndIndex(pages,index);
-		logger.debug("Returning result");
+		//int index = Integer.parseInt(index_str);
+		PagesAndIndex ret;
+		try
+		{
+			ArrayList<CMSPageInfo> pages;
+			if(source.equals("DNN"))
+				pages = dnndbo.getAvailablePages();
+			else if (source.equals("CommonSpot"))
+				pages = csdbo.getAvailablePages();
+			else
+			{
+				logger.debug("Request made to the empty data provider");
+				pages = new ArrayList<CMSPageInfo>();
+			}
+			ret = new PagesAndIndex(pages,index_str);
+			logger.debug("Returning result");
+		}
+		catch(Exception e)
+		{
+			logger.info("Failed to retrieve information" + e.toString());
+			ret = new PagesAndIndex();
+		}
 		return ret;
 	}
 
@@ -81,9 +95,11 @@ public final class CMSRestController {
 		@XmlElement
 		ArrayList<CMSPageInfo> pages;
 		@XmlElement
-		int index;
+		String index;
 
-		public PagesAndIndex(ArrayList<CMSPageInfo> pages, int index)
+		public PagesAndIndex(){}
+
+		public PagesAndIndex(ArrayList<CMSPageInfo> pages, String index)
 		{
 			this.pages = pages;
 			this.index = index;
@@ -96,11 +112,11 @@ public final class CMSRestController {
 		{
 			this.pages = val;
 		}
-		public int getIndex()
+		public String getIndex()
 		{
 			return this.index;
 		}
-		public void setIndex(int val)
+		public void setIndex(String val)
 		{
 			this.index = val;
 		}
