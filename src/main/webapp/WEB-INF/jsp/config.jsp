@@ -60,7 +60,7 @@ function OnChange(sources,pages)
 	<h2>Pages</h2>
 	<c:set var="counter" value="${0}"/>
 	<c:forEach var="pageUri" items="${pageUris}">
-		<div class="pageUri.key" style="display:block" class="form-group">
+		<div class="pageUri.path" style="display:block" class="form-group">
 <!--			<h3>Page: ${pageUri}</h3>-->
 			<c:set var="counter" value="${counter + 1}"/>
 			<c:set var="selected" value="selected"/>
@@ -73,7 +73,7 @@ function OnChange(sources,pages)
 					<c:forEach var="source" items="${sources}">
 						<!--${selected} ${source} ${pageUri}"-->
 						<c:choose>
-							<c:when test="${source == pageUri.value}">
+							<c:when test="${source == pageUri.source}">
 								<option value="${source}" selected="selected">${source}</option>
 								<c:set var="selected" value=""/>
 							</c:when>
@@ -89,10 +89,10 @@ function OnChange(sources,pages)
 				<label for="channel_${counter}">Section Content</label>
 
 				<c:choose>
-					<c:when test="${pageUri.value == 'CommonSpot'}">
+					<c:when test="${pageUri.source == 'CommonSpot'}">
 						<c:set var="pageSource" value="${CommonSpot}"/>
 					</c:when>
-					<c:when test="${pageUri.value == 'DNN'}">
+					<c:when test="${pageUri.source == 'DNN'}">
 						<c:set var="pageSource" value="${DNN}"/>
 					</c:when>
 					<c:otherwise>
@@ -103,7 +103,7 @@ function OnChange(sources,pages)
 				<select id="channel_${counter}" name="channel" class="form-control">
 					<c:forEach var="page" items="${pageSource}">
 						<c:choose>
-							<c:when test="${page.path == pageUri.key}">
+							<c:when test="${page.path == pageUri.path}">
 								<option value="${page.path}" selected="selected">Title: ${page.title}, Full Path: ${page.path}</option>
 							</c:when>
 							<c:otherwise>

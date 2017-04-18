@@ -21,6 +21,7 @@ package edu.usd.portlet.cmscontent.portlet;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.LinkedList;
 import java.util.Arrays;
 
@@ -92,7 +93,7 @@ public class CMSContentConfigController
 	public ModelAndView viewContent(RenderRequest request, RenderResponse response) {
 		logger.debug("Started primary view");
 		final Map<String, Object> refData = new HashMap<String, Object>();
-		final PortletPreferences preferences = request.getPreferences();
+		//final PortletPreferences preferences = request.getPreferences();
 
 		logger.debug("fetching available pages");
 		//ArrayList<CMSPageInfo> pages = dbo.getAvailablePages();
@@ -107,7 +108,7 @@ public class CMSContentConfigController
 		refData.put("None",pages);
 
 		logger.debug("getting page Uris");
-		Map<String,String> uris = this.conf.getPageUris(request);
+		List<CMSPageInfo> uris = this.conf.getPageUris(request);
 		refData.put("pageUris",uris);
 
 		String[] sources = {"CommonSpot","DNN"};//,"None"};
@@ -115,7 +116,8 @@ public class CMSContentConfigController
 
 		logger.debug("getting display type.");
 		//get display type. e.g. single, collapsing, tabbed.
-		String displayType = preferences.getValue("displayType","Single");
+		//String displayType = preferences.getValue("displayType","Single");
+		String displayType = this.conf.getDisplayType(request);
 		refData.put("displayType",displayType);
 
 		String[] displayTypes = {"Single","Expanding","Tabbed"};//,"Verical_Tabs"};
@@ -125,24 +127,9 @@ public class CMSContentConfigController
 	}
 
 	@RequestMapping(params = {"action=add"})
-	public void addPage(ActionRequest request, ActionResponse response
-	) throws Exception 
+	public void addPage(ActionRequest request, ActionResponse response)
 	{
-		logger.info("attempting to add a page");
-		//get the portlets preferences.
-		PortletPreferences prefs = request.getPreferences();
-
-		//get the current list of channel paths.
-		String[] pageUriArray = prefs.getValues("pageUri",null);
-		//convert to an array list.
-		ArrayList<String> pageUris = new ArrayList<String>(Arrays.asList(pageUriArray));
-		//add an item to that list.
-		pageUris.add("blank");
-
-		//convert back and save it as the new list of channels.
-		prefs.setValues("pageUri",pageUris.toArray(pageUriArray));
-		//Save.
-		prefs.store();
+		this.conf.addPage(request);
 	}
 
 	@RequestMapping(params = {"action=Update"})

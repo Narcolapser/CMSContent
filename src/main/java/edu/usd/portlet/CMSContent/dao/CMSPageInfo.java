@@ -13,7 +13,16 @@ public class CMSPageInfo
 {
 	private String title;
 	private String path;
+	private String source;
 
+	public CMSPageInfo(){}
+
+	public CMSPageInfo(String title, String path, String source)
+	{
+		this.title = title;
+		this.path = path;
+		this.source = source;
+	}
 	public CMSPageInfo(String title, String path)
 	{
 		this.title = title;
@@ -34,6 +43,14 @@ public class CMSPageInfo
 	public void setPath(String val)
 	{
 		this.path = val;
+	}
+	public String getSource()
+	{
+		return this.source;
+	}
+	public void setSource(String val)
+	{
+		this.source = val;
 	}
 	public String toString()
 	{

@@ -21,6 +21,7 @@ package edu.usd.portlet.cmscontent.portlet;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Date;
 import java.util.Random;
 
@@ -97,22 +98,24 @@ public class CMSContentViewController {
 		refData.put("displayType",displayType);
 //		logger.debug("display type: "+displayType);
 
-		Map<String,String> uris = this.conf.getPageUris(request);
+		List<CMSPageInfo> uris = this.conf.getPageUris(request);
 //		logger.debug("Uris fetched.");
 		//CMSPageContent content;
 		ArrayList<CMSPageContent> content = new ArrayList<CMSPageContent>();
 //		logger.debug("content list created, starting loop.");
-		for(Map.Entry<String, String> entry: uris.entrySet())
+		for(CMSPageInfo entry:uris)
 		{
-			if("DNN".equals(entry.getValue()))
+			if("DNN".equals(entry.getSource()))
 			{
-				logger.debug("The uri: " + entry.getKey() + " comes from " + entry.getValue());
-				content.add(this.dnndbo.getPageContent(entry.getKey()));
+				//logger.debug("The uri: " + entry.getKey() + " comes from " + entry.getValue());
+				//content.add(this.dnndbo.getPageContent(entry.getKey()));
+				content.add(this.dnndbo.getPageContent(entry.getPath()));
 			}
 			else
 			{
-				logger.debug("The uri: " + entry.getKey() + " comes from CommonSpot");
-				content.add(this.csdbo.getPageContent(entry.getKey()));
+				//logger.debug("The uri: " + entry.getKey() + " comes from CommonSpot");
+				//content.add(this.csdbo.getPageContent(entry.getKey()));
+				content.add(this.csdbo.getPageContent(entry.getPath()));
 			}
 		}
 		refData.put("content",content);
