@@ -100,17 +100,22 @@ function OnChange(sources,pages)
 					</c:otherwise>
 				</c:choose>
 
+				<c:set var="selected" value="selected"/>
 				<select id="channel_${counter}" name="channel" class="form-control">
 					<c:forEach var="page" items="${pageSource}">
 						<c:choose>
 							<c:when test="${page.path == pageUri.path}">
 								<option value="${page.path}" selected="selected">Title: ${page.title}, Full Path: ${page.path}</option>
+								<c:set var="selected" value=""/>
 							</c:when>
 							<c:otherwise>
 								<option value="${page.path}">Title: ${page.title}, Full Path: ${page.path}</option>
 							</c:otherwise>
 						</c:choose>
 					</c:forEach>
+					<c:if test="${selected == 'selected'}">
+						<option value="None" selected="${selected}">None</option>
+					</c:if>
 				</select>
 				</br>
 				<input type="hidden" name="index" value="${counter}"/>

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Arrays;
 
-import javax.portlet.PortletPreferences;
+//import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
@@ -136,8 +136,7 @@ public class CMSContentConfigController
 	public void updatePage(ActionRequest request, ActionResponse response,
 		@RequestParam(value = "channel", required = false) String channel,
 		@RequestParam(value = "source", required = false) String source,
-		@RequestParam(value = "index", required = false) String index_str
-	) throws Exception 
+		@RequestParam(value = "index", required = false) String index_str)
 	{
 		logger.info("attempting to set page uri #" + index_str + " to: '" + channel + "' from: '" + source + "'");
 		if(channel == null)
@@ -150,75 +149,23 @@ public class CMSContentConfigController
 			logger.debug("Cannot set to no data source.");
 			return;
 		}
+		int index = Integer.parseInt(index_str);
+		this.conf.updatePage(request, index, channel, source);
 		//get the portlets preferences.
-		PortletPreferences prefs = request.getPreferences();
-
-		//get the current list of channel paths.
-		String[] pageUriArray = prefs.getValues("pageUri",null);
-		//convert to an array list.
-		ArrayList<String> pageUris = new ArrayList<String>(Arrays.asList(pageUriArray));
-
-		int path_index = Integer.parseInt(index_str);
-		String oldUri = pageUris.get(path_index -1);
-		//beware the off by 1 errors!
-		pageUris.set(path_index - 1,channel);
-
-		prefs.reset(oldUri);
-		prefs.setValue(channel,source);
-		
-		prefs.setValues("pageUri",pageUris.toArray(pageUriArray));
-		prefs.store();
-		
-		logger.error("Done setting value.");
 	}
 
 	@RequestMapping(params = {"action=remove"})
-	public void updatePage(ActionRequest request, ActionResponse response,
-		@RequestParam(value = "index", required = false) String index_str
-	) throws Exception 
+	public void removePage(ActionRequest request, ActionResponse response,
+		@RequestParam(value = "index", required = false) String index_str)
 	{
-		logger.info("attempting to remove page uri #" + index_str);
-		//get the portlets preferences.
-		PortletPreferences prefs = request.getPreferences();
-
-		//get the current list of channel paths.
-		String[] pageUriArray = prefs.getValues("pageUri",null);
-		//convert to an array list.
-		LinkedList<String> pageUris = new LinkedList<String>(Arrays.asList(pageUriArray));
-
-		int path_index = Integer.parseInt(index_str);
-		//beware the off by 1 errors!
-		pageUris.remove(path_index - 1);
-
-		prefs.reset("pageUri");
-		prefs.store();
-		prefs.setValues("pageUri",pageUris.toArray(pageUriArray));
-		prefs.store();
-		
-		logger.error("Done removing page.");
+		int index = Integer.parseInt(index_str);
+		this.conf.removePage(request,index);
 	}
 
 	@RequestMapping(params = {"action=updateDisplay"})
 	public void updateDisplay(ActionRequest request, ActionResponse response,
-		@RequestParam(value = "disp_type", required = false) String disp_type
-	) throws Exception 
+		@RequestParam(value = "disp_type", required = false) String disp_type)
 	{
-		logger.info("attempting to update diplay type to: " + disp_type);
-		//get the portlets preferences.
-		PortletPreferences prefs = request.getPreferences();
-
-		prefs.setValue("displayType",disp_type);
-		prefs.store();
-
-		logger.error("Done updating display type.");
-	}
-
-	@RequestMapping(params = {"javax.portlet.action=getPages"})
-	public @ResponseBody String getPages(ActionRequest request, ActionResponse response,
-		@RequestParam(value = "source", required = false) String source
-	) throws Exception 
-	{
-		logger.info("attempting to get pages for: " + source);
-		return ("{\"key\":\"value\"}");
+		this.conf.setDisplayType(request,disp_type);
 	}
 }

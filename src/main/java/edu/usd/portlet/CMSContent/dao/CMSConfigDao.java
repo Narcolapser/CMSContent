@@ -45,6 +45,9 @@ public interface CMSConfigDao
 	public String getDisplayType(PortletRequest request);
 	// return the display type that is selected for this portlet.
 
+	public void setDisplayType(PortletRequest request, String disp_type);
+	// set the display type that is selected for this portlet.
+
 	public Map<String,String> getDisplayAttributes(PortletRequest request);
 	// return the display information for this portlet. This allows for display
 	// types that require extra information like pages that need to be placed

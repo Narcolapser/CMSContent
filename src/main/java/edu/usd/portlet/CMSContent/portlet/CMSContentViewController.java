@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Date;
 import java.util.Random;
 
-import javax.portlet.PortletPreferences;
+//import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
@@ -105,6 +105,9 @@ public class CMSContentViewController {
 //		logger.debug("content list created, starting loop.");
 		for(CMSPageInfo entry:uris)
 		{
+			if("blank".equals(entry.getPath()))
+				//skip this, it is a blank page.
+				continue;
 			if("DNN".equals(entry.getSource()))
 			{
 				//logger.debug("The uri: " + entry.getKey() + " comes from " + entry.getValue());
