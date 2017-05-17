@@ -41,11 +41,8 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 	// ret.get(page uri) -> data source.
 	public List<CMSPageInfo> getPageUris(PortletRequest request)
 	{
-//		logger.debug("Getting them uris!");
 		PortletPreferences prefs = request.getPreferences();
-//		logger.debug("Prefs got, getting values");
 		String[] pageUriArray = prefs.getValues("pageUri",null);
-//		logger.debug("Vals got");
 		String source;
 		ArrayList<CMSPageInfo> ret = new ArrayList<CMSPageInfo>();
 		try
@@ -54,11 +51,9 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			{
 				if(val == null)
 				{
-					//ret.put("blank","blank");
 					ret.add(new CMSPageInfo("","blank","blank"));
 					continue;
 				}
-//				logger.debug("The value is: '" + val + "'");
 				//default is commonspot for backwards compatibility reasons.
 				source = prefs.getValue(val,"CommonSpot");
 				ret.add(new CMSPageInfo("",val,source));
@@ -69,7 +64,6 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			logger.info("There were no values set");
 			ret.add(new CMSPageInfo("","blank","blank"));
 		}
-//		logger.debug("Ready to return");
 		return ret;
 	}
 

@@ -114,9 +114,8 @@ public class CMSContentConfigController
 		String[] sources = {"CommonSpot","DNN"};//,"None"};
 		refData.put("sources",sources);
 
-		logger.debug("getting display type.");
 		//get display type. e.g. single, collapsing, tabbed.
-		//String displayType = preferences.getValue("displayType","Single");
+		logger.debug("getting display type.");
 		String displayType = this.conf.getDisplayType(request);
 		refData.put("displayType",displayType);
 

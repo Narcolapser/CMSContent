@@ -84,44 +84,40 @@ public class CMSContentViewController {
 	@RequestMapping
 	public ModelAndView viewContent(RenderRequest request, RenderResponse response)
 	{
-		//final PortletPreferences preferences = request.getPreferences();
 		//Create the model object that will be passed.
 		final Map<String, Object> refData = new HashMap<String, Object>();
-		//Get the page content.
-		//ArrayList<CMSPageContent> content = dbo.getContent(request);
-		//Save the content into the model for the .jsp to display.
-
 
 		//get display type. e.g. single, collapsing, tabbed.
-		//String displayType = preferences.getValue("displayType","Single");
 		String displayType = this.conf.getDisplayType(request);
 		refData.put("displayType",displayType);
-//		logger.debug("display type: "+displayType);
 
+		//Get the list of pages that are to be displayed.
 		List<CMSPageInfo> uris = this.conf.getPageUris(request);
-//		logger.debug("Uris fetched.");
-		//CMSPageContent content;
+		
+		//Prepare a list for the page content.
 		ArrayList<CMSPageContent> content = new ArrayList<CMSPageContent>();
-//		logger.debug("content list created, starting loop.");
+		
+		//itterate through the list of pages and get their content.
 		for(CMSPageInfo entry:uris)
 		{
 			if("blank".equals(entry.getPath()))
+			{
 				//skip this, it is a blank page.
 				continue;
+			}
 			if("DNN".equals(entry.getSource()))
 			{
-				//logger.debug("The uri: " + entry.getKey() + " comes from " + entry.getValue());
-				//content.add(this.dnndbo.getPageContent(entry.getKey()));
+				//content comes from DNN, use the DNN source.
 				content.add(this.dnndbo.getPageContent(entry.getPath()));
 			}
 			else
 			{
-				//logger.debug("The uri: " + entry.getKey() + " comes from CommonSpot");
-				//content.add(this.csdbo.getPageContent(entry.getKey()));
+				//content comes from CommonSpot, use the CommonSpot source.
 				content.add(this.csdbo.getPageContent(entry.getPath()));
+				//This is the default for legacy reasons. 
 			}
 		}
-		refData.put("content",content);
+		refData.put("content",content); //stow it for the view.
 
 		//Get channel ID:
 		Random randomGenerator = new Random();
@@ -137,10 +133,10 @@ public class CMSContentViewController {
 			return new ModelAndView("view_tabbed",refData);
 		else if (displayType.equals("Expanding"))
 			return new ModelAndView("view_expanding",refData);
+		//coming soon (tm)
 //		else if (displayType.equals("Verical_Tabs"))
 //			return new ModelAndView("view_vertical_tabs",refData);
 		else
 			return new ModelAndView("view_single",refData);
-		//return new ModelAndView("view",refData);
 	}
 }
