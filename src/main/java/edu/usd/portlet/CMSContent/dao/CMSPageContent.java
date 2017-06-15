@@ -28,6 +28,8 @@ public class CMSPageContent
 	protected String title;
 	protected String content;
 	protected CMSPageInfo info;
+	
+	public CMSPageContent(){}
 
 	public CMSPageContent(String content, String title)
 	{
@@ -57,5 +59,9 @@ public class CMSPageContent
 	public void setInfo(CMSPageInfo val)
 	{
 		this.info = val;
+	}
+	public String toString()
+	{
+		return this.title;
 	}
 }

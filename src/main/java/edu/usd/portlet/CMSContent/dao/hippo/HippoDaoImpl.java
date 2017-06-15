@@ -9,57 +9,57 @@ import java.util.*;
 
 import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
 
-public class HippoDaoImpl implements CMSDataDao, DisposableBean
-{
+//public class HippoDaoImpl implements CMSDataDao, DisposableBean
+//{
 
-	public ArrayList<CMSPageContent> getContent(PortletRequest request)
-	{
-		final PortletPreferences preferences = request.getPreferences();
-		String content = "", title = "";
-		CMSPageContent page;
-		ArrayList<CMSPageContent> ret = new ArrayList<CMSPageContent>();
+//	public ArrayList<CMSPageContent> getContent(PortletRequest request)
+//	{
+//		final PortletPreferences preferences = request.getPreferences();
+//		String content = "", title = "";
+//		CMSPageContent page;
+//		ArrayList<CMSPageContent> ret = new ArrayList<CMSPageContent>();
 
-		String pageUri = preferences.getValue("pageUri","/404ErrorPage");
+//		String pageUri = preferences.getValue("pageUri","/404ErrorPage");
 
-		try
-		{
+//		try
+//		{
 
-		}
-		catch(Exception e)
-		{
-//			content = "There was a problem retrieving the requested content. " + e.getMessage();
-		}
-		finally
-		{
-		}
-		return ret;
-	}
+//		}
+//		catch(Exception e)
+//		{
+////			content = "There was a problem retrieving the requested content. " + e.getMessage();
+//		}
+//		finally
+//		{
+//		}
+//		return ret;
+//	}
 
-	public ArrayList<CMSPageInfo> getAvailablePages()
-	{
-		ArrayList<CMSPageInfo> pages = new ArrayList<CMSPageInfo>();
+//	public ArrayList<CMSPageInfo> getAvailablePages()
+//	{
+//		ArrayList<CMSPageInfo> pages = new ArrayList<CMSPageInfo>();
 
 
-		try
-		{
-		}
-		catch(Exception e)
-		{
-			
-		}
-		finally
-		{
+//		try
+//		{
+//		}
+//		catch(Exception e)
+//		{
+//			
+//		}
+//		finally
+//		{
 
-		}
+//		}
 
-		return pages;
-	}
+//		return pages;
+//	}
 
-	public Collection<String> getAvailableGroups()
-	{
-		return new ArrayList<String>();
-	}
+//	public Collection<String> getAvailableGroups()
+//	{
+//		return new ArrayList<String>();
+//	}
 
-	public void destroy() throws Exception {
-	}
-}
+//	public void destroy() throws Exception {
+//	}
+//}

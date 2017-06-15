@@ -115,6 +115,51 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 		return ret;
 	}
 
+	public CMSPageContent getPageContent(String pageUri)
+	{
+		PreparedStatement selectStatement = null;
+		ResultSet resultSet = null;
+		PreparedStatement selectStatement2 = null;
+		ResultSet resultSet2 = null;
+		Connection connection = null;
+
+		String content = "", title = "", type = "normal";
+		CMSPageContent page;
+
+		try
+		{
+			connection = UsdSql.getPoolConnection();
+			content = "";
+			logger.info("fetching uri: " + pageUri);
+			selectStatement = connection.prepareStatement("exec dbo.selectChannelContentForUser ?, ?");
+			selectStatement.setString(1, "toben.archer");
+			selectStatement.setString(2, pageUri);
+
+			resultSet = selectStatement.executeQuery();
+			while (resultSet.next())
+			{
+				content += (String) resultSet.getString("cachedContent");
+				title = resultSet.getString("Title");
+			}
+			page = new CMSPageContent(content,title);
+		}
+		catch(Exception e)
+		{
+			logger.info(e);
+			page = new CMSPageContent("There was a problem retrieving the requested content: " + e.getMessage(),"error");
+		}
+		finally
+		{
+			UsdSql.closeResultSet(resultSet);
+			UsdSql.closePreparedStatement(selectStatement);
+			UsdSql.closeResultSet(resultSet2);
+			UsdSql.closePreparedStatement(selectStatement2);
+			UsdSql.closePoolConnection(connection);
+		}
+		logger.debug("returning page: " + page);
+		return page;
+	}
+
 	private CMSPageContent getSubPageContent(ResultSet resultSet, Connection con, String username) throws SQLException
 	{
 		PreparedStatement selectStatement = null;

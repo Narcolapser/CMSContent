@@ -21,10 +21,11 @@ package edu.usd.portlet.cmscontent.portlet;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Date;
 import java.util.Random;
 
-import javax.portlet.PortletPreferences;
+//import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
@@ -42,10 +43,11 @@ import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.portlet.ModelAndView;
 
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
-import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
+import edu.usd.portlet.cmscontent.dao.DNNDaoImpl;
 import edu.usd.portlet.cmscontent.dao.CMSDataDao;
 import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
 import edu.usd.portlet.cmscontent.dao.CMSPageContent;
+import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -62,28 +64,60 @@ import javax.naming.InitialContext;
 public class CMSContentViewController {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	private CMSDataDao dbo = null; // Spring managed
 	@Autowired
+	private CMSDataDao dbo = null; // Spring managed
+	private CMSDataDao csdbo = new CommonSpotDaoImpl();
+	private CMSDataDao dnndbo = new DNNDaoImpl();
+
 	public void setdbo(CMSDataDao dbo) {
 		this.dbo = dbo;
 	}
 
-//	CMSDataDao dbo = new CommonSpotDaoImpl();
+	@Autowired
+	private CMSConfigDao conf = null;
+
+	public void setConf(CMSConfigDao conf)
+	{
+		this.conf = conf;
+	}
 
 	@RequestMapping
 	public ModelAndView viewContent(RenderRequest request, RenderResponse response)
 	{
-		final PortletPreferences preferences = request.getPreferences();
 		//Create the model object that will be passed.
 		final Map<String, Object> refData = new HashMap<String, Object>();
-		//Get the page content.
-		ArrayList<CMSPageContent> content = dbo.getContent(request);
-		//Save the content into the model for the .jsp to display.
-		refData.put("content",content);
 
 		//get display type. e.g. single, collapsing, tabbed.
-		String displayType = preferences.getValue("displayType","Single");
+		String displayType = this.conf.getDisplayType(request);
 		refData.put("displayType",displayType);
+
+		//Get the list of pages that are to be displayed.
+		List<CMSPageInfo> uris = this.conf.getPageUris(request);
+		
+		//Prepare a list for the page content.
+		ArrayList<CMSPageContent> content = new ArrayList<CMSPageContent>();
+		
+		//itterate through the list of pages and get their content.
+		for(CMSPageInfo entry:uris)
+		{
+			if("blank".equals(entry.getPath()))
+			{
+				//skip this, it is a blank page.
+				continue;
+			}
+			if("DNN".equals(entry.getSource()))
+			{
+				//content comes from DNN, use the DNN source.
+				content.add(this.dnndbo.getPageContent(entry.getPath()));
+			}
+			else
+			{
+				//content comes from CommonSpot, use the CommonSpot source.
+				content.add(this.csdbo.getPageContent(entry.getPath()));
+				//This is the default for legacy reasons. 
+			}
+		}
+		refData.put("content",content); //stow it for the view.
 
 		//Get channel ID:
 		Random randomGenerator = new Random();
@@ -99,10 +133,10 @@ public class CMSContentViewController {
 			return new ModelAndView("view_tabbed",refData);
 		else if (displayType.equals("Expanding"))
 			return new ModelAndView("view_expanding",refData);
-		else if (displayType.equals("Verical_Tabs"))
-			return new ModelAndView("view_vertical_tabs",refData);
+		//coming soon (tm)
+//		else if (displayType.equals("Verical_Tabs"))
+//			return new ModelAndView("view_vertical_tabs",refData);
 		else
 			return new ModelAndView("view_single",refData);
-		//return new ModelAndView("view",refData);
 	}
 }

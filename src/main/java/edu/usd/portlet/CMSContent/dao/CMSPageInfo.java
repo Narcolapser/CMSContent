@@ -26,14 +26,29 @@ public class CMSPageInfo
 	protected String title;
 	@Column(name = "PATH", nullable = false, unique = true)
 	protected String path;
+	@Column(name = "SOURCE", nullable = false, unique = false)
+	protected String source;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "ID", updatable = false)
 	protected int id;
 
+//	public CMSPageInfo(){}
+
+//	private String title;
+//	private String path;
+//	private String source;
+
+
 	public CMSPageInfo(){}
 
+	public CMSPageInfo(String title, String path, String source)
+	{
+		this.title = title;
+		this.path = path;
+		this.source = source;
+	}
 	public CMSPageInfo(String title, String path)
 	{
 		this.title = title;
@@ -62,6 +77,14 @@ public class CMSPageInfo
 	public void setId(int val)
 	{
 		this.id = val;
+	}
+	public String getSource()
+	{
+		return this.source;
+	}
+	public void setSource(String val)
+	{
+		this.source = val;
 	}
 	public String toString()
 	{

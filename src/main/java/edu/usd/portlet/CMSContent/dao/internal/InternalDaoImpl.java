@@ -86,6 +86,12 @@ public class InternalDaoImpl implements CMSDataDao, DisposableBean
 //		return new ArrayList<CMSPageInfo>(pages);
 		return (ArrayList<CMSPageInfo>)pages;
 	}
+	
+	public CMSPageContent getPageContent(String pageUri)
+	{
+		CMSPageContent page;
+		return new CMSPageContent();
+	}
 
 	public Collection<String> getAvailableGroups()
 	{

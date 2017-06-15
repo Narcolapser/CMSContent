@@ -21,10 +21,11 @@ package edu.usd.portlet.cmscontent.portlet;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.LinkedList;
 import java.util.Arrays;
 
-import javax.portlet.PortletPreferences;
+//import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
@@ -42,14 +43,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.portlet.ModelAndView;
 import org.springframework.beans.factory.annotation.Autowired;
 
 //import edu.usd.portlet.cmscontent.dao.UsdSql;
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
+import edu.usd.portlet.cmscontent.dao.DNNDaoImpl;
+import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.CMSDataDao;
 import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
+import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -68,125 +73,98 @@ public class CMSContentConfigController
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	private CMSDataDao dbo = null; // Spring managed
+	private CMSDataDao csdbo = new CommonSpotDaoImpl();
+	private CMSDataDao dnndbo = new DNNDaoImpl();
 
 	@Autowired
 	public void setdbo(CMSDataDao dbo) {
 		this.dbo = dbo;
 	}
 
+	@Autowired
+	private CMSConfigDao conf = null;
+
+	public void setConf(CMSConfigDao conf)
+	{
+		this.conf = conf;
+	}
+
 	@RequestMapping
 	public ModelAndView viewContent(RenderRequest request, RenderResponse response) {
+		logger.debug("Started primary view");
 		final Map<String, Object> refData = new HashMap<String, Object>();
-		final PortletPreferences preferences = request.getPreferences();
+		//final PortletPreferences preferences = request.getPreferences();
 
-		ArrayList<CMSPageInfo> pages = dbo.getAvailablePages();
+		logger.debug("fetching available pages");
+		//ArrayList<CMSPageInfo> pages = dbo.getAvailablePages();
+		ArrayList<CMSPageInfo> cspages = csdbo.getAvailablePages();
+		ArrayList<CMSPageInfo> dnnpages = dnndbo.getAvailablePages();
+		ArrayList<CMSPageInfo> pages = new ArrayList<CMSPageInfo>();
 
+		logger.debug("puttin the pages");
+		refData.put("CommonSpot",cspages);
+		refData.put("DNN",dnnpages);
 		refData.put("availablePages",pages);
+		refData.put("None",pages);
 
-		String[] pageUris = preferences.getValues("pageUri",null);
-		ArrayList<String> cleanedUri = new ArrayList<String>();
-		for(String page: pageUris)
-		{
-			logger.info("The page: " + page);
-			if (page != null)
-				cleanedUri.add(page);
-		}
-		refData.put("pageUris",cleanedUri);
+		logger.debug("getting page Uris");
+		List<CMSPageInfo> uris = this.conf.getPageUris(request);
+		refData.put("pageUris",uris);
+
+		String[] sources = {"CommonSpot","DNN"};//,"None"};
+		refData.put("sources",sources);
 
 		//get display type. e.g. single, collapsing, tabbed.
-		String displayType = preferences.getValue("displayType","Single");
+		logger.debug("getting display type.");
+		String displayType = this.conf.getDisplayType(request);
 		refData.put("displayType",displayType);
 
-		String[] displayTypes = {"Single","Expanding","Tabbed","Verical_Tabs"};
+		String[] displayTypes = {"Single","Expanding","Tabbed"};//,"Verical_Tabs"};
 		refData.put("displayTypes",displayTypes);
 
 		return new ModelAndView("config",refData);
 	}
 
 	@RequestMapping(params = {"action=add"})
-	public void addPage(ActionRequest request, ActionResponse response
-	) throws Exception 
+	public void addPage(ActionRequest request, ActionResponse response)
 	{
-		logger.info("attempting to add a page");
-		//get the portlets preferences.
-		PortletPreferences prefs = request.getPreferences();
-
-		//get the current list of channel paths.
-		String[] pageUriArray = prefs.getValues("pageUri",null);
-		//convert to an array list.
-		ArrayList<String> pageUris = new ArrayList<String>(Arrays.asList(pageUriArray));
-		//add an item to that list.
-		pageUris.add("blank");
-
-		//convert back and save it as the new list of channels.
-		prefs.setValues("pageUri",pageUris.toArray(pageUriArray));
-		//Save.
-		prefs.store();
+		this.conf.addPage(request);
 	}
 
-	@RequestMapping(params = {"action=update"})
+	@RequestMapping(params = {"action=Update"})
 	public void updatePage(ActionRequest request, ActionResponse response,
 		@RequestParam(value = "channel", required = false) String channel,
-		@RequestParam(value = "index", required = false) String index_str
-	) throws Exception 
+		@RequestParam(value = "source", required = false) String source,
+		@RequestParam(value = "index", required = false) String index_str)
 	{
-		logger.info("attempting to set page uri #" + index_str + " to: " + channel);
+		logger.info("attempting to set page uri #" + index_str + " to: '" + channel + "' from: '" + source + "'");
+		if(channel == null)
+		{
+			logger.debug("Cannot set page to nothing.");
+			return;
+		}
+		if(source.equals("None"))
+		{
+			logger.debug("Cannot set to no data source.");
+			return;
+		}
+		int index = Integer.parseInt(index_str);
+		this.conf.updatePage(request, index, channel, source);
 		//get the portlets preferences.
-		PortletPreferences prefs = request.getPreferences();
-
-		//get the current list of channel paths.
-		String[] pageUriArray = prefs.getValues("pageUri",null);
-		//convert to an array list.
-		ArrayList<String> pageUris = new ArrayList<String>(Arrays.asList(pageUriArray));
-
-		int path_index = Integer.parseInt(index_str);
-		//beware the off by 1 errors!
-		pageUris.set(path_index - 1,channel);
-		
-		prefs.setValues("pageUri",pageUris.toArray(pageUriArray));
-		prefs.store();
-		
-		logger.error("Done setting value.");
 	}
 
 	@RequestMapping(params = {"action=remove"})
-	public void updatePage(ActionRequest request, ActionResponse response,
-		@RequestParam(value = "index", required = false) String index_str
-	) throws Exception 
+	public void removePage(ActionRequest request, ActionResponse response,
+		@RequestParam(value = "index", required = false) String index_str)
 	{
-		logger.info("attempting to remove page uri #" + index_str);
-		//get the portlets preferences.
-		PortletPreferences prefs = request.getPreferences();
-
-		//get the current list of channel paths.
-		String[] pageUriArray = prefs.getValues("pageUri",null);
-		//convert to an array list.
-		LinkedList<String> pageUris = new LinkedList<String>(Arrays.asList(pageUriArray));
-
-		int path_index = Integer.parseInt(index_str);
-		//beware the off by 1 errors!
-		pageUris.remove(path_index - 1);
-
-		prefs.reset("pageUri");
-		prefs.store();
-		prefs.setValues("pageUri",pageUris.toArray(pageUriArray));
-		prefs.store();
-		
-		logger.error("Done removing page.");
+		int index = Integer.parseInt(index_str);
+		this.conf.removePage(request,index);
 	}
 
 	@RequestMapping(params = {"action=updateDisplay"})
 	public void updateDisplay(ActionRequest request, ActionResponse response,
-		@RequestParam(value = "disp_type", required = false) String disp_type
-	) throws Exception 
+		@RequestParam(value = "disp_type", required = false) String disp_type)
 	{
-		logger.info("attempting to update diplay type to: " + disp_type);
-		//get the portlets preferences.
-		PortletPreferences prefs = request.getPreferences();
-
-		prefs.setValue("displayType",disp_type);
-		prefs.store();
-
-		logger.error("Done updating display type.");
+		this.conf.setDisplayType(request,disp_type);
 	}
 }
