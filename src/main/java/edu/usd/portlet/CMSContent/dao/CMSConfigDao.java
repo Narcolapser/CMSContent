@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletPreferences;
 
-import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
+import edu.usd.portlet.cmscontent.dao.CMSDocument;
 
 /**
  * This is the interface definition for portlet configuration. This will contain
@@ -20,12 +20,12 @@ import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
 public interface CMSConfigDao
 {
 
-	public List<CMSPageInfo> getPageUrisSecure(PortletRequest request);
+	public List<CMSDocument> getPageUrisSecure(PortletRequest request);
 	// Return a list of page Uri's and the data source they came from. This
 	// method only returns the page uris the current user has access to see.
 	// ret.get(page uri) -> data source.
 
-	public List<CMSPageInfo> getPageUris(PortletRequest request);
+	public List<CMSDocument> getPageUris(PortletRequest request);
 	// Return a list of page Uri's and the data source they came from. This is 
 	// meant to be used in the editor rather than for displaying.
 	// ret.get(page uri) -> data source.

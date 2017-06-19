@@ -50,10 +50,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 //import edu.usd.portlet.cmscontent.dao.UsdSql;
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
-import edu.usd.portlet.cmscontent.dao.DNNDaoImpl;
-import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
-import edu.usd.portlet.cmscontent.dao.CMSDataDao;
-import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
+import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
+import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 
 import javax.naming.Context;
@@ -72,12 +70,12 @@ public class CMSContentConfigController
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	private CMSDataDao dbo = null; // Spring managed
-	private CMSDataDao csdbo = new CommonSpotDaoImpl();
-	private CMSDataDao dnndbo = new DNNDaoImpl();
+	private CMSDocumentDao dbo = null; // Spring managed
+	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
+	private CMSDocumentDao dnndbo = new CommonSpotDaoImpl();
 
 	@Autowired
-	public void setdbo(CMSDataDao dbo) {
+	public void setdbo(CMSDocumentDao dbo) {
 		this.dbo = dbo;
 	}
 
@@ -96,19 +94,17 @@ public class CMSContentConfigController
 		//final PortletPreferences preferences = request.getPreferences();
 
 		logger.debug("fetching available pages");
-		//ArrayList<CMSPageInfo> pages = dbo.getAvailablePages();
-		ArrayList<CMSPageInfo> cspages = csdbo.getAvailablePages();
-		ArrayList<CMSPageInfo> dnnpages = dnndbo.getAvailablePages();
-		ArrayList<CMSPageInfo> pages = new ArrayList<CMSPageInfo>();
+		//ArrayList<CMSDocument> pages = dbo.getAvailablePages();
+		ArrayList<CMSDocument> cspages = csdbo.getAllDocumentsContentless();
+		ArrayList<CMSDocument> pages = new ArrayList<CMSDocument>();
 
 		logger.debug("puttin the pages");
 		refData.put("CommonSpot",cspages);
-		refData.put("DNN",dnnpages);
 		refData.put("availablePages",pages);
 		refData.put("None",pages);
 
 		logger.debug("getting page Uris");
-		List<CMSPageInfo> uris = this.conf.getPageUris(request);
+		List<CMSDocument> uris = this.conf.getPageUris(request);
 		refData.put("pageUris",uris);
 
 		String[] sources = {"CommonSpot","DNN"};//,"None"};

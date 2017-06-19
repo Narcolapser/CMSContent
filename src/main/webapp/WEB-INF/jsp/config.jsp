@@ -15,8 +15,8 @@ function populate_pages(data, textStatus, jqXHR)
 	{
 		pages.options[i] = new Option(
 			"Title: " + data["pages"][i]["title"] + 
-			", Full Path: " + data["pages"][i]["path"],
-			data["pages"][i]["path"]);
+			", Full Id: " + data["pages"][i]["Id"],
+			data["pages"][i]["Id"]);
 	}
 }
 function OnChange(sources,pages)
@@ -60,7 +60,7 @@ function OnChange(sources,pages)
 	<h2>Pages</h2>
 	<c:set var="counter" value="${0}"/>
 	<c:forEach var="pageUri" items="${pageUris}">
-		<div class="pageUri.path" style="display:block" class="form-group">
+		<div class="pageUri.Id" style="display:block" class="form-group">
 <!--			<h3>Page: ${pageUri}</h3>-->
 			<c:set var="counter" value="${counter + 1}"/>
 			<c:set var="selected" value="selected"/>
@@ -104,12 +104,12 @@ function OnChange(sources,pages)
 				<select id="channel_${counter}" name="channel" class="form-control">
 					<c:forEach var="page" items="${pageSource}">
 						<c:choose>
-							<c:when test="${page.path == pageUri.path}">
-								<option value="${page.path}" selected="selected">Title: ${page.title}, Full Path: ${page.path}</option>
+							<c:when test="${page.Id == pageUri.Id}">
+								<option value="${page.Id}" selected="selected">Title: ${page.title}, Full Id: ${page.Id}</option>
 								<c:set var="selected" value=""/>
 							</c:when>
 							<c:otherwise>
-								<option value="${page.path}">Title: ${page.title}, Full Path: ${page.path}</option>
+								<option value="${page.Id}">Title: ${page.title}, Full Id: ${page.Id}</option>
 							</c:otherwise>
 						</c:choose>
 					</c:forEach>

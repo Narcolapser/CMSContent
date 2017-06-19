@@ -43,10 +43,9 @@ import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.portlet.ModelAndView;
 
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
-import edu.usd.portlet.cmscontent.dao.DNNDaoImpl;
-import edu.usd.portlet.cmscontent.dao.CMSDataDao;
-import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
-import edu.usd.portlet.cmscontent.dao.CMSPageContent;
+import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
+import edu.usd.portlet.cmscontent.dao.CMSDocument;
+import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 
 import javax.naming.Context;
@@ -65,11 +64,10 @@ public class CMSContentViewController {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	@Autowired
-	private CMSDataDao dbo = null; // Spring managed
-	private CMSDataDao csdbo = new CommonSpotDaoImpl();
-	private CMSDataDao dnndbo = new DNNDaoImpl();
+	private CMSDocumentDao dbo = null; // Spring managed
+	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
 
-	public void setdbo(CMSDataDao dbo) {
+	public void setdbo(CMSDocumentDao dbo) {
 		this.dbo = dbo;
 	}
 
@@ -92,15 +90,16 @@ public class CMSContentViewController {
 		refData.put("displayType",displayType);
 
 		//Get the list of pages that are to be displayed.
-		List<CMSPageInfo> uris = this.conf.getPageUris(request);
+		List<CMSDocument> uris = this.conf.getPageUris(request);
 		
 		//Prepare a list for the page content.
-		ArrayList<CMSPageContent> content = new ArrayList<CMSPageContent>();
+		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
 		
 		//itterate through the list of pages and get their content.
-		for(CMSPageInfo entry:uris)
+		for(CMSDocument entry:uris)
 		{
-			if("blank".equals(entry.getPath()))
+			logger.info("Getting page: " + entry.getId() + " " + entry.getSource());
+			if("blank".equals(entry.getId()))
 			{
 				//skip this, it is a blank page.
 				continue;
@@ -108,12 +107,12 @@ public class CMSContentViewController {
 			if("DNN".equals(entry.getSource()))
 			{
 				//content comes from DNN, use the DNN source.
-				content.add(this.dnndbo.getPageContent(entry.getPath()));
+				content.add(this.csdbo.getDocument(entry.getId()));
 			}
 			else
 			{
 				//content comes from CommonSpot, use the CommonSpot source.
-				content.add(this.csdbo.getPageContent(entry.getPath()));
+				content.add(this.csdbo.getDocument(entry.getId()));
 				//This is the default for legacy reasons. 
 			}
 		}

@@ -13,9 +13,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
-import edu.usd.portlet.cmscontent.dao.DNNDaoImpl;
-import edu.usd.portlet.cmscontent.dao.CMSDataDao;
-import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
+import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
+import edu.usd.portlet.cmscontent.dao.CMSDocument;
 
 @RestController
 @RequestMapping("/v1/api")
@@ -23,8 +22,7 @@ public final class CMSRestController {
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
 	
-	private CMSDataDao csdbo = new CommonSpotDaoImpl();
-	private CMSDataDao dnndbo = new DNNDaoImpl();
+	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
 
 	@RequestMapping("test")
 	public Message test(@RequestParam(value="name", defaultValue = "Me") String name)
@@ -36,14 +34,14 @@ public final class CMSRestController {
 	}
 
 	@RequestMapping("getPages")
-	public ArrayList<CMSPageInfo> getPages(@RequestParam(value="source", defaultValue = "CommonSpot") String source)
+	public ArrayList<CMSDocument> getPages(@RequestParam(value="source", defaultValue = "CommonSpot") String source)
 	{
 		logger.debug("Recieved request to get pages for: " + source);
-		ArrayList<CMSPageInfo> pages;
+		ArrayList<CMSDocument> pages;
 		if(source.equals("DNN"))
-			pages = dnndbo.getAvailablePages();
+			pages = csdbo.getAllDocumentsContentless();
 		else
-			pages = csdbo.getAvailablePages();
+			pages = csdbo.getAllDocumentsContentless();
 		return pages;
 	}
 
@@ -58,15 +56,15 @@ public final class CMSRestController {
 		PagesAndIndex ret;
 		try
 		{
-			ArrayList<CMSPageInfo> pages;
+			ArrayList<CMSDocument> pages;
 			if(source.equals("DNN"))
-				pages = dnndbo.getAvailablePages();
+				pages = csdbo.getAllDocumentsContentless();
 			else if (source.equals("CommonSpot"))
-				pages = csdbo.getAvailablePages();
+				pages = csdbo.getAllDocumentsContentless();
 			else
 			{
 				logger.debug("Request made to the empty data provider");
-				pages = new ArrayList<CMSPageInfo>();
+				pages = new ArrayList<CMSDocument>();
 			}
 			ret = new PagesAndIndex(pages,index_str);
 			logger.debug("Returning result");
@@ -93,22 +91,22 @@ public final class CMSRestController {
 	public final static class PagesAndIndex
 	{
 		@XmlElement
-		ArrayList<CMSPageInfo> pages;
+		ArrayList<CMSDocument> pages;
 		@XmlElement
 		String index;
 
 		public PagesAndIndex(){}
 
-		public PagesAndIndex(ArrayList<CMSPageInfo> pages, String index)
+		public PagesAndIndex(ArrayList<CMSDocument> pages, String index)
 		{
 			this.pages = pages;
 			this.index = index;
 		}
-		public ArrayList<CMSPageInfo> getPages()
+		public ArrayList<CMSDocument> getPages()
 		{
 			return this.pages;
 		}
-		public void setPages(ArrayList<CMSPageInfo> val)
+		public void setPages(ArrayList<CMSDocument> val)
 		{
 			this.pages = val;
 		}
