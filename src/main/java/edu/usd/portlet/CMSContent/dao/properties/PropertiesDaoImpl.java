@@ -20,7 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
-import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
+import edu.usd.portlet.cmscontent.dao.CMSDocument;
 
 /**
  * @author Toben Archer
@@ -31,38 +31,38 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	public List<CMSPageInfo> getPageUrisSecure(PortletRequest request)
+	public List<CMSDocument> getPageUrisSecure(PortletRequest request)
 	{
-		return new ArrayList<CMSPageInfo>();
+		return new ArrayList<CMSDocument>();
 	}
 
 	// Return a list of page Uri's and the data source they came from. This is 
 	// meant to be used in the editor rather than for displaying.
 	// ret.get(page uri) -> data source.
-	public List<CMSPageInfo> getPageUris(PortletRequest request)
+	public List<CMSDocument> getPageUris(PortletRequest request)
 	{
 		PortletPreferences prefs = request.getPreferences();
 		String[] pageUriArray = prefs.getValues("pageUri",null);
 		String source;
-		ArrayList<CMSPageInfo> ret = new ArrayList<CMSPageInfo>();
+		ArrayList<CMSDocument> ret = new ArrayList<CMSDocument>();
 		try
 		{
 			for(String val:pageUriArray)
 			{
 				if(val == null)
 				{
-					ret.add(new CMSPageInfo("","blank","blank"));
+					ret.add(new CMSDocument("","blank","blank","blank"));
 					continue;
 				}
 				//default is commonspot for backwards compatibility reasons.
 				source = prefs.getValue(val,"CommonSpot");
-				ret.add(new CMSPageInfo("",val,source));
+				ret.add(new CMSDocument("",val,source,""));
 			}
 		}
 		catch(Exception e)
 		{
 			logger.info("There were no values set");
-			ret.add(new CMSPageInfo("","blank","blank"));
+			ret.add(new CMSDocument("","blank","blank","blank"));
 		}
 		return ret;
 	}

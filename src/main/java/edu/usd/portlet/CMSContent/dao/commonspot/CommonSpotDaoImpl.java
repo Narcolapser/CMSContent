@@ -18,7 +18,7 @@ import javax.sql.DataSource;
 import edu.usd.portlet.cmscontent.dao.UsdSql;
 
 /**
- * This is an implementation of the CMSDataDao. It is responsible for pulling in
+ * This is an implementation of the CMSDocumentDao. It is responsible for pulling in
  * data from our old CMS, CommonSpot. It is realatively straight forward as all
  * the heavy lifting is done in the database. 
  * 
@@ -26,97 +26,13 @@ import edu.usd.portlet.cmscontent.dao.UsdSql;
  * @version $Id$
  */
 
-public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
+public class CommonSpotDaoImpl implements CMSDocumentDao, DisposableBean
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	public ArrayList<CMSPageContent> getContent(PortletRequest request)
+	public CMSDocument getDocument(String Id)
 	{
-		final PortletPreferences preferences = request.getPreferences();
-		PreparedStatement selectStatement = null;
-		ResultSet resultSet = null;
-		PreparedStatement selectStatement2 = null;
-		ResultSet resultSet2 = null;
-		Connection connection = null;
-
-		PortletPreferences prefs = request.getPreferences();
-		String[] pageUriArray = prefs.getValues("pageUri",null);
-		String pageUri = pageUriArray[0];
-		String content = "", title = "", type = "normal";
-		CMSPageContent page;
-		ArrayList<CMSPageContent> ret = new ArrayList<CMSPageContent>();
-
-		Map userInfo = (Map)request.getAttribute(PortletRequest.USER_INFO);
-		String username = (String)userInfo.get("username");
-
-		try
-		{
-			connection = UsdSql.getPoolConnection();
-			logger.info("Preparing to get information for user: " + username + " requesting page: " + pageUri);
-			selectStatement = connection.prepareStatement("exec dbo.selectChannelContentForUser ?, ?");
-			selectStatement.setString(1, username);
-			selectStatement.setString(2, pageUri);
-
-			resultSet = selectStatement.executeQuery();
-			resultSet.next();
-
-			type = (String) resultSet.getString("contentType");
-			logger.debug("Got infomration from the query.");
-			if (!type.equals("normal"))
-			{
-				logger.debug("Multi Page");
-				page = getSubPageContent(resultSet,connection,username);
-				ret.add(page);
-				while(resultSet.next())
-				{
-					page = getSubPageContent(resultSet,connection,username);
-					ret.add(page);
-				}
-			}
-			else
-			{
-				title = resultSet.getString("Title");
-				logger.debug("Single page. printing content");
-				for(String uri:pageUriArray)
-				{
-					content = "";
-					logger.info("fetching uri: " + uri);
-					if (uri == null || uri.equals("blank"))
-						continue;
-					selectStatement = connection.prepareStatement("exec dbo.selectChannelContentForUser ?, ?");
-					selectStatement.setString(1, username);
-					selectStatement.setString(2, uri);
-
-					resultSet = selectStatement.executeQuery();
-					while (resultSet.next())
-					{
-						content += (String) resultSet.getString("cachedContent");
-						title = resultSet.getString("Title");
-					}
-					page = new CMSPageContent(content,title);
-					ret.add(page);
-				}
-			}
-		}
-		catch(Exception e)
-		{
-			logger.info(e);
-			page = new CMSPageContent("There was a problem retrieving the requested content: " + e.getMessage(),"error");
-			ret.add(page);
-		}
-		finally
-		{
-			UsdSql.closeResultSet(resultSet);
-			UsdSql.closePreparedStatement(selectStatement);
-			UsdSql.closeResultSet(resultSet2);
-			UsdSql.closePreparedStatement(selectStatement2);
-			UsdSql.closePoolConnection(connection);
-		}
-		return ret;
-	}
-
-	public CMSPageContent getPageContent(String pageUri)
-	{
+		String pageUri = Id;
 		PreparedStatement selectStatement = null;
 		ResultSet resultSet = null;
 		PreparedStatement selectStatement2 = null;
@@ -124,16 +40,15 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 		Connection connection = null;
 
 		String content = "", title = "", type = "normal";
-		CMSPageContent page;
+		CMSDocument page;
 
 		try
 		{
 			connection = UsdSql.getPoolConnection();
 			content = "";
 			logger.info("fetching uri: " + pageUri);
-			selectStatement = connection.prepareStatement("exec dbo.selectChannelContentForUser ?, ?");
-			selectStatement.setString(1, "toben.archer");
-			selectStatement.setString(2, pageUri);
+			selectStatement = connection.prepareStatement("SELECT Title, url, cachedContent FROM [uPortalUSD].[dbo].[vwCommonSpotExtraInfo] WHERE url=?");
+			selectStatement.setString(1, pageUri);
 
 			resultSet = selectStatement.executeQuery();
 			while (resultSet.next())
@@ -141,12 +56,12 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 				content += (String) resultSet.getString("cachedContent");
 				title = resultSet.getString("Title");
 			}
-			page = new CMSPageContent(content,title);
+			page = new CMSDocument(title,Id,"CommonSpot",content);
 		}
 		catch(Exception e)
 		{
 			logger.info(e);
-			page = new CMSPageContent("There was a problem retrieving the requested content: " + e.getMessage(),"error");
+			page = new CMSDocument("There was a problem retrieving the requested content: " + e.getMessage(),"error");
 		}
 		finally
 		{
@@ -160,33 +75,9 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 		return page;
 	}
 
-	private CMSPageContent getSubPageContent(ResultSet resultSet, Connection con, String username) throws SQLException
+	public ArrayList<String> getAvailableDocuments()
 	{
-		PreparedStatement selectStatement = null;
-		ResultSet resultSet2 = null;
-
-		String title, sectionContent, url;
-		String[] sectionData;
-		sectionData = ((String) resultSet.getString("cachedContent")).split(";");
-		title = sectionData[0];
-		url = sectionData[2];
-		selectStatement = con.prepareStatement("exec dbo.selectChannelContentForUser ?, ?");
-		selectStatement.setString(1, username);
-		selectStatement.setString(2, url);
-		resultSet2 = selectStatement.executeQuery();
-		if(resultSet2.next()){
-			sectionContent = resultSet2.getString("cachedContent");
-		}else{
-			sectionContent = "No Content Available";
-		}
-		CMSPageContent page = new CMSPageContent(sectionContent,title);
-		return page;
-	}
-
-	public ArrayList<CMSPageInfo> getAvailablePages()
-	{
-		ArrayList<CMSPageInfo> pages = new ArrayList<CMSPageInfo>();
-
+		ArrayList<String> pages = new ArrayList<String>();
 		Connection connection = null;
 		PreparedStatement selectStatement = null;
 		ResultSet resultSet = null;
@@ -197,14 +88,9 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 			selectStatement = connection.prepareStatement("SELECT [url] as PagePath,[Title] FROM [uPortalUSD].[dbo].[vwCommonSpotExtraInfo]");
 
 			resultSet = selectStatement.executeQuery();
-			String title;
-			String path;
 			while(resultSet.next())
 			{
-				title = (String)(resultSet.getString("Title"));
-				path  = (String)(resultSet.getString("PagePath"));
-				CMSPageInfo pageInfo = new CMSPageInfo(title,path);
-				pages.add(pageInfo);
+				pages.add((String)(resultSet.getString("Title")));
 			}
 		}
 		catch(Exception e)
@@ -221,9 +107,41 @@ public class CommonSpotDaoImpl implements CMSDataDao, DisposableBean
 		return pages;
 	}
 
-	public Collection<String> getAvailableGroups()
+	public ArrayList<CMSDocument> getAllDocumentsContentless()
 	{
-		return new ArrayList<String>();
+		ArrayList<CMSDocument> pages = new ArrayList<CMSDocument>();
+		Connection connection = null;
+		PreparedStatement selectStatement = null;
+		ResultSet resultSet = null;
+
+		try
+		{
+			connection = UsdSql.getPoolConnection();
+			selectStatement = connection.prepareStatement("SELECT [url],[Title] FROM [uPortalUSD].[dbo].[vwCommonSpotExtraInfo]");
+
+			resultSet = selectStatement.executeQuery();
+			String title;
+			String url;
+			while(resultSet.next())
+			{
+				CMSDocument page = new CMSDocument();
+				page.setTitle((String)(resultSet.getString("Title")));
+				page.setId((String)(resultSet.getString("url")));
+				page.setSource("CommonSpot");
+				pages.add(page);
+			}
+		}
+		catch(Exception e)
+		{
+			logger.debug("woopsie: " + e);
+		}
+		finally
+		{
+			UsdSql.closeResultSet(resultSet);
+			UsdSql.closePreparedStatement(selectStatement);
+			UsdSql.closePoolConnection(connection);
+		}
+		return pages;
 	}
 
 	public void destroy() throws Exception {
