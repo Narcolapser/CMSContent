@@ -43,6 +43,7 @@ import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.portlet.ModelAndView;
 
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
+import edu.usd.portlet.cmscontent.dao.InternalDaoImpl;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
@@ -63,13 +64,14 @@ import javax.naming.InitialContext;
 public class CMSContentViewController {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	@Autowired
-	private CMSDocumentDao dbo = null; // Spring managed
+//	@Autowired
+//	private CMSDocumentDao dbo = null; // Spring managed
 	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
+	private CMSDocumentDao intdbo = new InternalDaoImpl();
 
-	public void setdbo(CMSDocumentDao dbo) {
-		this.dbo = dbo;
-	}
+//	public void setdbo(CMSDocumentDao dbo) {
+//		this.dbo = dbo;
+//	}
 
 	@Autowired
 	private CMSConfigDao conf = null;
@@ -104,10 +106,10 @@ public class CMSContentViewController {
 				//skip this, it is a blank page.
 				continue;
 			}
-			if("DNN".equals(entry.getSource()))
+			if("Internal".equals(entry.getSource()))
 			{
-				//content comes from DNN, use the DNN source.
-				content.add(this.csdbo.getDocument(entry.getId()));
+				//content comes from internally, use the internal source.
+				content.add(this.intdbo.getDocument(entry.getId()));
 			}
 			else
 			{

@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
+import edu.usd.portlet.cmscontent.dao.InternalDaoImpl;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 
@@ -23,6 +24,7 @@ public final class CMSRestController {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 	
 	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
+	private CMSDocumentDao intdbo = new InternalDaoImpl();
 
 	@RequestMapping("test")
 	public Message test(@RequestParam(value="name", defaultValue = "Me") String name)
@@ -38,8 +40,8 @@ public final class CMSRestController {
 	{
 		logger.debug("Recieved request to get pages for: " + source);
 		ArrayList<CMSDocument> pages;
-		if(source.equals("DNN"))
-			pages = csdbo.getAllDocumentsContentless();
+		if(source.equals("Internal"))
+			pages = intdbo.getAllDocumentsContentless();
 		else
 			pages = csdbo.getAllDocumentsContentless();
 		return pages;
@@ -57,8 +59,8 @@ public final class CMSRestController {
 		try
 		{
 			ArrayList<CMSDocument> pages;
-			if(source.equals("DNN"))
-				pages = csdbo.getAllDocumentsContentless();
+			if(source.equals("Internal"))
+				pages = intdbo.getAllDocumentsContentless();
 			else if (source.equals("CommonSpot"))
 				pages = csdbo.getAllDocumentsContentless();
 			else
