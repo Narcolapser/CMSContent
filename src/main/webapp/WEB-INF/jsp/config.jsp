@@ -61,7 +61,6 @@ function OnChange(sources,pages)
 	<c:set var="counter" value="${0}"/>
 	<c:forEach var="pageUri" items="${pageUris}">
 		<div class="pageUri.Id" style="display:block" class="form-group">
-<!--			<h3>Page: ${pageUri}</h3>-->
 			<c:set var="counter" value="${counter + 1}"/>
 			<c:set var="selected" value="selected"/>
 
@@ -71,7 +70,6 @@ function OnChange(sources,pages)
 				<select id="source_selector_${counter}" name="source" class="form-control"
 						OnChange='OnChange(this.form.source_selector_${counter},this.form.channel_${counter});'>
 					<c:forEach var="source" items="${sources}">
-						<!--${selected} ${source} ${pageUri}"-->
 						<c:choose>
 							<c:when test="${source == pageUri.source}">
 								<option value="${source}" selected="selected">${source}</option>
@@ -92,8 +90,8 @@ function OnChange(sources,pages)
 					<c:when test="${pageUri.source == 'CommonSpot'}">
 						<c:set var="pageSource" value="${CommonSpot}"/>
 					</c:when>
-					<c:when test="${pageUri.source == 'DNN'}">
-						<c:set var="pageSource" value="${DNN}"/>
+					<c:when test="${pageUri.source == 'Internal'}">
+						<c:set var="pageSource" value="${Internal}"/>
 					</c:when>
 					<c:otherwise>
 						<c:set var="pageSource" value="${availablePages}"/>
@@ -104,12 +102,12 @@ function OnChange(sources,pages)
 				<select id="channel_${counter}" name="channel" class="form-control">
 					<c:forEach var="page" items="${pageSource}">
 						<c:choose>
-							<c:when test="${page.Id == pageUri.Id}">
-								<option value="${page.Id}" selected="selected">Title: ${page.title}, Full Id: ${page.Id}</option>
+							<c:when test="${page.id == pageUri.id}">
+								<option value="${page.id}" selected="selected">Title: ${page.title}, Full Id: ${page.id}</option>
 								<c:set var="selected" value=""/>
 							</c:when>
 							<c:otherwise>
-								<option value="${page.Id}">Title: ${page.title}, Full Id: ${page.Id}</option>
+								<option value="${page.id}">Title: ${page.title}, Full Id: ${page.id}</option>
 							</c:otherwise>
 						</c:choose>
 					</c:forEach>

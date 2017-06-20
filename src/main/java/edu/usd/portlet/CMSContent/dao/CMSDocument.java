@@ -1,16 +1,24 @@
 package edu.usd.portlet.cmscontent.dao;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+import org.hibernate.annotations.Type;
+
+
 /**
  * @author Toben Archer
  * @version $Id$
  */
 
+@Entity
 public class CMSDocument
 {
-	private String title;
-	private String Id;
-	private String source;
-	private String content;
+	@Id
+	protected String Id;
+	protected String title;
+	protected String source;
+	protected String content;
 
 	public CMSDocument(){}
 

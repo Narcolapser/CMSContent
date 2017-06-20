@@ -22,6 +22,8 @@ making a new portlet. This re-write seeks to solve those issues by:
 ###0.4:
 
 * Allow for selection of data source in individual portlet/channel configuration.
+* Add internal CMS
+* Add internal Editor
 
 ###0.5
 
