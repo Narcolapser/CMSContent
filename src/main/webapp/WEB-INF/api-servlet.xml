@@ -17,8 +17,5 @@
     </bean>
 
     <mvc:annotation-driven/>
-    
-    <jpa:repositories base-package="*****" />
-    <tx:annotation-driven />
 
 </beans>

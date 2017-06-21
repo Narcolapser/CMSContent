@@ -18,4 +18,5 @@ public class InternalDocumentInfoRepositoryImpl implements InternalDocumentInfoR
 		return ret;
 	}
 	public void deleteAll(){}
+	public void delete(){}
 }
