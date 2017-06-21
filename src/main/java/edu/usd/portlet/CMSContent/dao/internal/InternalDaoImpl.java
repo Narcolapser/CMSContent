@@ -23,8 +23,13 @@ public class InternalDaoImpl implements CMSDocumentDao, DisposableBean
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	@Autowired
-	private InternalDocumentInfoRepository pageInfoRepo;
-//	private InternalDocumentInfoRepository pageInfoRepo = new InternalPageInfoRepository();
+	private InternalDocumentInfoRepository docInfoRepo;
+	
+	public void setDocInfoRepo( InternalDocumentInfoRepository docInfoRepo)
+	{
+		this.docInfoRepo = docInfoRepo;
+	}
+//	private InternalDocumentInfoRepository docInfoRepo = new InternaldocInfoRepository();
 
 	public ArrayList<String> getAvailableDocuments()
 	{
@@ -34,15 +39,15 @@ public class InternalDaoImpl implements CMSDocumentDao, DisposableBean
 //		pages = hb.getPages();
 //		CMSDocument page = new CMSDocument("Test page","/path/to/test.html");
 //		pages.add(page);
-//		pageInfoRepo.save(page);
+//		docInfoRepo.save(page);
 //		page = new CMSDocument("tp2","/path/to/test2.html");
 //		pages.add(page);
-//		pageInfoRepo.save(page);
+//		docInfoRepo.save(page);
 		try
 		{
-			Iterable<?> pagesIter = pageInfoRepo.findAll();
+//			Iterable<?> pagesIter = docInfoRepo.findAll();
 			logger.debug("pages fetched.");
-			pages = IteratorUtils.toList(pagesIter.iterator());
+//			pages = IteratorUtils.toList(pagesIter.iterator());
 			logger.debug("Number of pages: " + pages.size());
 		}
 		catch(Exception e)
@@ -69,9 +74,9 @@ public class InternalDaoImpl implements CMSDocumentDao, DisposableBean
 		try
 		{
 			logger.debug("Fetching pages");
-			Iterable<?> pagesIter = pageInfoRepo.findAll();
+//			Iterable<?> pagesIter = docInfoRepo.findAll();
 			logger.debug("pages fetched.");
-			docs = new ArrayList<CMSDocument>(IteratorUtils.toList(pagesIter.iterator()));
+//			docs = new ArrayList<CMSDocument>(IteratorUtils.toList(pagesIter.iterator()));
 			logger.debug("Number of pages: " + docs.size());
 		}
 		catch(Exception e)
