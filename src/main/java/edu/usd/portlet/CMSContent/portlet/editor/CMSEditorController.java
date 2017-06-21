@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package edu.usd.portlet.cmscontent.portlet;
+package edu.usd.portlet.cmscontent.portlet.editor;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -53,14 +53,14 @@ import javax.naming.InitialContext;
 
 
 /**
- * This class handles retrieves information and displays the view page.
+ * This class handles the builtin CMS Content editor.
  * 
  * @author Toben Archer
  * @version $Id$
  */
 @Controller
 @RequestMapping("VIEW")
-public class CMSContentViewController {
+public class CMSEditorController {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	@Autowired
@@ -82,60 +82,35 @@ public class CMSContentViewController {
 	@RequestMapping
 	public ModelAndView viewContent(RenderRequest request, RenderResponse response)
 	{
-		//Create the model object that will be passed.
+		logger.debug("Started primary view");
 		final Map<String, Object> refData = new HashMap<String, Object>();
+		//final PortletPreferences preferences = request.getPreferences();
+
+		logger.debug("fetching available pages");
+		//ArrayList<CMSDocument> pages = dbo.getAvailablePages();
+		ArrayList<CMSDocument> cspages = csdbo.getAllDocumentsContentless();
+		ArrayList<CMSDocument> pages = new ArrayList<CMSDocument>();
+
+		logger.debug("puttin the pages");
+		refData.put("CommonSpot",cspages);
+		refData.put("availablePages",pages);
+		refData.put("None",pages);
+
+		logger.debug("getting page Uris");
+		List<CMSDocument> uris = this.conf.getPageUris(request);
+		refData.put("pageUris",uris);
+
+		String[] sources = {"CommonSpot","DNN"};//,"None"};
+		refData.put("sources",sources);
 
 		//get display type. e.g. single, collapsing, tabbed.
+		logger.debug("getting display type.");
 		String displayType = this.conf.getDisplayType(request);
 		refData.put("displayType",displayType);
 
-		//Get the list of pages that are to be displayed.
-		List<CMSDocument> uris = this.conf.getPageUris(request);
-		
-		//Prepare a list for the page content.
-		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
-		
-		//itterate through the list of pages and get their content.
-		for(CMSDocument entry:uris)
-		{
-			logger.info("Getting page: " + entry.getId() + " " + entry.getSource());
-			if("blank".equals(entry.getId()))
-			{
-				//skip this, it is a blank page.
-				continue;
-			}
-			if("DNN".equals(entry.getSource()))
-			{
-				//content comes from DNN, use the DNN source.
-				content.add(this.csdbo.getDocument(entry.getId()));
-			}
-			else
-			{
-				//content comes from CommonSpot, use the CommonSpot source.
-				content.add(this.csdbo.getDocument(entry.getId()));
-				//This is the default for legacy reasons. 
-			}
-		}
-		refData.put("content",content); //stow it for the view.
+		String[] displayTypes = {"Single","Expanding","Tabbed"};//,"Verical_Tabs"};
+		refData.put("displayTypes",displayTypes);
 
-		//Get channel ID:
-		Random randomGenerator = new Random();
-		String channelId = "cmsContent"+displayType+String.valueOf(Math.abs(randomGenerator.nextInt()))+new Date().getTime();
-		refData.put("channelId",channelId);
-
-		//Get portlet path:
-		String portletPath = request.getContextPath();
-		refData.put("portletPath",portletPath);
-
-		//send to "view".jsp the object refData.
-		if (displayType.equals("Tabbed"))
-			return new ModelAndView("view_tabbed",refData);
-		else if (displayType.equals("Expanding"))
-			return new ModelAndView("view_expanding",refData);
-		//coming soon (tm)
-//		else if (displayType.equals("Verical_Tabs"))
-//			return new ModelAndView("view_vertical_tabs",refData);
-		else
-			return new ModelAndView("view_single",refData);
+		return new ModelAndView("editor",refData);
 	}
 }

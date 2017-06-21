@@ -13,7 +13,7 @@
     <packaging>war</packaging>
     
     <name>CMS Content</name>
-    <version>0.3.4</version>
+    <version>0.3.6</version>
     <description>USD's portlet for displaying external CMS content.</description>
     <url>https://bitbucket.org/usd/cms-content/</url>
 
@@ -61,7 +61,7 @@
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <warName>CMSContent</warName> 
+                    <warName>${project.artifactId}</warName>
                 </configuration>
             </plugin>
             <plugin>
