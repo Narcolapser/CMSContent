@@ -26,14 +26,20 @@
 	<class name="edu.usd.portlet.cmscontent.dao.CMSDocument" table="CMSDocument">
 
 		<id name="id" type="string">
-			<column name="id" not-null="true"/>
+			<column name="id" not-null="true" length="500"/>
 		</id>
 
-		<property name="title" type="string"></property>
+		<property name="title" type="string">
+			<column name="title" length="300"/>
+		</property>
 
-		<property name="content" type="string"></property>
+		<property name="content" type="string">
+			<column name="content" length="8000"/>
+		</property>
 		
-		<property name="source" type="string"></property>
+		<property name="source" type="string">
+			<column name="source" length="50"/>
+		</property>
 
 	</class>
 

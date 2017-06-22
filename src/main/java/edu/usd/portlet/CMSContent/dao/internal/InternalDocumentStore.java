@@ -6,8 +6,10 @@ package edu.usd.portlet.cmscontent.dao;
  */
 
 import java.util.*;
+import java.util.List;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.Session;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,7 +24,7 @@ import edu.usd.portlet.cmscontent.dao.CMSDocument;
 
 public class InternalDocumentStore
 {
-	private Log log = LogFactory.getLog(getClass());
+	private Log logger = LogFactory.getLog(getClass());
 
 
 	@Autowired
@@ -37,15 +39,28 @@ public class InternalDocumentStore
 	}
 
 //	@Override
-	public void storePage(CMSDocument Page)
+	public void storeDocument(CMSDocument doc)
 	{
-
+		Session session = this.sessionFactory.getCurrentSession();
+		session.persist(doc);
+		logger.info("Persisted document");
 	}
 	
 //	@Override
-	public CMSDocument getPage(String path)
+	public CMSDocument getDocument(String path)
 	{
-		return new CMSDocument();
+		Session session = this.sessionFactory.getCurrentSession();
+		CMSDocument ret = (CMSDocument) session.load(CMSDocument.class, path);
+		logger.info("Document loaded sucessfully, details: " + ret);
+		return ret;
+	}
+	
+	public List<CMSDocument> getAll()
+	{
+		logger.info("Getting all documents " + this.sessionFactory);
+		Session session = this.sessionFactory.getCurrentSession();
+		List<CMSDocument> docList = session.createQuery("from CMSDocument").list();
+		return docList;
 	}
 
 //	public ArrayList<CMSDocumentInfo> getPages()

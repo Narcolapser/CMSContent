@@ -91,9 +91,9 @@ public class CMSContentConfigController
 
 		logger.debug("fetching available pages");
 		//ArrayList<CMSDocument> pages = dbo.getAvailablePages();
-		ArrayList<CMSDocument> cspages = csdbo.getAllDocumentsContentless();
-		ArrayList<CMSDocument> intpages = intdbo.getAllDocumentsContentless();
-		ArrayList<CMSDocument> pages = new ArrayList<CMSDocument>();
+		List<CMSDocument> cspages = csdbo.getAllDocumentsContentless();
+		List<CMSDocument> intpages = intdbo.getAllDocumentsContentless();
+		List<CMSDocument> pages = new ArrayList<CMSDocument>();
 
 		logger.debug("puttin the pages");
 		refData.put("CommonSpot",cspages);

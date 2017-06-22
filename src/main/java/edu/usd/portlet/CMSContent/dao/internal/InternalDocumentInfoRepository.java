@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface InternalDocumentInfoRepository{// extends CrudRepository<CMSDocument, Long> {
 	public List<CMSDocument> findById(String Id);
+	public List<CMSDocument> getAll();
 }

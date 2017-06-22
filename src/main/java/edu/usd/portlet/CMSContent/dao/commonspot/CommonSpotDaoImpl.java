@@ -75,7 +75,7 @@ public class CommonSpotDaoImpl implements CMSDocumentDao, DisposableBean
 		return page;
 	}
 
-	public ArrayList<String> getAvailableDocuments()
+	public List<String> getAvailableDocuments()
 	{
 		ArrayList<String> pages = new ArrayList<String>();
 		Connection connection = null;
@@ -107,7 +107,7 @@ public class CommonSpotDaoImpl implements CMSDocumentDao, DisposableBean
 		return pages;
 	}
 
-	public ArrayList<CMSDocument> getAllDocumentsContentless()
+	public List<CMSDocument> getAllDocumentsContentless()
 	{
 		ArrayList<CMSDocument> pages = new ArrayList<CMSDocument>();
 		Connection connection = null;
