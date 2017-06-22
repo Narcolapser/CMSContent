@@ -29,9 +29,17 @@ public class InternalDaoImpl implements CMSDocumentDao, DisposableBean
 	{
 		this.docInfoRepo = docInfoRepo;
 	}
+	
+	@Autowired
+	private InternalDocumentStore IDS = new InternalDocumentStore();
+	
+	public void setIDS(InternalDocumentStore ids)
+	{
+		InternalDocumentStore IDS;
+	}
 //	private InternalDocumentInfoRepository docInfoRepo = new InternaldocInfoRepository();
 
-	public ArrayList<String> getAvailableDocuments()
+	public List<String> getAvailableDocuments()
 	{
 		logger.debug("Getting all pages");
 		List<CMSDocument> pages = new ArrayList<CMSDocument>();
@@ -68,13 +76,14 @@ public class InternalDaoImpl implements CMSDocumentDao, DisposableBean
 		return rets;
 	}
 
-	public ArrayList<CMSDocument> getAllDocumentsContentless()
+	public List<CMSDocument> getAllDocumentsContentless()
 	{
-		ArrayList<CMSDocument> docs = new ArrayList<CMSDocument>();
+		List<CMSDocument> docs;
+		//InternalDocumentStore hb = new InternalDocumentStore();
 		try
 		{
-			logger.debug("Fetching pages");
-//			Iterable<?> pagesIter = docInfoRepo.findAll();
+			logger.debug("Fetching pages " + IDS);
+			docs = IDS.getAll();
 			logger.debug("pages fetched.");
 //			docs = new ArrayList<CMSDocument>(IteratorUtils.toList(pagesIter.iterator()));
 			logger.debug("Number of pages: " + docs.size());
@@ -83,6 +92,7 @@ public class InternalDaoImpl implements CMSDocumentDao, DisposableBean
 		{
 			logger.debug("An error was encountered!");
 			logger.debug(e);
+			docs = new ArrayList<CMSDocument>();
 		}
 		finally
 		{

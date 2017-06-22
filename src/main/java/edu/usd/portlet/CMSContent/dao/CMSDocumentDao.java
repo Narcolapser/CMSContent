@@ -1,7 +1,7 @@
 package edu.usd.portlet.cmscontent.dao;
 
 import java.util.Collection;
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletPreferences;
@@ -18,10 +18,10 @@ import edu.usd.portlet.cmscontent.dao.CMSDocument;
 public interface CMSDocumentDao
 {
 
-	public ArrayList<String> getAvailableDocuments();
+	public List<String> getAvailableDocuments();
 	// Get a list of available documents, returning just the doc's title.
 
-	public ArrayList<CMSDocument> getAllDocumentsContentless();
+	public List<CMSDocument> getAllDocumentsContentless();
 	// Get the a list of available documents. It returns a list of all the
 	// documents but with out the content associted with them. So it is a
 	// list of titles, Ids, and the source. This can be used for when a list

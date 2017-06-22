@@ -1,5 +1,6 @@
 package edu.usd.portlet.cmscontent.rest;
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
@@ -36,10 +37,10 @@ public final class CMSRestController {
 	}
 
 	@RequestMapping("getPages")
-	public ArrayList<CMSDocument> getPages(@RequestParam(value="source", defaultValue = "CommonSpot") String source)
+	public List<CMSDocument> getPages(@RequestParam(value="source", defaultValue = "CommonSpot") String source)
 	{
 		logger.debug("Recieved request to get pages for: " + source);
-		ArrayList<CMSDocument> pages;
+		List<CMSDocument> pages;
 		if(source.equals("Internal"))
 			pages = intdbo.getAllDocumentsContentless();
 		else
@@ -58,7 +59,7 @@ public final class CMSRestController {
 		PagesAndIndex ret;
 		try
 		{
-			ArrayList<CMSDocument> pages;
+			List<CMSDocument> pages;
 			if(source.equals("Internal"))
 				pages = intdbo.getAllDocumentsContentless();
 			else if (source.equals("CommonSpot"))
@@ -93,22 +94,22 @@ public final class CMSRestController {
 	public final static class PagesAndIndex
 	{
 		@XmlElement
-		ArrayList<CMSDocument> pages;
+		List<CMSDocument> pages;
 		@XmlElement
 		String index;
 
 		public PagesAndIndex(){}
 
-		public PagesAndIndex(ArrayList<CMSDocument> pages, String index)
+		public PagesAndIndex(List<CMSDocument> pages, String index)
 		{
 			this.pages = pages;
 			this.index = index;
 		}
-		public ArrayList<CMSDocument> getPages()
+		public List<CMSDocument> getPages()
 		{
 			return this.pages;
 		}
-		public void setPages(ArrayList<CMSDocument> val)
+		public void setPages(List<CMSDocument> val)
 		{
 			this.pages = val;
 		}
