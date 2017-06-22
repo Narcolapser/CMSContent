@@ -1,6 +1,8 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 <script src="/ResourceServingWebapp/rs/jquery/1.10.2/jquery-1.10.2.min.js" type="text/javascript"> </script>
 <script src="/ResourceServingWebapp/rs/jqueryui/1.10.3/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
+<script src="/CMSContent/js/ckeditor/ckeditor.js" type="text/javascript"></script>
+<link rel="stylesheet" href="/CMSContent/css/chosen.css">
 <portlet:actionURL var="getPages" name="getPages"></portlet:actionURL>
 
 <SCRIPT LANGUAGE="javascript">
@@ -101,15 +103,15 @@ function OnChange(sources,pages)
 				</c:choose>
 
 				<c:set var="selected" value="selected"/>
-				<select id="channel_${counter}" name="channel" class="form-control">
+				<select id="channel_${counter}" name="channel" class="form-control chosen-select">
 					<c:forEach var="page" items="${pageSource}">
 						<c:choose>
-							<c:when test="${page.Id == pageUri.Id}">
-								<option value="${page.Id}" selected="selected">Title: ${page.title}, Full Id: ${page.Id}</option>
+							<c:when test="${page.id == pageUri.id}">
+								<option value="${page.id}" selected="selected">Title: ${page.title}, Full id: ${page.id}</option>
 								<c:set var="selected" value=""/>
 							</c:when>
 							<c:otherwise>
-								<option value="${page.Id}">Title: ${page.title}, Full Id: ${page.Id}</option>
+								<option value="${page.id}">Title: ${page.title}, Full id: ${page.id}</option>
 							</c:otherwise>
 						</c:choose>
 					</c:forEach>
@@ -138,3 +140,6 @@ function OnChange(sources,pages)
 	<portlet:renderURL var="formDoneAction" portletMode="VIEW" windowState="NORMAL"/>
 	<a type="button" href="${formDoneAction}" class="btn btn-default">Done</a>
 </div>
+<SCRIPT LANGUAGE="javascript">
+$(".chosen-select").chosen();
+</SCRIPT>

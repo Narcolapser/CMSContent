@@ -30,6 +30,8 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
 
 import java.sql.*;
 
@@ -39,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.portlet.ModelAndView;
 
@@ -112,5 +115,13 @@ public class CMSEditorController {
 		refData.put("displayTypes",displayTypes);
 
 		return new ModelAndView("editor",refData);
+	}
+	
+	@RequestMapping(params = {"action=Update"})
+	public void updatePage(ActionRequest request, ActionResponse response,
+		@RequestParam(value = "content", required = false) String content)
+	{
+		logger.info("attempting to update page to : " + content);
+		//get the portlets preferences.
 	}
 }
