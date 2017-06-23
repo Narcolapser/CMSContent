@@ -50,7 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 //import edu.usd.portlet.cmscontent.dao.UsdSql;
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
-import edu.usd.portlet.cmscontent.dao.InternalDaoImpl;
+import edu.usd.portlet.cmscontent.dao.InternalDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
@@ -73,11 +73,16 @@ public class CMSContentConfigController
 
 	private CMSDocumentDao dbo = null; // Spring managed
 	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
-	private CMSDocumentDao intdbo = new InternalDaoImpl();
+
+	@Autowired 
+	private InternalDao intdbo = null;
+	public void setInternalDao(InternalDao intdbo)
+	{
+		this.intdbo = intdbo;
+	}
 
 	@Autowired
 	private CMSConfigDao conf = null;
-
 	public void setConf(CMSConfigDao conf)
 	{
 		this.conf = conf;
@@ -92,7 +97,9 @@ public class CMSContentConfigController
 		logger.debug("fetching available pages");
 		//ArrayList<CMSDocument> pages = dbo.getAvailablePages();
 		List<CMSDocument> cspages = csdbo.getAllDocumentsContentless();
+		logger.debug("fetched Commonspot. int: " + intdbo);
 		List<CMSDocument> intpages = intdbo.getAllDocumentsContentless();
+		logger.debug("fetched Internal CMS");
 		List<CMSDocument> pages = new ArrayList<CMSDocument>();
 
 		logger.debug("puttin the pages");

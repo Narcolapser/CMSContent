@@ -2,6 +2,8 @@ package edu.usd.portlet.cmscontent.dao;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Column;
 
 import org.hibernate.annotations.Type;
 
@@ -12,12 +14,20 @@ import org.hibernate.annotations.Type;
  */
 
 @Entity
+@Table(name = "CMSDocument")
 public class CMSDocument
 {
 	@Id
+	@Column(name = "id")
 	protected String Id;
+	
+	@Column(name = "title")
 	protected String title;
+	
+	@Column(name = "source")
 	protected String source;
+	
+	@Column(name = "content")
 	protected String content;
 
 	public CMSDocument(){}
