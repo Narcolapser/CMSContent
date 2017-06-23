@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package edu.usd.portlet.cmscontent.portlet;
+package edu.usd.portlet.cmscontent.portlet.display;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -50,7 +50,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 //import edu.usd.portlet.cmscontent.dao.UsdSql;
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
-import edu.usd.portlet.cmscontent.dao.InternalDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
@@ -73,16 +72,16 @@ public class CMSContentConfigController
 
 	private CMSDocumentDao dbo = null; // Spring managed
 	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
+	private CMSDocumentDao dnndbo = new CommonSpotDaoImpl();
 
-	@Autowired 
-	private InternalDao intdbo = null;
-	public void setInternalDao(InternalDao intdbo)
-	{
-		this.intdbo = intdbo;
+	@Autowired
+	public void setdbo(CMSDocumentDao dbo) {
+		this.dbo = dbo;
 	}
 
 	@Autowired
 	private CMSConfigDao conf = null;
+
 	public void setConf(CMSConfigDao conf)
 	{
 		this.conf = conf;
@@ -95,16 +94,12 @@ public class CMSContentConfigController
 		//final PortletPreferences preferences = request.getPreferences();
 
 		logger.debug("fetching available pages");
-		//ArrayList<CMSDocument> pages = dbo.getAvailablePages();
+		//List<CMSDocument> pages = dbo.getAvailablePages();
 		List<CMSDocument> cspages = csdbo.getAllDocumentsContentless();
-		logger.debug("fetched Commonspot. int: " + intdbo);
-		List<CMSDocument> intpages = intdbo.getAllDocumentsContentless();
-		logger.debug("fetched Internal CMS");
 		List<CMSDocument> pages = new ArrayList<CMSDocument>();
 
 		logger.debug("puttin the pages");
 		refData.put("CommonSpot",cspages);
-		refData.put("Internal",intpages);
 		refData.put("availablePages",pages);
 		refData.put("None",pages);
 
@@ -112,7 +107,7 @@ public class CMSContentConfigController
 		List<CMSDocument> uris = this.conf.getPageUris(request);
 		refData.put("pageUris",uris);
 
-		String[] sources = {"CommonSpot","Internal"};//,"None"};
+		String[] sources = {"CommonSpot","DNN"};//,"None"};
 		refData.put("sources",sources);
 
 		//get display type. e.g. single, collapsing, tabbed.

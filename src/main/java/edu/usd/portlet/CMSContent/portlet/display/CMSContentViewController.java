@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package edu.usd.portlet.cmscontent.portlet;
+package edu.usd.portlet.cmscontent.portlet.display;
 
 import java.util.Map;
 import java.util.HashMap;
