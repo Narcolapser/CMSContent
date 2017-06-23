@@ -26,16 +26,52 @@
   http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
   http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-	<tx:annotation-driven/>
-	<context:component-scan base-package="edu.usd.portlet.cmscontent"/>
+<!--	<tx:annotation-driven/>-->
+	<!-- ============================= Hibernate configuration ============================ -->
+	<context:annotation-config />
+	<context:component-scan base-package="edu.usd.portlet.cmscontent.dao"/>
 
-	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	<context:property-placeholder
+		location="classpath:datasource.properties" />
+
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${hibernate.connection.driver_class}" />
+		<property name="url" value="${hibernate.connection.url}" />
+		<property name="username" value="${hibernate.connection.username}" />
+		<property name="password" value="${hibernate.connection.password}" />
+	</bean>
+	
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="annotatedClasses" value="edu.usd.portlet.cmscontent.dao.CMSDocument" />
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	
+<!--	<bean id="cmsInternalDocumentDaoImpl" class="edu.usd.portlet.cmscontent.dao.InternalDocumentDaoImpl"></bean>-->
+
+
+<!--	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
 			<list>
 				<value>classpath:configuration.properties</value>
 				<value>classpath:datasource.properties</value>
 			</list>
 		</property>
+	</bean>
+	
+	<bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+		<property name="generateDdl" value="true"/>
+		<property name="databasePlatform" value="${hibernate.dialect}"/>
 	</bean>
 	
 	<bean id="documentInfoStore" parent="abstractStoreTransactionProxy">
@@ -66,39 +102,14 @@
 		</property>
 	</bean>
 
-	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-		<property name="driverClassName" value="${hibernate.connection.driver_class}" />
-		<property name="url" value="${hibernate.connection.url}" />
-		<property name="username" value="${hibernate.connection.username}" />
-		<property name="password" value="${hibernate.connection.password}" />
-	</bean>
-
-	<bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-		<property name="generateDdl" value="true"/>
-		<property name="databasePlatform" value="${hibernate.dialect}"/>
-	</bean>
-
 	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
 		<property name="dataSource" ref="dataSource"/>
 		<property name="jpaVendorAdapter" ref="jpaVendorAdapter"/>
-		<!-- spring based scanning for entity classes>-->
 		<property name="packagesToScan" value="edu.usd.portlet.cmscontent.dao"/>
-	</bean>
+	</bean>-->
 
-	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-		<property name="entityManagerFactory" ref="entityManagerFactory" />
-	</bean>
-	
-	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-		<property name="dataSource" ref="dataSource"/>
-		<property name="configLocation" value="classpath:hibernate.cfg.xml"/>
-		<property name="hibernateProperties">
-			<props>
-				<prop key="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</prop>
-			</props>
-		</property>
-	</bean>
 
+	<!-- ============================== Internal Autowirings ============================== -->
 <!--	<bean id="cmsDataDaoImpl" class="edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl"></bean>-->
 
 <!--	<bean id="cmsDataDaoImpl" class="edu.usd.portlet.cmscontent.dao.DNNDaoImpl"></bean>-->
@@ -108,7 +119,7 @@
 	<bean id="cmsConfigDaoImpl" class="edu.usd.portlet.cmscontent.dao.PropertiesDaoImpl"></bean>
 
 
-	<!-- ========================= PORTLET SPECIFIC DEFINITIONS ========================= -->
+	<!-- ========================== PORTLET SPECIFIC DEFINITIONS ========================== -->
 
 	<!-- Default ExceptionHandler -->
 	<bean id="defaultExceptionHandlerTemplate" class="org.springframework.web.portlet.handler.SimpleMappingExceptionResolver">

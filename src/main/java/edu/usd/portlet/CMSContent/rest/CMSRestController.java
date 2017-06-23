@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
-import edu.usd.portlet.cmscontent.dao.InternalDaoImpl;
+import edu.usd.portlet.cmscontent.dao.InternalDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 
@@ -25,7 +25,13 @@ public final class CMSRestController {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 	
 	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
-	private CMSDocumentDao intdbo = new InternalDaoImpl();
+	
+	@Autowired 
+	private InternalDao intdbo = null;
+	public void setInternalDao(InternalDao intdbo)
+	{
+		this.intdbo = intdbo;
+	}
 
 	@RequestMapping("test")
 	public Message test(@RequestParam(value="name", defaultValue = "Me") String name)

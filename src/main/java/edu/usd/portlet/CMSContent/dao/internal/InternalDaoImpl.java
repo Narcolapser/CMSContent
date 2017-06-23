@@ -2,6 +2,7 @@ package edu.usd.portlet.cmscontent.dao;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletPreferences;
@@ -15,93 +16,44 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.collections.IteratorUtils;
 
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
-import edu.usd.portlet.cmscontent.dao.InternalDocumentStore;
-import edu.usd.portlet.cmscontent.dao.InternalDocumentInfoRepository;
+import edu.usd.portlet.cmscontent.dao.InternalDocumentDao;
 
-public class InternalDaoImpl implements CMSDocumentDao, DisposableBean
+@Service
+public class InternalDaoImpl implements InternalDao, DisposableBean
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
+	
+	@Autowired
+	private InternalDocumentDao internalDocumentDao;
 
-	@Autowired
-	private InternalDocumentInfoRepository docInfoRepo;
-	
-	public void setDocInfoRepo( InternalDocumentInfoRepository docInfoRepo)
-	{
-		this.docInfoRepo = docInfoRepo;
+	public InternalDocumentDao getInternalDocumentDao() {
+		return internalDocumentDao;
 	}
-	
-	@Autowired
-	private InternalDocumentStore IDS = new InternalDocumentStore();
-	
-	public void setIDS(InternalDocumentStore ids)
-	{
-		InternalDocumentStore IDS;
+
+	public void setInternalDocumentDao(InternalDocumentDao internalDocumentDao) {
+		logger.info("Setting Internal Document Autowire");
+		this.internalDocumentDao = internalDocumentDao;
 	}
-//	private InternalDocumentInfoRepository docInfoRepo = new InternaldocInfoRepository();
 
 	public List<String> getAvailableDocuments()
 	{
-		logger.debug("Getting all pages");
-		List<CMSDocument> pages = new ArrayList<CMSDocument>();
-//		InternalPageStore hb = new InternalPageStore();
-//		pages = hb.getPages();
-//		CMSDocument page = new CMSDocument("Test page","/path/to/test.html");
-//		pages.add(page);
-//		docInfoRepo.save(page);
-//		page = new CMSDocument("tp2","/path/to/test2.html");
-//		pages.add(page);
-//		docInfoRepo.save(page);
-		try
-		{
-//			Iterable<?> pagesIter = docInfoRepo.findAll();
-			logger.debug("pages fetched.");
-//			pages = IteratorUtils.toList(pagesIter.iterator());
-			logger.debug("Number of pages: " + pages.size());
-		}
-		catch(Exception e)
-		{
-			logger.debug("An error was encountered!");
-			logger.debug(e);
-		}
-		finally
-		{
-
-		}
-
-		
-//		return new ArrayList<CMSDocument>(pages);
-		ArrayList<String> rets = new ArrayList<String>();
-		for(CMSDocument doc:pages)
-			rets.add(doc.getTitle());
-		return rets;
+		return new ArrayList<String>();
 	}
 
 	public List<CMSDocument> getAllDocumentsContentless()
 	{
-		List<CMSDocument> docs;
-		//InternalDocumentStore hb = new InternalDocumentStore();
 		try
 		{
-			logger.debug("Fetching pages " + IDS);
-			docs = IDS.getAll();
-			logger.debug("pages fetched.");
-//			docs = new ArrayList<CMSDocument>(IteratorUtils.toList(pagesIter.iterator()));
-			logger.debug("Number of pages: " + docs.size());
+			logger.debug("Fetching from interal CMS" + this.internalDocumentDao);
+			List<CMSDocument> docs = this.internalDocumentDao.getAllDocuments();
+			logger.debug("Fetched from internal CMS");
+			return docs;
 		}
-		catch(Exception e)
+		catch (Exception e)
 		{
-			logger.debug("An error was encountered!");
-			logger.debug(e);
-			docs = new ArrayList<CMSDocument>();
+			logger.debug("Error in fetching docs: " + e);
+			return null;
 		}
-		finally
-		{
-
-		}
-		CMSDocument doc = new CMSDocument();
-		doc.setTitle("Testing?");
-		docs.add(doc);
-		return docs;
 	}
 
 	public CMSDocument getDocument(String Id)
@@ -113,3 +65,8 @@ public class InternalDaoImpl implements CMSDocumentDao, DisposableBean
 	public void destroy() throws Exception {
 	}
 }
+
+//		CMSDocument doc = new CMSDocument();
+//		doc.setTitle("Testing?");
+//		docs.add(doc);
+
