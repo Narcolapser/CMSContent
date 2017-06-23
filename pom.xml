@@ -292,7 +292,6 @@
 				<artifactId>standard</artifactId>
 				<version>1.1.2</version>
 			</dependency>
-
 			<!-- For sl4j/logback logging, see https://wiki.jasig.org/display/PLT/Logging+Best+Practices -->
 			<dependency>
 				<groupId>commons-logging</groupId>

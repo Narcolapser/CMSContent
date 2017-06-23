@@ -33,14 +33,14 @@ public final class CMSRestController {
 		this.intdbo = intdbo;
 	}
 
-	@RequestMapping("test")
-	public Message test(@RequestParam(value="name", defaultValue = "Me") String name)
-	{
-		logger.debug("Recieved request for name:" + name);
-		Message msg = new Message();
-		msg.setText("testing " + name);
-		return msg;
-	}
+//	@RequestMapping("test")
+//	public Message test(@RequestParam(value="name", defaultValue = "Me") String name)
+//	{
+//		logger.debug("Recieved request for name:" + name);
+//		Message msg = new Message();
+//		msg.setText("testing " + name);
+//		return msg;
+//	}
 
 	@RequestMapping("getPages")
 	public List<CMSDocument> getPages(@RequestParam(value="source", defaultValue = "CommonSpot") String source)
@@ -86,14 +86,41 @@ public final class CMSRestController {
 		return ret;
 	}
 
+	@RequestMapping("getDocument")
+	public DocWrapper getDocument(
+		@RequestParam(value="source", defaultValue = "CommonSpot") String source,
+		@RequestParam(value="id", defaultValue = "1") String id
+		)
+	{
+		logger.debug("Recieved request to get a document from: " + source + " with path: " + id);
+		DocWrapper ret = new DocWrapper();
+		try
+		{
+			if(source.equals("Internal"))
+				ret.setDoc(csdbo.getDocument(id));
+			else if (source.equals("CommonSpot"))
+				ret.setDoc(csdbo.getDocument(id));
+			else
+			{
+				logger.debug("Request made to the empty data provider");
+			}
+			logger.debug("Returning result");
+		}
+		catch(Exception e)
+		{
+			logger.info("Failed to retrieve information" + e.toString());
+		}
+		return ret;
+	}
+
 	@XmlRootElement
-	public final static class Message {
-		String text;
-
+	public final static class DocWrapper {
 		@XmlElement
-		public String getText() {return text;}
+		CMSDocument doc;
 
-		public void setText(String text) { this.text = text; }
+		public CMSDocument getDoc() {return doc;}
+
+		public void setDoc(CMSDocument doc) { this.doc = doc; }
 	}
 
 	@XmlRootElement
