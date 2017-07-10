@@ -2,7 +2,7 @@
 
 This portlet is a re-write of the portlet USD uses to draw content in from an
 external content management system. The original portlet had 3 seperate code
-bases and was very rigid in that it had no way of changing where it drew it's
+bases and was very rigid in that it had no way of changing where it drew its
 content from, the portlets were not able to be managed by anyone other than 
 portal admins, and changing the portlet type required deleting the portlet and
 making a new portlet. This re-write seeks to solve those issues by:
