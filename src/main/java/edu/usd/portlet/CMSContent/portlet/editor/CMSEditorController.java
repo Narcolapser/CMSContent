@@ -49,7 +49,6 @@ import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.InternalDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
-import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 
 import javax.naming.Context;
@@ -124,11 +123,19 @@ public class CMSEditorController {
 		return new ModelAndView("editor",refData);
 	}
 	
+	
 	@RequestMapping(params = {"action=Update"})
 	public void updatePage(ActionRequest request, ActionResponse response,
-		@RequestParam(value = "content", required = false) String content)
+		@RequestParam(value = "content", required = true) String content,
+		@RequestParam(value = "doc_id", required = true) String id,
+		@RequestParam(value = "doc_title", required = true) String title,
+		@RequestParam(value = "doc_source", required = false) String source)
 	{
-		logger.info("attempting to update page to : " + content);
-		//get the portlets preferences.
+		logger.info("attempting to update page to1 : " + content);
+		logger.info("Title: " + title);
+		logger.info("Id: " + id);
+		logger.info("Source: " + source);
+		CMSDocument doc = new CMSDocument(title, id, source, content);
+		this.intdbo.saveDocument(doc);
 	}
 }
