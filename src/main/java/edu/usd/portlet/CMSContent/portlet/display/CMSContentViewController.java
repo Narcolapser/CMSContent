@@ -43,7 +43,7 @@ import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.portlet.ModelAndView;
 
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
-import edu.usd.portlet.cmscontent.dao.InternalDaoImpl;
+import edu.usd.portlet.cmscontent.dao.InternalDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
@@ -64,14 +64,14 @@ import javax.naming.InitialContext;
 public class CMSContentViewController {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-//	@Autowired
-//	private CMSDocumentDao dbo = null; // Spring managed
 	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
-	private CMSDocumentDao intdbo = new InternalDaoImpl();
 
-//	public void setdbo(CMSDocumentDao dbo) {
-//		this.dbo = dbo;
-//	}
+	@Autowired 
+	private InternalDao intdbo = null;
+	public void setInternalDao(InternalDao intdbo)
+	{
+		this.intdbo = intdbo;
+	}
 
 	@Autowired
 	private CMSConfigDao conf = null;

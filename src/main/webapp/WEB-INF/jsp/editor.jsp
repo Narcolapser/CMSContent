@@ -8,14 +8,15 @@
 <c:set var="n"><portlet:namespace/></c:set>
 
 <style type="text/css">
-    #${n}contentForm { min-height: 100px; padding: 10px; margin: 10px; }
-    .cke_source { color: #000000; }
+	#${n}contentForm { min-height: 100px; padding: 10px; margin: 10px; }
+	.cke_source { color: #000000; }
 </style>
 
 <p>This is an editor</p>
 
 <select id="docselector" class="chosen-select" data-placeholder="Select document..." OnChange='OnChange();'>
-	<c:forEach var="doc" items="${CommonSpot}">
+	<option value="new" selected>New page</option>
+	<c:forEach var="doc" items="${Internal}">
 		<option value="${doc.id}">${doc.title}</option>
 	</c:forEach>
 </select>
@@ -24,13 +25,25 @@
 
 <portlet:actionURL name="updateDocument" var="updateDocument"/>
 <form id="${n}contentForm" commandName="form" action="${updateDocument}" method="post">
-    <textarea id="${n}content" name="content">sample text</textarea>
-
-    <p>
-        <input type="submit" name="action" value="Update" class="btn btn-default"/>
-        <a onclick="addtext()" class="btn btn-default">Cancel</a>
-    </p>   
-     
+	<div class="form-group">
+		<label for="doc_title">Title:</label>
+		<input type="text" class="form-control" id="doc_title" name="doc_title">
+	</div>
+	<div class="form-group">
+		<label for="doc_title">ID:</label>
+		<input type="text" class="form-control" id="doc_id" name="doc_id">
+	</div>
+	<div class="form-group">
+		<label for="doc_source">Source:</label>
+		<input type="text" class="form-control" id="doc_source" value="Internal" disabled="disabled">
+	</div>
+	<input type="hidden"id="doc_source_hidden" name="doc_source" value="Internal">
+	<textarea id="${n}content" name="content">put content here.</textarea>
+	<p>
+		<input type="submit" name="action" value="Update" class="btn btn-default"/>
+		<a onclick="addtext()" class="btn btn-default">Cancel</a>
+	</p>
+	
 </form>
 
 
@@ -39,37 +52,37 @@ $(".chosen-select").chosen();
 
 var ${n} = ${n} || {};
 <c:choose>
-    <c:when test="${!usePortalJsLibs}">
-        ${n}.jQuery = jQuery.noConflict(true);
-    </c:when>
-    <c:otherwise>
-        ${n}.jQuery = up.jQuery;
-    </c:otherwise>
+	<c:when test="${!usePortalJsLibs}">
+		${n}.jQuery = jQuery.noConflict(true);
+	</c:when>
+	<c:otherwise>
+		${n}.jQuery = up.jQuery;
+	</c:otherwise>
 </c:choose>
 ${n}.jQuery(function(){
 var $ = ${n}.jQuery;
 $(document).ready(function(){
-    CKEDITOR.dtd.$removeEmpty['span'] = false;  // allow empty span elements for font-awesome
-    // Create an CKEditor 4.x Editor
-    CKEDITOR.replace('${n}content', {
-        toolbarGroups : [
-            { name: 'document',    groups: [ 'mode', 'document', 'doctools' ] },
-            { name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
-            { name: 'editing',     groups: [ 'find', 'selection', 'spellchecker' ] },
-            { name: 'tools' },
-            { name: 'others' },
-            { name: 'about' },
-            '/',
-            { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
-            { name: 'paragraph',   groups: [ 'list', 'indent', 'blocks', 'align' ] },
-            { name: 'links' },
-            '/',
-            { name: 'styles' },
-            { name: 'colors' },
-            { name: 'insert' }
-        ],
-        allowedContent: true
-    });
+	CKEDITOR.dtd.$removeEmpty['span'] = false;  // allow empty span elements for font-awesome
+	// Create an CKEditor 4.x Editor
+	CKEDITOR.replace('${n}content', {
+		toolbarGroups : [
+			{ name: 'document',    groups: [ 'mode', 'document', 'doctools' ] },
+			{ name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
+			{ name: 'editing',     groups: [ 'find', 'selection', 'spellchecker' ] },
+			{ name: 'tools' },
+			{ name: 'others' },
+			{ name: 'about' },
+			'/',
+			{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+			{ name: 'paragraph',   groups: [ 'list', 'indent', 'blocks', 'align' ] },
+			{ name: 'links' },
+			'/',
+			{ name: 'styles' },
+			{ name: 'colors' },
+			{ name: 'insert' }
+		],
+		allowedContent: true
+	});
 });
 
 });
@@ -92,15 +105,22 @@ function OnChange()
 	
 	${n}.jQuery.ajax({dataType:"json",
 		url:"/CMSContent/v1/api/getDocument.json",
-		data:{"source":"CommonSpot","id":doc_id},
+		data:{"source":"Internal","id":doc_id},
 		success:update_text});
 }
 function update_text(data, textStatus, jqXHR)
 {
 	setText(data.doc.content);
+	var doc_title = document.getElementById("doc_title");
+	var doc_id = document.getElementById("doc_id");
+	var doc_source = document.getElementById("doc_source");
+	var doc_source_hidden = document.getElementById("doc_source_hidden");
+	doc_title.value=data.doc.title;
+	doc_id.value=data.doc.id;
+	doc_source.value=data.doc.source;
+	doc_source_hidden.value=data.doc.source;
 }
 </script>
-
 
 <!--${CommonSpot}-->
 <!--${availablePages}-->

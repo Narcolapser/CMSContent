@@ -97,7 +97,7 @@ public final class CMSRestController {
 		try
 		{
 			if(source.equals("Internal"))
-				ret.setDoc(csdbo.getDocument(id));
+				ret.setDoc(intdbo.getDocument(id));
 			else if (source.equals("CommonSpot"))
 				ret.setDoc(csdbo.getDocument(id));
 			else

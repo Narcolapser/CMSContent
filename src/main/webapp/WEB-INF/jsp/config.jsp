@@ -1,42 +1,11 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 <script src="/ResourceServingWebapp/rs/jquery/1.10.2/jquery-1.10.2.min.js" type="text/javascript"> </script>
 <script src="/ResourceServingWebapp/rs/jqueryui/1.10.3/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
-<script src="/CMSContent/js/ckeditor/ckeditor.js" type="text/javascript"></script>
+<script src="/CMSContent/js/chosen.jquery.js" type="text/javascript"></script>
 <link rel="stylesheet" href="/CMSContent/css/chosen.css">
 <c:set var="n"><portlet:namespace/></c:set>
 <portlet:actionURL var="getPages" name="getPages"></portlet:actionURL>
 
-<SCRIPT LANGUAGE="javascript">
-<!--
-function populate_pages(data, textStatus, jqXHR)
-{
-	CID = data["index"]
-	var pages = document.getElementById(CID);
-
-	pages.options.length=0;
-	for (i = 0; i < data["pages"].length; i++)
-	{
-		pages.options[i] = new Option(
-			"Title: " + data["pages"][i]["title"] + 
-			", Full Id: " + data["pages"][i]["Id"],
-			data["pages"][i]["Id"]);
-	}
-}
-function OnChange(sources,pages)
-{
-	var myindex = sources.selectedIndex;
-	var SelValue = sources.options[myindex].value;
-
-	pages.options.length=0;
-	pages.options[0] = new Option("Loading...","");
-
-	$.ajax({dataType:"json",
-		url:"/CMSContent/v1/api/getPagesWithIndex.json",
-		data:{"source":SelValue,"index":pages.id},
-		success:populate_pages});
-}
-//-->
-</SCRIPT>
 <div class=\"usdChannel\">
 	<portlet:actionURL name="updateDisplay" var="updateDisplay">
 		<portlet:param name="action" value="updateDisplay"/>
@@ -140,5 +109,32 @@ function OnChange(sources,pages)
 	<a type="button" href="${formDoneAction}" class="btn btn-default">Done</a>
 </div>
 <SCRIPT LANGUAGE="javascript">
-$(".chosen-select").chosen();
+//$(".chosen-select").chosen();
+
+function populate_pages(data, textStatus, jqXHR)
+{
+	CID = data["index"]
+	var pages = document.getElementById(CID);
+
+	pages.options.length=0;
+	for (i = 0; i < data["pages"].length; i++)
+	{
+		pages.options[i] = new Option(
+			"Title: " + data["pages"][i]["title"] + 
+			", Full Id: " + data["pages"][i]["id"],
+			data["pages"][i]["id"]);
+	}
+}
+function OnChange(sources,pages)
+{
+	var myindex = sources.selectedIndex;
+	var SelValue = sources.options[myindex].value;
+
+	pages.options.length=0;
+	pages.options[0] = new Option("Loading...","");
+	$.ajax({dataType:"json",
+		url:"/CMSContent/v1/api/getPagesWithIndex.json",
+		data:{"source":SelValue,"index":pages.id},
+		success:populate_pages});
+}
 </SCRIPT>
