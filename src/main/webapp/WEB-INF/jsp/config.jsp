@@ -103,6 +103,28 @@
 		<portlet:param name="action" value="add"/>
 	</portlet:actionURL>
 	<a type="button" href="${addPage}" class="btn btn-default">Add page</a>
+	
+	<h2>Portlet maximized display type:</h2>
+	
+	<portlet:actionURL name="updateMaxDisplay" var="updateMaxDisplay">
+		<portlet:param name="action" value="updateMaxDisplay"/>
+	</portlet:actionURL>
+
+	<form id="disp_type_form" action="${updateMaxDisplay}">
+		<select id="disp_type" name="disp_type" class="form-control">
+			<c:forEach var="disp" items="${displayTypes}">
+				<c:choose>
+					<c:when test="${disp == maximizedDisplayType}">
+						<option value="${disp}" selected="selected">${disp}<option>
+					</c:when>
+					<c:otherwise>
+						<option value="${disp}">${disp}<option>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</select>
+		<input type="submit" name="action" class="btn btn-default" value="updateMaxDisplay"/>
+	</form>
 
 	</br></br>
 	<portlet:renderURL var="formDoneAction" portletMode="VIEW" windowState="NORMAL"/>
