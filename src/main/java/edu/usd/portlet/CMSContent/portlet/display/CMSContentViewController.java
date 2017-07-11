@@ -30,6 +30,7 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.WindowState;
 
 import java.sql.*;
 
@@ -128,16 +129,38 @@ public class CMSContentViewController {
 		//Get portlet path:
 		String portletPath = request.getContextPath();
 		refData.put("portletPath",portletPath);
+		
+		//get maximized display type. e.g. single, collapsing, tabbed.
+		logger.debug("getting maximized display type.");
+		String maxDisplayType = this.conf.getMaximizedDisplayType(request);
+		refData.put("maximizedDisplayType",maxDisplayType);
+		
+		//get window state:
+		WindowState state = request.getWindowState();
+		logger.info("Window state: " + state.toString() + "Maximized disp type: " + maxDisplayType + "Test value" + (WindowState.MAXIMIZED.equals(state) && !maxDisplayType.equals("None")));
 
 		//send to "view".jsp the object refData.
-		if (displayType.equals("Tabbed"))
-			return new ModelAndView("view_tabbed",refData);
-		else if (displayType.equals("Expanding"))
-			return new ModelAndView("view_expanding",refData);
-		//coming soon (tm)
-//		else if (displayType.equals("Verical_Tabs"))
-//			return new ModelAndView("view_vertical_tabs",refData);
+		if (WindowState.MAXIMIZED.equals(state) && !maxDisplayType.equals("None"))
+		{
+			if (maxDisplayType.equals("Tabbed"))
+				return new ModelAndView("view_tabbed",refData);
+			else if (maxDisplayType.equals("Expanding"))
+				return new ModelAndView("view_expanding",refData);
+			else if (maxDisplayType.equals("Verical_Tabs"))
+				return new ModelAndView("view_vertical_tabs",refData);
+			else
+				return new ModelAndView("view_single",refData);
+		}
 		else
-			return new ModelAndView("view_single",refData);
+		{
+			if (displayType.equals("Tabbed"))
+				return new ModelAndView("view_tabbed",refData);
+			else if (displayType.equals("Expanding"))
+				return new ModelAndView("view_expanding",refData);
+			else if (displayType.equals("Verical_Tabs"))
+				return new ModelAndView("view_vertical_tabs",refData);
+			else
+				return new ModelAndView("view_single",refData);
+		}
 	}
 }

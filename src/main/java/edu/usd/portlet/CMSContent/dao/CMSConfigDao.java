@@ -47,6 +47,12 @@ public interface CMSConfigDao
 
 	public void setDisplayType(PortletRequest request, String disp_type);
 	// set the display type that is selected for this portlet.
+	
+	public String getMaximizedDisplayType(PortletRequest request);
+	// return the display that that is selected for this portlet when maximized.
+	
+	public void setMaximizedDisplayType(PortletRequest request, String disp_type);
+	// set the display type that is selected for this portlet when maximized.
 
 	public Map<String,String> getDisplayAttributes(PortletRequest request);
 	// return the display information for this portlet. This allows for display
