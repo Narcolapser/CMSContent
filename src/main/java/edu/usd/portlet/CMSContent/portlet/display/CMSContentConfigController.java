@@ -123,6 +123,12 @@ public class CMSContentConfigController
 		logger.debug("getting display type.");
 		String displayType = this.conf.getDisplayType(request);
 		refData.put("displayType",displayType);
+		
+		//get display type. e.g. single, collapsing, tabbed.
+		logger.debug("getting maximized display type.");
+		String maxDisplayType = this.conf.getMaximizedDisplayType(request);
+		refData.put("maximizedDisplayType",maxDisplayType);
+		
 
 		String[] displayTypes = {"Single","Expanding","Tabbed"};//,"Verical_Tabs"};
 		refData.put("displayTypes",displayTypes);
@@ -171,5 +177,12 @@ public class CMSContentConfigController
 		@RequestParam(value = "disp_type", required = false) String disp_type)
 	{
 		this.conf.setDisplayType(request,disp_type);
+	}
+
+	@RequestMapping(params = {"action=updateMaxDisplay"})
+	public void updateMaxDisplay(ActionRequest request, ActionResponse response,
+		@RequestParam(value = "disp_type", required = false) String disp_type)
+	{
+		this.conf.setMaximizedDisplayType(request,disp_type);
 	}
 }

@@ -352,6 +352,40 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 		logger.debug("Done updating display type.");
 	}
 
+	public String getMaximizedDisplayType(PortletRequest request)
+	{
+		final PortletPreferences preferences = request.getPreferences();
+		String displayType = preferences.getValue("maximizedDisplayType","None");
+		return displayType;
+	}
+	
+	public void setMaximizedDisplayType(PortletRequest request, String disp_type)
+	{
+		logger.info("attempting to update maximized diplay type to: " + disp_type);
+		//get the portlets preferences.
+		PortletPreferences prefs = request.getPreferences();
+
+		try
+		{
+			prefs.setValue("maximizedDisplayType",disp_type);
+			prefs.store();
+		}
+		catch(ReadOnlyException e)
+		{
+			logger.debug("Error trying to set values, Javax Read Only Exception: " + e);
+		}
+		catch(IOException e)
+		{
+			logger.debug("Error trying to save new values. Java IOException: " + e);
+		}
+		catch(ValidatorException e)
+		{
+			logger.debug("Error trying to save new values. Javax Validator Exception: " + e);
+		}
+
+		logger.debug("Done updating maximized display type.");
+	}
+
 	public Map<String,String> getDisplayAttributes(PortletRequest request)
 	{
 		PortletPreferences prefs = request.getPreferences();
