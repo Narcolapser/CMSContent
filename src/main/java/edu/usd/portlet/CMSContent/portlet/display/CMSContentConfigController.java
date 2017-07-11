@@ -53,6 +53,7 @@ import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
+import edu.usd.portlet.cmscontent.dao.InternalDao;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -72,11 +73,17 @@ public class CMSContentConfigController
 
 	private CMSDocumentDao dbo = null; // Spring managed
 	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
-	private CMSDocumentDao dnndbo = new CommonSpotDaoImpl();
 
 	@Autowired
 	public void setdbo(CMSDocumentDao dbo) {
 		this.dbo = dbo;
+	}
+	
+	@Autowired 
+	private InternalDao intdbo = null;
+	public void setInternalDao(InternalDao intdbo)
+	{
+		this.intdbo = intdbo;
 	}
 
 	@Autowired
@@ -96,10 +103,12 @@ public class CMSContentConfigController
 		logger.debug("fetching available pages");
 		//List<CMSDocument> pages = dbo.getAvailablePages();
 		List<CMSDocument> cspages = csdbo.getAllDocumentsContentless();
+		List<CMSDocument> intpages = intdbo.getAllDocumentsContentless();
 		List<CMSDocument> pages = new ArrayList<CMSDocument>();
 
 		logger.debug("puttin the pages");
 		refData.put("CommonSpot",cspages);
+		refData.put("Internal",intpages);
 		refData.put("availablePages",pages);
 		refData.put("None",pages);
 
@@ -107,7 +116,7 @@ public class CMSContentConfigController
 		List<CMSDocument> uris = this.conf.getPageUris(request);
 		refData.put("pageUris",uris);
 
-		String[] sources = {"CommonSpot","DNN"};//,"None"};
+		String[] sources = {"CommonSpot","Internal"};//,"None"};
 		refData.put("sources",sources);
 
 		//get display type. e.g. single, collapsing, tabbed.

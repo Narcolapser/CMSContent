@@ -35,7 +35,6 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 	@SuppressWarnings("unchecked")
 	public List<CMSDocument> getAllDocuments()
 	{
-		logger.debug("All the way down! woohoo!");
 		Session session = sessionFactory.openSession();
 		String hql = "FROM CMSDocument";
 		Query query = session.createQuery(hql);
@@ -43,10 +42,20 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 		return docList;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public CMSDocument getDocumentById(String id)
+	{
+		Session session = sessionFactory.openSession();
+		String hql = "FROM CMSDocument WHERE id = '" + id + "'";
+		Query query = session.createQuery(hql);
+		return (CMSDocument)query.uniqueResult();
+	}
+	
 	@Transactional(readOnly = false)
 	public void insertDocument(CMSDocument doc)
 	{
 		Session session = sessionFactory.openSession();
-		session.save(doc);
+		session.update(doc);
+		session.flush();
 	}
 }
