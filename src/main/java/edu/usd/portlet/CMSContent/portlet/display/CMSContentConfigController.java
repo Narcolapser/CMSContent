@@ -116,6 +116,10 @@ public class CMSContentConfigController
 		List<CMSDocument> uris = this.conf.getPageUris(request);
 		refData.put("pageUris",uris);
 
+		logger.debug("getting page Uris");
+		List<CMSDocument> maxUris = this.conf.getMaxPageUris(request);
+		refData.put("pageUriMaximized",maxUris);
+
 		String[] sources = {"CommonSpot","Internal"};//,"None"};
 		refData.put("sources",sources);
 
@@ -130,25 +134,30 @@ public class CMSContentConfigController
 		refData.put("maximizedDisplayType",maxDisplayType);
 		
 
-		String[] displayTypes = {"Single","Expanding","Tabbed"};//,"Verical_Tabs"};
+		String[] displayTypes = {"Single","Expanding","Tabbed","Verical_Tabs"};
 		refData.put("displayTypes",displayTypes);
 
 		return new ModelAndView("config",refData);
 	}
 
 	@RequestMapping(params = {"action=add"})
-	public void addPage(ActionRequest request, ActionResponse response)
+	public void addPage(ActionRequest request, ActionResponse response,
+		@RequestParam(value = "is_max", required = false, defaultValue = "false") String is_max)
 	{
-		this.conf.addPage(request);
+		if (is_max.equals("true"))
+			this.conf.addMaxPage(request);
+		else
+			this.conf.addPage(request);
 	}
 
 	@RequestMapping(params = {"action=Update"})
 	public void updatePage(ActionRequest request, ActionResponse response,
 		@RequestParam(value = "channel", required = false) String channel,
 		@RequestParam(value = "source", required = false) String source,
-		@RequestParam(value = "index", required = false) String index_str)
+		@RequestParam(value = "index", required = false) String index_str,
+		@RequestParam(value = "is_max", required = false, defaultValue = "false") String is_max)
 	{
-		logger.info("attempting to set page uri #" + index_str + " to: '" + channel + "' from: '" + source + "'");
+		logger.info("attempting to set page uri #" + index_str + " to: '" + channel + "' from: '" + source + "' is max: " + is_max);
 		if(channel == null)
 		{
 			logger.debug("Cannot set page to nothing.");
@@ -160,7 +169,10 @@ public class CMSContentConfigController
 			return;
 		}
 		int index = Integer.parseInt(index_str);
-		this.conf.updatePage(request, index, channel, source);
+		if (is_max.equals("true"))
+			this.conf.updateMaxPage(request, index, channel, source);
+		else
+			this.conf.updatePage(request, index, channel, source);
 		//get the portlets preferences.
 	}
 
