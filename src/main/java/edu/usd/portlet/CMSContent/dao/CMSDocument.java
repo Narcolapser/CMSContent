@@ -27,7 +27,7 @@ public class CMSDocument
 	@Column(name = "source")
 	protected String source;
 	
-	@Column(name = "content")
+	@Column(name = "content", columnDefinition="TEXT")
 	protected String content;
 
 	public CMSDocument(){}
