@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 import java.util.Random;
+import java.util.Arrays;
 
 //import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
@@ -91,9 +92,21 @@ public class CMSContentViewController {
 		//get display type. e.g. single, collapsing, tabbed.
 		String displayType = this.conf.getDisplayType(request);
 		refData.put("displayType",displayType);
+		
+		//get maximized display type. e.g. single, collapsing, tabbed.
+		String maxDisplayType = this.conf.getMaximizedDisplayType(request);
+		refData.put("maximizedDisplayType",maxDisplayType);
+
+		//get window state:
+		WindowState state = request.getWindowState();
+		logger.debug("Window state: " + state.toString() + " max test: " + (WindowState.MAXIMIZED.equals(state) && !maxDisplayType.equals("None")));
 
 		//Get the list of pages that are to be displayed.
-		List<CMSDocument> uris = this.conf.getPageUris(request);
+		List<CMSDocument> uris;
+		if (WindowState.MAXIMIZED.equals(state) && !maxDisplayType.equals("None"))
+			uris = this.conf.getMaxPageUris(request);
+		else
+			uris = this.conf.getPageUris(request);
 		
 		//Prepare a list for the page content.
 		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
@@ -129,38 +142,23 @@ public class CMSContentViewController {
 		//Get portlet path:
 		String portletPath = request.getContextPath();
 		refData.put("portletPath",portletPath);
-		
-		//get maximized display type. e.g. single, collapsing, tabbed.
-		logger.debug("getting maximized display type.");
-		String maxDisplayType = this.conf.getMaximizedDisplayType(request);
-		refData.put("maximizedDisplayType",maxDisplayType);
-		
-		//get window state:
-		WindowState state = request.getWindowState();
-		logger.info("Window state: " + state.toString() + "Maximized disp type: " + maxDisplayType + "Test value" + (WindowState.MAXIMIZED.equals(state) && !maxDisplayType.equals("None")));
 
 		//send to "view".jsp the object refData.
 		if (WindowState.MAXIMIZED.equals(state) && !maxDisplayType.equals("None"))
 		{
-			if (maxDisplayType.equals("Tabbed"))
-				return new ModelAndView("view_tabbed",refData);
-			else if (maxDisplayType.equals("Expanding"))
-				return new ModelAndView("view_expanding",refData);
-			else if (maxDisplayType.equals("Verical_Tabs"))
-				return new ModelAndView("view_vertical_tabs",refData);
-			else
-				return new ModelAndView("view_single",refData);
+			displayType = maxDisplayType;
 		}
+		
+		// request.getParameterNames()
+		logger.info("Parameter map: " + Arrays.toString(request.getParameterMap().entrySet().toArray()));
+
+		if (displayType.equals("Tabbed"))
+			return new ModelAndView("view_tabbed",refData);
+		else if (displayType.equals("Expanding"))
+			return new ModelAndView("view_expanding",refData);
+		else if (displayType.equals("Verical_Tabs"))
+			return new ModelAndView("view_vertical_tabs",refData);
 		else
-		{
-			if (displayType.equals("Tabbed"))
-				return new ModelAndView("view_tabbed",refData);
-			else if (displayType.equals("Expanding"))
-				return new ModelAndView("view_expanding",refData);
-			else if (displayType.equals("Verical_Tabs"))
-				return new ModelAndView("view_vertical_tabs",refData);
-			else
-				return new ModelAndView("view_single",refData);
-		}
+			return new ModelAndView("view_single",refData);
 	}
 }

@@ -55,7 +55,12 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 	public void insertDocument(CMSDocument doc)
 	{
 		Session session = sessionFactory.openSession();
-		session.update(doc);
+		String hql = "FROM CMSDocument WHERE id = '" + doc.getId() + "'";
+		Query query = session.createQuery(hql);
+		if (query.uniqueResult() == null)
+			session.save(doc);
+		else
+			session.update(doc);
 		session.flush();
 	}
 }
