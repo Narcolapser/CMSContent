@@ -2,30 +2,34 @@
 <!--vertical tabbed page view.-->
 
 <style>
-.ui-tabs-vertical { width: 55em; }
-.ui-tabs-vertical .ui-tabs-nav { padding: .2em .1em .2em .2em; float: left; width: 12em; }
+.ui-tabs-vertical .ui-tabs-nav { padding: .2em .1em .2em .2em; float: left; }
 .ui-tabs-vertical .ui-tabs-nav li { clear: left; width: 100%; border-bottom-width: 1px !important; border-right-width: 0 !important; margin: 0 -1px .2em 0; }
-.ui-tabs-vertical .ui-tabs-nav li a { display:block; }
-.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-right: .1em; border-right-width: 1px; }
-.ui-tabs-vertical .ui-tabs-panel { padding: 1em; float: right; width: 40em;}
+.ui-tabs-vertical .ui-tabs-nav li a { display:block; width: 400px; }
+.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-right: .1em; border-right-width: 1px;}
+.ui-tabs-vertical .ui-tabs-panel { padding: 1em; margin-left:411px;}
+/*.ui-tabs-vertical .ui-tabs-panel .ui-widget-content { }*/
 </style>
 
 <div class="usdChannel">
 	<div id="${channelId}" class="tabbed-channel-content">
-		<ul>
+		<div class="tabbed-channel-tabs-panel">
+			<ul>
+				<c:set var="counter" value="${0}"/>
+				<c:forEach var="page" items="${content}">
+					<li><a href="#${channelId}-${counter}">${page.title}</a></li>
+					<c:set var="counter" value="${counter + 1}"/>
+				</c:forEach>
+			</ul>
+		</div>
+		<div class="tabbed-channel-content-pannel">
 			<c:set var="counter" value="${0}"/>
 			<c:forEach var="page" items="${content}">
-				<li><a href="#${channelId}-${counter}">${page.title}</a></li>
-				<c:set var="counter" value="${counter + 1}"/>
+				<div id="${channelId}-${counter}">
+					${page.content}
+					<c:set var="counter" value="${counter + 1}"/>
+				</div>
 			</c:forEach>
-		</ul>
-		<c:set var="counter" value="${0}"/>
-		<c:forEach var="page" items="${content}">
-			<div id="${channelId}-${counter}">
-				${page.content}
-				<c:set var="counter" value="${counter + 1}"/>
-			</div>
-		</c:forEach>
+		</div>
 	</div>
 </div>
 
