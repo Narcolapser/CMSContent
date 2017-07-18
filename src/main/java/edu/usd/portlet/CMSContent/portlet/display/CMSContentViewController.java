@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Date;
 import java.util.Random;
 import java.util.Arrays;
+import java.util.Iterator;
 
 //import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
@@ -149,8 +150,9 @@ public class CMSContentViewController {
 			displayType = maxDisplayType;
 		}
 		
-		// request.getParameterNames()
-		logger.info("Parameter map: " + Arrays.toString(request.getParameterMap().entrySet().toArray()));
+
+		//get any paramaters that were passed.
+		refData.put("parameters",request.getParameterMap());
 
 		if (displayType.equals("Tabbed"))
 			return new ModelAndView("view_tabbed",refData);
