@@ -134,7 +134,7 @@ public class CMSContentConfigController
 		refData.put("maximizedDisplayType",maxDisplayType);
 		
 
-		String[] displayTypes = {"Single","Expanding","Tabbed","Verical_Tabs"};
+		String[] displayTypes = {"Single","Expanding","Tabbed","Verical Tabs","Vertical Tabs with Panel"};
 		refData.put("displayTypes",displayTypes);
 
 		return new ModelAndView("config",refData);
