@@ -158,8 +158,10 @@ public class CMSContentViewController {
 			return new ModelAndView("view_tabbed",refData);
 		else if (displayType.equals("Expanding"))
 			return new ModelAndView("view_expanding",refData);
-		else if (displayType.equals("Verical_Tabs"))
+		else if (displayType.equals("Verical Tabs") || displayType.equals("Verical_Tabs"))
 			return new ModelAndView("view_vertical_tabs",refData);
+		else if (displayType.equals("Vertical Tabs with Panel"))
+			return new ModelAndView("view_vertical_tabs_w_panel",refData);
 		else
 			return new ModelAndView("view_single",refData);
 	}
