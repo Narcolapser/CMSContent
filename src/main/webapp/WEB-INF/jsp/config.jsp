@@ -18,10 +18,10 @@
 			<c:forEach var="disp" items="${displayTypes}">
 				<c:choose>
 					<c:when test="${disp == displayType}">
-						<option value="${disp}" selected="selected">${disp}<option>
+						<option value="${disp}" selected="selected">${disp}</option>
 					</c:when>
 					<c:otherwise>
-						<option value="${disp}">${disp}<option>
+						<option value="${disp}">${disp}</option>
 					</c:otherwise>
 				</c:choose>
 			</c:forEach>
@@ -104,6 +104,10 @@
 	</portlet:actionURL>
 	<a type="button" href="${addPage}" class="btn btn-default">Add page</a>
 	
+
+<!-- ======================= HERE IS WHERE THE CODE FOR THE MAXIMIZED PORTLET BEGINS. ======================= -->
+
+
 	<h2>Portlet maximized display type:</h2>
 	
 	<portlet:actionURL name="updateMaxDisplay" var="updateMaxDisplay">
@@ -115,10 +119,10 @@
 			<c:forEach var="disp" items="${displayTypes}">
 				<c:choose>
 					<c:when test="${disp == maximizedDisplayType}">
-						<option value="${disp}" selected="selected">${disp}<option>
+						<option value="${disp}" selected="selected">${disp}</option>
 					</c:when>
 					<c:otherwise>
-						<option value="${disp}">${disp}<option>
+						<option value="${disp}">${disp}</option>
 					</c:otherwise>
 				</c:choose>
 			</c:forEach>
