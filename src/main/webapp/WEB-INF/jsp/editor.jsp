@@ -37,7 +37,7 @@
 		<label for="doc_source">Source:</label>
 		<input type="text" class="form-control" id="doc_source" value="Internal" disabled="disabled">
 	</div>
-	<input type="hidden"id="doc_source_hidden" name="doc_source" value="Internal">
+	<input type="hidden" id="doc_source_hidden" name="doc_source" value="Internal">
 	<textarea id="${n}content" name="content">put content here.</textarea>
 	<p>
 		<input type="submit" name="action" value="Update" class="btn btn-default"/>
@@ -92,7 +92,6 @@ function addtext()
 }
 function setText(val)
 {
-	alert(val);
 	CKEDITOR.instances["${n}content"].setData(val);
 }
 function OnChange()
