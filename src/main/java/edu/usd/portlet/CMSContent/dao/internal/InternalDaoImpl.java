@@ -3,6 +3,7 @@ package edu.usd.portlet.cmscontent.dao;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletPreferences;
@@ -18,6 +19,7 @@ import org.apache.commons.collections.IteratorUtils;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.InternalDocumentDao;
 
+@Component
 @Service
 public class InternalDaoImpl implements InternalDao, DisposableBean
 {
@@ -91,6 +93,11 @@ public class InternalDaoImpl implements InternalDao, DisposableBean
 	public void saveDocument(CMSDocument val)
 	{
 		this.internalDocumentDao.insertDocument(val);
+	}
+
+	public String getDaoName()
+	{
+		return "Internal";
 	}
 
 	public void destroy() throws Exception {
