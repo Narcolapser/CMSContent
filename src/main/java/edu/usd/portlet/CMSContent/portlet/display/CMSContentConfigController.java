@@ -71,20 +71,23 @@ public class CMSContentConfigController
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	private CMSDocumentDao dbo = null; // Spring managed
-	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
+//	private CMSDocumentDao dbo = null; // Spring managed
+//	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
+
+//	@Autowired
+//	public void setdbo(CMSDocumentDao dbo) {
+//		this.dbo = dbo;
+//	}
 
 	@Autowired
-	public void setdbo(CMSDocumentDao dbo) {
-		this.dbo = dbo;
-	}
+	List<CMSDocumentDao> dataSources;
 	
-	@Autowired 
-	private InternalDao intdbo = null;
-	public void setInternalDao(InternalDao intdbo)
-	{
-		this.intdbo = intdbo;
-	}
+//	@Autowired 
+//	private InternalDao intdbo = null;
+//	public void setInternalDao(InternalDao intdbo)
+//	{
+//		this.intdbo = intdbo;
+//	}
 
 	@Autowired
 	private CMSConfigDao conf = null;
@@ -102,15 +105,17 @@ public class CMSContentConfigController
 
 		logger.debug("fetching available pages");
 		//List<CMSDocument> pages = dbo.getAvailablePages();
-		List<CMSDocument> cspages = csdbo.getAllDocumentsContentless();
-		List<CMSDocument> intpages = intdbo.getAllDocumentsContentless();
-		List<CMSDocument> pages = new ArrayList<CMSDocument>();
+//		List<CMSDocument> cspages = csdbo.getAllDocumentsContentless();
+//		List<CMSDocument> intpages = intdbo.getAllDocumentsContentless();
+//		List<CMSDocument> pages = new ArrayList<CMSDocument>();
+		for(CMSDocumentDao ds:dataSources)
+			refData.put(ds.getDaoName(),ds.getAllDocumentsContentless());
 
-		logger.debug("puttin the pages");
-		refData.put("CommonSpot",cspages);
-		refData.put("Internal",intpages);
-		refData.put("availablePages",pages);
-		refData.put("None",pages);
+//		logger.debug("puttin the pages");
+//		refData.put("CommonSpot",cspages);
+//		refData.put("Internal",intpages);
+//		refData.put("availablePages",pages);
+//		refData.put("None",pages);
 
 		logger.debug("getting page Uris");
 		List<CMSDocument> uris = this.conf.getPageUris(request);

@@ -32,4 +32,9 @@ public interface CMSDocumentDao
 	// Get the requested document. The Id is some unique identifier for the
 	// the data source. This will usually be a path of some sort, but it
 	// need not be.
+	
+	public String getDaoName();
+	// return the name of this DAO for choosing it in controllers.
+	
+	public void saveDocument(CMSDocument val);
 }
