@@ -40,6 +40,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
@@ -62,19 +63,23 @@ import javax.naming.InitialContext;
  * @author Toben Archer
  * @version $Id$
  */
+@Component
 @Controller
 @RequestMapping("VIEW")
 public class CMSContentViewController {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
+//	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
 
-	@Autowired 
-	private InternalDao intdbo = null;
-	public void setInternalDao(InternalDao intdbo)
-	{
-		this.intdbo = intdbo;
-	}
+//	@Autowired 
+//	private InternalDao intdbo = null;
+//	public void setInternalDao(InternalDao intdbo)
+//	{
+//		this.intdbo = intdbo;
+//	}
+
+	@Autowired
+	List<CMSDocumentDao> dataSources;
 
 	@Autowired
 	private CMSConfigDao conf = null;
@@ -89,6 +94,10 @@ public class CMSContentViewController {
 	{
 		//Create the model object that will be passed.
 		final Map<String, Object> refData = new HashMap<String, Object>();
+		
+		for(CMSDocumentDao ds:dataSources)
+			logger.info("Data source: " + ds.getDaoName());
+		logger.info("Number of datasources: " + dataSources.size());
 
 		//get display type. e.g. single, collapsing, tabbed.
 		String displayType = this.conf.getDisplayType(request);
@@ -113,26 +122,24 @@ public class CMSContentViewController {
 		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
 		
 		//itterate through the list of pages and get their content.
+		boolean sourced = false;
 		for(CMSDocument entry:uris)
-		{
-			logger.info("Getting page: " + entry.getId() + " " + entry.getSource());
-			if("blank".equals(entry.getId()))
-			{
-				//skip this, it is a blank page.
-				continue;
-			}
-			if("Internal".equals(entry.getSource()))
-			{
-				//content comes from internally, use the internal source.
-				content.add(this.intdbo.getDocument(entry.getId()));
-			}
-			else
-			{
-				//content comes from CommonSpot, use the CommonSpot source.
-				content.add(this.csdbo.getDocument(entry.getId()));
-				//This is the default for legacy reasons. 
-			}
-		}
+			for(CMSDocumentDao ds:dataSources)
+				if (ds.getDaoName().equals(entry.getSource()))
+					content.add(ds.getDocument(entry.getId()));
+//		{
+//				sourced = false;
+//			for(CMSDocumentDao ds:dataSources)
+//			{
+//				if (ds.getDaoName().equals(entry.getSource()))
+//				{
+//					content.add(ds.getDocument(entry.getId()));
+//					break;
+//				}
+//				if (!sourced)
+//					content.add(dataSources.get(0).getDocument(entry.getId()));
+//			}
+//		}
 		refData.put("content",content); //stow it for the view.
 
 		//Get channel ID:
