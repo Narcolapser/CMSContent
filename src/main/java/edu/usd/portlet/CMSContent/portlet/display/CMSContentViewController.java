@@ -88,7 +88,7 @@ public class CMSContentViewController {
 	public ModelAndView viewContent(RenderRequest request, RenderResponse response)
 	{
 		//Create the model object that will be passed.
-		final Map<String, Object> refData = new HashMap<String, Object>();
+		Map<String, Object> refData = new HashMap<String, Object>();
 
 		//get display type. e.g. single, collapsing, tabbed.
 		String displayType = this.conf.getDisplayType(request);
