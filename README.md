@@ -35,6 +35,8 @@ making a new portlet. This re-write seeks to solve those issues by:
   * Horizontal Tabs with right side pane
   * Horizontal Tabs with left side Pane
   * Vertical tabs on right
+* Recreate config interface
+* Refactor views into classes to allow view specific properties and settings. 
 
 ###0.6:
 
