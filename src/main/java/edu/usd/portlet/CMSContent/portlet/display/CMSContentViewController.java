@@ -49,8 +49,8 @@ import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.InternalDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
-import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
+import edu.usd.portlet.cmscontent.dao.CMSLayout;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -98,16 +98,20 @@ public class CMSContentViewController {
 		String maxDisplayType = this.conf.getMaximizedDisplayType(request);
 		refData.put("maximizedDisplayType",maxDisplayType);
 
+
 		//get window state:
 		WindowState state = request.getWindowState();
 		logger.debug("Window state: " + state.toString() + " max test: " + (WindowState.MAXIMIZED.equals(state) && !maxDisplayType.equals("None")));
 
-		//Get the list of pages that are to be displayed.
-		List<CMSDocument> uris;
-		if (WindowState.MAXIMIZED.equals(state) && !maxDisplayType.equals("None"))
-			uris = this.conf.getMaxPageUris(request);
-		else
-			uris = this.conf.getPageUris(request);
+//		//Get the list of pages that are to be displayed.
+//		List<CMSDocument> uris;
+//		if (WindowState.MAXIMIZED.equals(state) && !maxDisplayType.equals("None"))
+//			uris = this.conf.getMaxPageUris(request);
+//		else
+//			uris = this.conf.getPageUris(request);
+
+		CMSLayout layout = this.conf.getLayout(request);
+		List<CMSDocument> uris = layout.getSubscriptionsAsDocs();
 		
 		//Prepare a list for the page content.
 		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
@@ -143,6 +147,8 @@ public class CMSContentViewController {
 		//Get portlet path:
 		String portletPath = request.getContextPath();
 		refData.put("portletPath",portletPath);
+
+		refData.put("windowID",request.getProperty("AppDefinition.title"));
 
 		//send to "view".jsp the object refData.
 		if (WindowState.MAXIMIZED.equals(state) && !maxDisplayType.equals("None"))
