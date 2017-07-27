@@ -53,6 +53,7 @@ import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
+import edu.usd.portlet.cmscontent.dao.CMSLayout;
 import edu.usd.portlet.cmscontent.dao.InternalDao;
 
 import javax.naming.Context;
@@ -71,20 +72,23 @@ public class CMSContentConfigController
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	private CMSDocumentDao dbo = null; // Spring managed
-	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
+//	private CMSDocumentDao dbo = null; // Spring managed
+//	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
+
+//	@Autowired
+//	public void setdbo(CMSDocumentDao dbo) {
+//		this.dbo = dbo;
+//	}
 
 	@Autowired
-	public void setdbo(CMSDocumentDao dbo) {
-		this.dbo = dbo;
-	}
+	List<CMSDocumentDao> dataSources;
 	
-	@Autowired 
-	private InternalDao intdbo = null;
-	public void setInternalDao(InternalDao intdbo)
-	{
-		this.intdbo = intdbo;
-	}
+//	@Autowired 
+//	private InternalDao intdbo = null;
+//	public void setInternalDao(InternalDao intdbo)
+//	{
+//		this.intdbo = intdbo;
+//	}
 
 	@Autowired
 	private CMSConfigDao conf = null;
@@ -101,23 +105,20 @@ public class CMSContentConfigController
 		//final PortletPreferences preferences = request.getPreferences();
 
 		logger.debug("fetching available pages");
-		//List<CMSDocument> pages = dbo.getAvailablePages();
-		List<CMSDocument> cspages = csdbo.getAllDocumentsContentless();
-		List<CMSDocument> intpages = intdbo.getAllDocumentsContentless();
-		List<CMSDocument> pages = new ArrayList<CMSDocument>();
+		for(CMSDocumentDao ds:dataSources)
+			refData.put(ds.getDaoName(),ds.getAllDocumentsContentless());
 
-		logger.debug("puttin the pages");
-		refData.put("CommonSpot",cspages);
-		refData.put("Internal",intpages);
-		refData.put("availablePages",pages);
-		refData.put("None",pages);
+		CMSLayout normal = this.conf.getLayout(request,"normal");
+		CMSLayout max = this.conf.getLayout(request,"maximized");
 
 		logger.debug("getting page Uris");
-		List<CMSDocument> uris = this.conf.getPageUris(request);
+		//List<CMSDocument> uris = this.conf.getPageUris(request);
+		List<CMSDocument> uris = normal.getSubscriptionsAsDocs();
 		refData.put("pageUris",uris);
 
 		logger.debug("getting page Uris");
-		List<CMSDocument> maxUris = this.conf.getMaxPageUris(request);
+		//List<CMSDocument> maxUris = this.conf.getMaxPageUris(request);
+		List<CMSDocument> maxUris = max.getSubscriptionsAsDocs();
 		refData.put("pageUriMaximized",maxUris);
 
 		String[] sources = {"CommonSpot","Internal"};//,"None"};
@@ -125,12 +126,14 @@ public class CMSContentConfigController
 
 		//get display type. e.g. single, collapsing, tabbed.
 		logger.debug("getting display type.");
-		String displayType = this.conf.getDisplayType(request);
+		//String displayType = this.conf.getDisplayType(request);
+		String displayType = normal.getView();
 		refData.put("displayType",displayType);
 		
 		//get display type. e.g. single, collapsing, tabbed.
 		logger.debug("getting maximized display type.");
-		String maxDisplayType = this.conf.getMaximizedDisplayType(request);
+		//String maxDisplayType = this.conf.getMaximizedDisplayType(request);
+		String maxDisplayType = max.getView();
 		refData.put("maximizedDisplayType",maxDisplayType);
 		
 

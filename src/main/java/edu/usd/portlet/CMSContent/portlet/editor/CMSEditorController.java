@@ -66,16 +66,15 @@ import javax.naming.InitialContext;
 public class CMSEditorController {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	@Autowired
-	private CMSDocumentDao dbo = null; // Spring managed
-	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
-
 	@Autowired 
 	private InternalDao intdbo = null;
 	public void setInternalDao(InternalDao intdbo)
 	{
 		this.intdbo = intdbo;
 	}
+
+	@Autowired
+	List<CMSDocumentDao> dataSources;
 
 	@Autowired
 	private CMSConfigDao conf = null;
@@ -89,28 +88,20 @@ public class CMSEditorController {
 	{
 		logger.debug("Started primary view");
 		final Map<String, Object> refData = new HashMap<String, Object>();
-		//final PortletPreferences preferences = request.getPreferences();
 
 		logger.debug("fetching available pages");
-		//ArrayList<CMSDocument> pages = dbo.getAvailablePages();
-		List<CMSDocument> cspages = csdbo.getAllDocumentsContentless();
-		logger.debug("fetched Commonspot. int: " + intdbo);
-		List<CMSDocument> intpages = intdbo.getAllDocumentsContentless();
-		logger.debug("fetched Internal CMS");
-		List<CMSDocument> pages = new ArrayList<CMSDocument>();
-
-		logger.debug("puttin the pages");
-		refData.put("CommonSpot",cspages);
-		refData.put("Internal",intpages);
-		refData.put("availablePages",pages);
-		refData.put("None",pages);
+		for(CMSDocumentDao ds:dataSources)
+			refData.put(ds.getDaoName(),ds.getAllDocumentsContentless());
 
 		logger.debug("getting page Uris");
 		List<CMSDocument> uris = this.conf.getPageUris(request);
 		refData.put("pageUris",uris);
 
-		String[] sources = {"CommonSpot","Internal"};//,"None"};
-		refData.put("sources",sources);
+		List<String> sources = new ArrayList<String>();
+		//String[] sources = {"CommonSpot","Internal"};//,"None"};
+		for(CMSDocumentDao ds:dataSources)
+			sources.add(ds.getDaoName());
+		refData.put("sources",sources.toArray());
 
 		//get display type. e.g. single, collapsing, tabbed.
 		logger.debug("getting display type.");
@@ -136,6 +127,10 @@ public class CMSEditorController {
 		logger.info("Id: " + id);
 		logger.info("Source: " + source);
 		CMSDocument doc = new CMSDocument(title, id, source, content);
-		this.intdbo.saveDocument(doc);
+		CMSDocumentDao dbo = dataSources.get(0);
+		for(CMSDocumentDao ds:dataSources)
+			if (ds.getDaoName() == source)
+				dbo = ds;
+		dbo.saveDocument(doc);
 	}
 }

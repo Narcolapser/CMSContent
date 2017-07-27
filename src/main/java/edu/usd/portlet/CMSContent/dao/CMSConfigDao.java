@@ -26,6 +26,9 @@ public interface CMSConfigDao
 	
 	public CMSLayout getLayout(PortletRequest request, String mode);
 	//requests the layout specified in the argument mode.
+	
+	public void setLayout(PortletRequest request, String mode);
+	//sets the layout for the requested type.
 
 	public List<CMSDocument> getPageUrisSecure(PortletRequest request);
 	// Return a list of page Uri's and the data source they came from. This
