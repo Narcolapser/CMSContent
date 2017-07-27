@@ -18,43 +18,29 @@
  */
 package edu.usd.portlet.cmscontent.portlet.display;
 
-import java.util.Map;
-import java.util.HashMap;
+import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
+import edu.usd.portlet.cmscontent.dao.CMSDocument;
+import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
+import edu.usd.portlet.cmscontent.dao.CMSLayout;
+import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
+import edu.usd.portlet.cmscontent.dao.InternalDao;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Date;
-import java.util.Random;
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.Map;
 
-//import javax.portlet.PortletPreferences;
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
-
-import java.sql.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.portlet.ModelAndView;
-
-import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
-import edu.usd.portlet.cmscontent.dao.InternalDao;
-import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
-import edu.usd.portlet.cmscontent.dao.CMSDocument;
-import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
-import edu.usd.portlet.cmscontent.dao.CMSLayout;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-
 
 /**
  * This class handles retrieves information and displays the view page.
@@ -62,70 +48,46 @@ import javax.naming.InitialContext;
  * @author Toben Archer
  * @version $Id$
  */
+@Component
 @Controller
 @RequestMapping("VIEW")
 public class CMSContentViewController {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
-
-	@Autowired 
-	private InternalDao intdbo = null;
-	public void setInternalDao(InternalDao intdbo)
-	{
-		this.intdbo = intdbo;
-	}
+	@Autowired
+	List<CMSDocumentDao> dataSources;
 
 	@Autowired
 	private CMSConfigDao conf = null;
-
 	public void setConf(CMSConfigDao conf)
 	{
 		this.conf = conf;
 	}
 
 	@RequestMapping
-	public ModelAndView viewContent(RenderRequest request, RenderResponse response)
+	public ModelAndView viewContent(RenderRequest request)
 	{
-		//Create the model object that will be passed.
+		logger.debug("Number of datasources: " + dataSources.size());
+		for(CMSDocumentDao ds:dataSources)
+			logger.debug("Data source: " + ds.getDaoName());
+
+		//Creating the model object that will be passed to the view.
 		Map<String, Object> refData = new HashMap<String, Object>();
 
+		//Preparing a the list of page content.
 		CMSLayout layout = this.conf.getLayout(request);
-		List<CMSDocument> uris = layout.getSubscriptionsAsDocs();
-		
-		//Prepare a list for the page content.
 		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
-		
-		//itterate through the list of pages and get their content.
-		for(CMSDocument entry:uris)
-		{
-			logger.info("Getting page: " + entry.getId() + " " + entry.getSource());
-			if("blank".equals(entry.getId()))
-			{
-				//skip this, it is a blank page.
-				continue;
-			}
-			if("Internal".equals(entry.getSource()))
-			{
-				//content comes from internally, use the internal source.
-				content.add(this.intdbo.getDocument(entry.getId()));
-			}
-			else
-			{
-				//content comes from CommonSpot, use the CommonSpot source.
-				content.add(this.csdbo.getDocument(entry.getId()));
-				//This is the default for legacy reasons. 
-			}
-		}
-		refData.put("content",content); //stow it for the view.
+		for(CMSDocument entry:layout.getSubscriptionsAsDocs())
+			for(CMSDocumentDao ds:dataSources)
+				if (ds.getDaoName().equals(entry.getSource()))
+					content.add(ds.getDocument(entry.getId()));
+		refData.put("content",content);
 
-		//Get channel ID:
-		String channelId = request.getWindowID();
-		refData.put("channelId",channelId);
+		//Get channel ID
+		refData.put("channelId",request.getWindowID());
 
-		//Get portlet path:
-		String portletPath = request.getContextPath();
-		refData.put("portletPath",portletPath);
+		//Get portlet path. Not sure if this is truely necessary. I'll probably depricate it.
+		refData.put("portletPath",request.getContextPath());
 
 		//get any paramaters that were passed.
 		refData.put("parameters",request.getParameterMap());
