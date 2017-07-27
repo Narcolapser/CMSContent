@@ -120,6 +120,10 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 		return layout;
 	}
 
+	public void setLayout(PortletRequest request, String mode)
+	{
+	
+	}
 
 	public List<CMSDocument> getPageUrisSecure(PortletRequest request)
 	{
