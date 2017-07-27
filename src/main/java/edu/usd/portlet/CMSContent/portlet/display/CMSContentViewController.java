@@ -49,8 +49,8 @@ import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.InternalDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
-import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
+import edu.usd.portlet.cmscontent.dao.CMSLayout;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -90,24 +90,8 @@ public class CMSContentViewController {
 		//Create the model object that will be passed.
 		Map<String, Object> refData = new HashMap<String, Object>();
 
-		//get display type. e.g. single, collapsing, tabbed.
-		String displayType = this.conf.getDisplayType(request);
-		refData.put("displayType",displayType);
-		
-		//get maximized display type. e.g. single, collapsing, tabbed.
-		String maxDisplayType = this.conf.getMaximizedDisplayType(request);
-		refData.put("maximizedDisplayType",maxDisplayType);
-
-		//get window state:
-		WindowState state = request.getWindowState();
-		logger.debug("Window state: " + state.toString() + " max test: " + (WindowState.MAXIMIZED.equals(state) && !maxDisplayType.equals("None")));
-
-		//Get the list of pages that are to be displayed.
-		List<CMSDocument> uris;
-		if (WindowState.MAXIMIZED.equals(state) && !maxDisplayType.equals("None"))
-			uris = this.conf.getMaxPageUris(request);
-		else
-			uris = this.conf.getPageUris(request);
+		CMSLayout layout = this.conf.getLayout(request);
+		List<CMSDocument> uris = layout.getSubscriptionsAsDocs();
 		
 		//Prepare a list for the page content.
 		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
@@ -136,33 +120,16 @@ public class CMSContentViewController {
 		refData.put("content",content); //stow it for the view.
 
 		//Get channel ID:
-		Random randomGenerator = new Random();
-		String channelId = "cmsContent"+displayType+String.valueOf(Math.abs(randomGenerator.nextInt()))+new Date().getTime();
+		String channelId = request.getWindowID();
 		refData.put("channelId",channelId);
 
 		//Get portlet path:
 		String portletPath = request.getContextPath();
 		refData.put("portletPath",portletPath);
 
-		//send to "view".jsp the object refData.
-		if (WindowState.MAXIMIZED.equals(state) && !maxDisplayType.equals("None"))
-		{
-			displayType = maxDisplayType;
-		}
-		
-
 		//get any paramaters that were passed.
 		refData.put("parameters",request.getParameterMap());
 
-		if (displayType.equals("Tabbed"))
-			return new ModelAndView("view_tabbed",refData);
-		else if (displayType.equals("Expanding"))
-			return new ModelAndView("view_expanding",refData);
-		else if (displayType.equals("Verical Tabs") || displayType.equals("Verical_Tabs"))
-			return new ModelAndView("view_vertical_tabs",refData);
-		else if (displayType.equals("Vertical Tabs with Panel"))
-			return new ModelAndView("view_vertical_tabs_w_panel",refData);
-		else
-			return new ModelAndView("view_single",refData);
+		return layout.display(refData);
 	}
 }

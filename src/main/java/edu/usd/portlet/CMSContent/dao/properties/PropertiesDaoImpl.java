@@ -16,11 +16,15 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletPreferences;
 import javax.portlet.ReadOnlyException;
 import javax.portlet.ValidatorException;
+import javax.portlet.WindowState;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
+import edu.usd.portlet.cmscontent.dao.CMSLayout;
+import edu.usd.portlet.cmscontent.dao.CMSSubscription;
 
 /**
  * @author Toben Archer
@@ -30,6 +34,92 @@ import edu.usd.portlet.cmscontent.dao.CMSDocument;
 public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
+	
+	public CMSLayout getLayout(PortletRequest request)
+	{
+		WindowState state = request.getWindowState();
+//		logger.debug("Window state: " + state.toString() + " max test: " + (WindowState.MAXIMIZED.equals(state) && !maxDisplayType.equals("None")));
+		if (WindowState.MAXIMIZED.equals(state))
+			return getLayout(request,"maximized");
+		return getLayout(request,"normal");
+	}
+	
+	public CMSLayout getLayout(PortletRequest request, String mode)
+	{
+	
+		PortletPreferences prefs = request.getPreferences();
+		if ((prefs.getValue("pageUri",null) != null))
+			return getLayoutLegacy(request);
+		
+		CMSLayout ret = new CMSLayout();
+		
+		String view = prefs.getValue(mode,"view_single");
+		String[] subs = prefs.getValues(mode+".subscriptions",null);
+		List<CMSSubscription> subscriptions = new ArrayList<CMSSubscription>();
+		for(String sub:subs)
+		{
+			int delimiter = sub.indexOf(";");
+			String source = sub.substring(0,delimiter);
+			String id = sub.substring(delimiter+1);
+			CMSSubscription csub = new CMSSubscription();
+			csub.setDocId(id);
+			csub.setDocSource(source);
+			subscriptions.add(csub);
+		}
+		
+		ret.setView(view);
+		ret.setSubscriptions(subscriptions);
+		
+		return ret;
+	}
+
+	private CMSLayout getLayoutLegacy(PortletRequest request)
+	{
+		PortletPreferences prefs = request.getPreferences();
+		String[] pageUriArray = prefs.getValues("pageUri",null);
+		String source;
+		//ArrayList<CMSDocument> ret = new ArrayList<CMSDocument>();
+		List<CMSSubscription> ret = new ArrayList<CMSSubscription>();
+		try
+		{
+			for(String val:pageUriArray)
+			{
+				if(val == null)
+				{
+					//ret.add(new CMSDocument("","blank","blank","blank"));
+					CMSSubscription csub = new CMSSubscription();
+					csub.setDocId("blank");
+					csub.setDocSource("blank");
+					ret.add(csub);
+					continue;
+				}
+				//default is commonspot for backwards compatibility reasons.
+				source = prefs.getValue(val,"CommonSpot");
+				//ret.add(new CMSDocument("",val,source,""));
+				CMSSubscription csub = new CMSSubscription();
+				csub.setDocId(val);
+				csub.setDocSource(source);
+				ret.add(csub);
+			}
+		}
+		catch(Exception e)
+		{
+			logger.info("There were no values set");
+			//ret.add(new CMSDocument("","blank","blank","blank"));
+			CMSSubscription csub = new CMSSubscription();
+			csub.setDocId("blank");
+			csub.setDocSource("blank");
+			ret.add(csub);
+		}
+		
+		CMSLayout layout = new CMSLayout();
+		
+		layout.setView("view_single");
+		layout.setSubscriptions(ret);
+		
+		return layout;
+	}
+
 
 	public List<CMSDocument> getPageUrisSecure(PortletRequest request)
 	{
