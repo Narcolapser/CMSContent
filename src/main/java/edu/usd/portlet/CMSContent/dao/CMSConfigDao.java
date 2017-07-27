@@ -7,6 +7,7 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletPreferences;
 
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
+import edu.usd.portlet.cmscontent.dao.CMSLayout;
 
 /**
  * This is the interface definition for portlet configuration. This will contain
@@ -19,6 +20,12 @@ import edu.usd.portlet.cmscontent.dao.CMSDocument;
 
 public interface CMSConfigDao
 {
+
+	public CMSLayout getLayout(PortletRequest request);
+	//requests the default layout for the current portlet mode.
+	
+	public CMSLayout getLayout(PortletRequest request, String mode);
+	//requests the layout specified in the argument mode.
 
 	public List<CMSDocument> getPageUrisSecure(PortletRequest request);
 	// Return a list of page Uri's and the data source they came from. This
