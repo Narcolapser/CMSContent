@@ -6,11 +6,42 @@
 <c:set var="n"><portlet:namespace/></c:set>
 <portlet:actionURL var="getPages" name="getPages"></portlet:actionURL>
 
-<div class=\"usdChannel\">
+<style type="text/css">
+/*#wrap {
+   width:600px;
+   margin:0 auto;
+}
+#left_col {
+   float:left;
+   width:50%;
+}
+#right_col {
+   float:right;
+   width:50%;
+}*/
+
+#content-wrapper{
+  display:table;
+}
+
+#content{
+  display:table-row;
+}
+
+#content>div{
+  display:table-cell
+}
+
+</style>
+
+
+<div class=\"usdChannel\" id="content-wrapper">
+	<div id="content">
 	<portlet:actionURL name="updateDisplay" var="updateDisplay">
 		<portlet:param name="action" value="updateDisplay"/>
 	</portlet:actionURL>
 
+	<div id="left_col">
 	<h2>Portlet display type:</h2>
 	<!--</br>-->
 	<form id="disp_type_form" action="${updateDisplay}">
@@ -28,184 +59,14 @@
 		</select>
 		<input type="submit" name="action" class="btn btn-default" value="updateDisplay"/>
 	</form>
+	</div>
 
+	<div id="right_col">
 	<h2>Pages</h2>
-	<c:set var="counter" value="${0}"/>
-	<c:forEach var="pageUri" items="${pageUris}">
-		<div class="pageUri.Id" style="display:block" class="form-group">
-			<c:set var="counter" value="${counter + 1}"/>
-			<c:set var="selected" value="selected"/>
 
-			<portlet:actionURL name="updatePage" var="updatePage"/>
-			<form id="page_uri_form_${counter}" action="${updatePage}">
-				<label for="source_selector_${counter}">Content Source</label>
-				<select id="source_selector_${counter}" name="source" class="form-control"
-						OnChange='OnChange(this.form.source_selector_${counter},this.form.channel_${counter});'>
-					<c:forEach var="source" items="${sources}">
-						<c:choose>
-							<c:when test="${source == pageUri.source}">
-								<option value="${source}" selected="selected">${source}</option>
-								<c:set var="selected" value=""/>
-							</c:when>
-							<c:otherwise>
-								<option value="${source}">${source}</option>
-							</c:otherwise>
-						</c:choose>
-					</c:forEach>
-					<c:if test="${selected == 'selected'}">
-						<option value="None" selected="${selected}">None</option>
-					</c:if>
-				</select>
-				<label for="channel_${counter}">Section Content</label>
+	</div>
+	</div>
 
-				<c:choose>
-					<c:when test="${pageUri.source == 'CommonSpot'}">
-						<c:set var="pageSource" value="${CommonSpot}"/>
-					</c:when>
-					<c:when test="${pageUri.source == 'Internal'}">
-						<c:set var="pageSource" value="${Internal}"/>
-					</c:when>
-					<c:otherwise>
-						<c:set var="pageSource" value="${availablePages}"/>
-					</c:otherwise>
-				</c:choose>
-
-				<c:set var="selected" value="selected"/>
-				<select id="channel_${counter}" name="channel" class="form-control chosen-select">
-					<c:forEach var="page" items="${pageSource}">
-						<c:choose>
-							<c:when test="${page.id == pageUri.id}">
-								<option value="${page.id}" selected="selected">Title: ${page.title}, Full Id: ${page.id}</option>
-								<c:set var="selected" value=""/>
-							</c:when>
-							<c:otherwise>
-								<option value="${page.id}">Title: ${page.title}, Full Id: ${page.id}</option>
-							</c:otherwise>
-						</c:choose>
-					</c:forEach>
-					<c:if test="${selected == 'selected'}">
-						<option value="None" selected="${selected}">None</option>
-					</c:if>
-				</select>
-				</br>
-				<input type="hidden" name="index" value="${counter}"/>
-				<input type="submit" name="action" value="Update" class="btn btn-default"/>
-				<portlet:actionURL name="removePage" var="removePage">
-					<portlet:param name="action" value="remove"/>
-					<portlet:param name="index" value="${counter}"/>
-				</portlet:actionURL>
-				<a type="button" href="${removePage}" class="btn btn-default">Remove page</a>
-			</form>
-		</div>
-	</c:forEach>
-
-	<portlet:actionURL name="addPage" var="addPage">
-		<portlet:param name="action" value="add"/>
-	</portlet:actionURL>
-	<a type="button" href="${addPage}" class="btn btn-default">Add page</a>
-	
-
-<!-- ======================= HERE IS WHERE THE CODE FOR THE MAXIMIZED PORTLET BEGINS. ======================= -->
-
-
-	<h2>Portlet maximized display type:</h2>
-	
-	<portlet:actionURL name="updateMaxDisplay" var="updateMaxDisplay">
-		<portlet:param name="action" value="updateMaxDisplay"/>
-	</portlet:actionURL>
-
-	<form id="disp_type_form" action="${updateMaxDisplay}">
-		<select id="disp_type" name="disp_type" class="form-control">
-			<c:forEach var="disp" items="${displayTypes}">
-				<c:choose>
-					<c:when test="${disp == maximizedDisplayType}">
-						<option value="${disp}" selected="selected">${disp}</option>
-					</c:when>
-					<c:otherwise>
-						<option value="${disp}">${disp}</option>
-					</c:otherwise>
-				</c:choose>
-			</c:forEach>
-		</select>
-		<input type="submit" name="action" class="btn btn-default" value="updateMaxDisplay"/>
-	</form>
-	
-	<h2>Pages</h2>
-	<c:set var="counter" value="${0}"/>
-	<c:forEach var="pageUri" items="${pageUriMaximized}">
-		<div class="pageUri.Id" style="display:block" class="form-group">
-			<c:set var="counter" value="${counter + 1}"/>
-			<c:set var="selected" value="selected"/>
-
-			<portlet:actionURL name="updatePage" var="updatePage"/>
-			<form id="page_uri_form_${counter}" action="${updatePage}">
-				<label for="source_selector_${counter}">Content Source</label>
-				<select id="source_selector_max_${counter}" name="source" class="form-control"
-						OnChange='OnChange(this.form.source_selector_max_${counter},this.form.channel_max_${counter});'>
-					<c:forEach var="source" items="${sources}">
-						<c:choose>
-							<c:when test="${source == pageUri.source}">
-								<option value="${source}" selected="selected">${source}</option>
-								<c:set var="selected" value=""/>
-							</c:when>
-							<c:otherwise>
-								<option value="${source}">${source}</option>
-							</c:otherwise>
-						</c:choose>
-					</c:forEach>
-					<c:if test="${selected == 'selected'}">
-						<option value="None" selected="${selected}">None</option>
-					</c:if>
-				</select>
-				<label for="channel_${counter}">Section Content</label>
-
-				<c:choose>
-					<c:when test="${pageUri.source == 'CommonSpot'}">
-						<c:set var="pageSource" value="${CommonSpot}"/>
-					</c:when>
-					<c:when test="${pageUri.source == 'Internal'}">
-						<c:set var="pageSource" value="${Internal}"/>
-					</c:when>
-					<c:otherwise>
-						<c:set var="pageSource" value="${availablePages}"/>
-					</c:otherwise>
-				</c:choose>
-
-				<c:set var="selected" value="selected"/>
-				<select id="channel_max_${counter}" name="channel" class="form-control chosen-select">
-					<c:forEach var="page" items="${pageSource}">
-						<c:choose>
-							<c:when test="${page.id == pageUri.id}">
-								<option value="${page.id}" selected="selected">Title: ${page.title}, Full Id: ${page.id}</option>
-								<c:set var="selected" value=""/>
-							</c:when>
-							<c:otherwise>
-								<option value="${page.id}">Title: ${page.title}, Full Id: ${page.id}</option>
-							</c:otherwise>
-						</c:choose>
-					</c:forEach>
-					<c:if test="${selected == 'selected'}">
-						<option value="None" selected="${selected}">None</option>
-					</c:if>
-				</select>
-				</br>
-				<input type="hidden" name="index" value="${counter}"/>
-				<input type="hidden" name="is_max" value="true"/>
-				<input type="submit" name="action" value="Update" class="btn btn-default"/>
-				<portlet:actionURL name="removePage" var="removePage">
-					<portlet:param name="action" value="remove"/>
-					<portlet:param name="index" value="${counter}"/>
-				</portlet:actionURL>
-				<a type="button" href="${removePage}" class="btn btn-default">Remove page</a>
-			</form>
-		</div>
-	</c:forEach>
-
-	<portlet:actionURL name="addPage" var="addPage">
-		<portlet:param name="action" value="add"/>
-		<portlet:param name="is_max" value="true"/>
-	</portlet:actionURL>
-	<a type="button" href="${addPage}" class="btn btn-default">Add page</a>
 
 	</br></br>
 	<portlet:renderURL var="formDoneAction" portletMode="VIEW" windowState="NORMAL"/>
