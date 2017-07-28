@@ -93,23 +93,10 @@ public class CMSEditorController {
 		for(CMSDocumentDao ds:dataSources)
 			refData.put(ds.getDaoName(),ds.getAllDocumentsContentless());
 
-		logger.debug("getting page Uris");
-		List<CMSDocument> uris = this.conf.getPageUris(request);
-		refData.put("pageUris",uris);
-
 		List<String> sources = new ArrayList<String>();
-		//String[] sources = {"CommonSpot","Internal"};//,"None"};
 		for(CMSDocumentDao ds:dataSources)
 			sources.add(ds.getDaoName());
 		refData.put("sources",sources.toArray());
-
-		//get display type. e.g. single, collapsing, tabbed.
-		logger.debug("getting display type.");
-		String displayType = this.conf.getDisplayType(request);
-		refData.put("displayType",displayType);
-
-		String[] displayTypes = {"Single","Expanding","Tabbed"};//,"Verical_Tabs"};
-		refData.put("displayTypes",displayTypes);
 
 		return new ModelAndView("editor",refData);
 	}
