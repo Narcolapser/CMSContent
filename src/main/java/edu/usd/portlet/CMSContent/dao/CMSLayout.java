@@ -52,6 +52,14 @@ public class CMSLayout
 		this.subscriptions = val;
 	}
 	
+	public void updateSubscription(CMSSubscription val, int index)
+	{
+		if (this.subscriptions.size() < index)
+			this.subscriptions.add(val);
+		else
+			this.subscriptions.set(index,val);
+	}
+	
 	public List<CMSDocument> getSubscriptionsAsDocs()
 	{
 		ArrayList<CMSDocument> ret = new ArrayList<CMSDocument>();
