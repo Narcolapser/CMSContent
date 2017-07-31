@@ -22,8 +22,8 @@ import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSLayout;
-import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
-import edu.usd.portlet.cmscontent.dao.InternalDao;
+//import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
+//import edu.usd.portlet.cmscontent.dao.InternalDao;
 
 import java.util.ArrayList;
 import java.util.HashMap;
