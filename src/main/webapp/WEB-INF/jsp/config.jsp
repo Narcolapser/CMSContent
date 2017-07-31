@@ -22,6 +22,7 @@
 
 #content-wrapper{
   display:table;
+  width: 100%;
 }
 
 #content{
@@ -29,42 +30,70 @@
 }
 
 #content>div{
-  display:table-cell
+  display:table-cell;
+  width:50%;
+  padding: 10px;
 }
 
 </style>
 
 
-<div class=\"usdChannel\" id="content-wrapper">
+<div class="usdChannel" id="content-wrapper">
 	<div id="content">
-	<portlet:actionURL name="updateDisplay" var="updateDisplay">
-		<portlet:param name="action" value="updateDisplay"/>
-	</portlet:actionURL>
+		<portlet:actionURL var="updateView">
+			<portlet:param name="action" value="updateView" />
+		</portlet:actionURL>
 
-	<div id="left_col">
-	<h2>Portlet display type:</h2>
-	<!--</br>-->
-	<form id="disp_type_form" action="${updateDisplay}">
-		<select id="disp_type" name="disp_type" class="form-control">
-			<c:forEach var="disp" items="${displayTypes}">
-				<c:choose>
-					<c:when test="${disp == displayType}">
-						<option value="${disp}" selected="selected">${disp}</option>
-					</c:when>
-					<c:otherwise>
-						<option value="${disp}">${disp}</option>
-					</c:otherwise>
-				</c:choose>
-			</c:forEach>
-		</select>
-		<input type="submit" name="action" class="btn btn-default" value="updateDisplay"/>
-	</form>
-	</div>
+		<div id="left_col">
+			<h2>Portlet view type:</h2>
+			<form id="disp_type_form" action="${updateView}">
+				<select id="disp_type" name="disp_type" class="form-control">
+					<c:forEach var="disp" items="${availableViews}">
+						<c:choose>
+							<c:when test="${disp == currentView}">
+								<option value="${disp}" selected="selected">${disp}</option>
+							</c:when>
+							<c:otherwise>
+								<option value="${disp}">${disp}</option>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
+				</select>
+				<input type="submit" name="action" class="btn btn-default" value="updateDisplay"/>
+			</form>
+		</div>
 
-	<div id="right_col">
-	<h2>Pages</h2>
-
-	</div>
+		<c:set var="mode" value="normal"/>
+		<div id="right_col">
+			<h2>Documents</h2>
+			<div name="${mode}_doc_pane">
+				<div name="${mode}_controls" class="form-inline">
+					<div class="form-group">
+						<button onclick="new_document('${mode}_doc_select')" class="btn btn-default">new</button>
+						<button onclick="edit_document('${mode}_doc_select')" class="btn btn-default">edit</button>
+						<button onclick="add_document('${mode}')" class="btn btn-default">add</button>
+						<select id="${mode}_source" class="form-control">
+							<c:forEach var="source" items="${sources}">
+								<option value="${source.getDaoName()}">${source.getDaoName()}</option>
+							</c:forEach>
+						</select>
+					</div>
+					<div id="${mode}_doc_selector">
+						<select id="${mode}_doc_select">
+							<c:forEach var="doc" items="${Internal}">
+								<option value="${doc.id}">Title: ${doc.title}, Id: ${doc.id}</option>
+							</c:forEach>
+						</select>
+					</div>
+				</div>
+				<div>
+					<!--Active documents: ${activeDocumentsNormal}-->
+					<c:forEach var="doc" items="${activeDocumentsNormal}">
+						<p>${doc}</p>
+					</c:forEach>
+				</div>
+			</div>
+		</div>
 	</div>
 
 
@@ -72,8 +101,45 @@
 	<portlet:renderURL var="formDoneAction" portletMode="VIEW" windowState="NORMAL"/>
 	<a type="button" href="${formDoneAction}" class="btn btn-default">Done</a>
 </div>
+
+<portlet:actionURL var="updateDocument">
+	<portlet:param name="action" value="updateDocument"/>
+</portlet:actionURL>
 <SCRIPT LANGUAGE="javascript">
 //$(".chosen-select").chosen();
+
+function new_document(val)
+{
+	alert("New!" + val);
+}
+
+function edit_document(val)
+{
+	alert("Edit!" + val);
+}
+
+function add_document(val)
+{
+//	alert("Add!" + val);'${mode}_doc_select',
+	var e = document.getElementById(val+"_doc_select");
+	var selected = e.options[e.selectedIndex].value;
+	var source_e =document.getElementById(val+"_source");
+	var source_selected = source_e.options[source_e.selectedIndex].value;
+	alert({"document":selected,"source":source_selected,"index":e.length,"mode":val});
+	$.ajax({dataType:"json",
+		url:"${updateDocument}",
+		data:{"document":selected,
+			"source":source_selected,
+			"index":e.length,
+			"mode":val},
+		success:add_back});
+}
+
+function add_back(data, textStatus, jqXHR)
+{
+	alert("BACK!");
+	alert(data);
+}
 
 function populate_pages(data, textStatus, jqXHR)
 {

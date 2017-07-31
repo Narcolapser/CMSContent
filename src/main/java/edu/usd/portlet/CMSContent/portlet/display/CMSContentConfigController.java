@@ -74,45 +74,55 @@ public class CMSContentConfigController
 		//final PortletPreferences preferences = request.getPreferences();
 
 		logger.debug("fetching available pages");
+		ArrayList<String> sources = new ArrayList<String>();
 		for(CMSDocumentDao ds:dataSources)
 			refData.put(ds.getDaoName(),ds.getAllDocumentsContentless());
+//		{
+//			sources.add(ds.getDaoName());
+//		}
+		refData.put("sources",dataSources);
 
 		CMSLayout normal = this.conf.getLayout(request,"normal");
-		List<CMSDocument> uris = normal.getSubscriptionsAsDocs();
-		refData.put("pageUris",uris);
+		List<CMSDocument> docs = normal.getSubscriptionsAsDocs();
+		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
+		for(CMSDocument entry:docs)
+			for(CMSDocumentDao ds:dataSources)
+				if (ds.getDaoName().equals(entry.getSource()))
+					content.add(ds.getDocument(entry.getId()));
+		logger.info("active docs: " + content);
+		refData.put("activeDocumentsNormal",content);
 		String displayType = normal.getView();
-		refData.put("displayType",displayType);
+		refData.put("currentView",displayType);
 
 		CMSLayout max = this.conf.getLayout(request,"maximized");
 		if (max != null)
 		{
 			List<CMSDocument> maxUris = max.getSubscriptionsAsDocs();
-			refData.put("pageUriMaximized",maxUris);
+			refData.put("pageUrisMaximized",maxUris);
 			String maxDisplayType = max.getView();
-			refData.put("maximizedDisplayType",maxDisplayType);
+			refData.put("maximizedCurrentView",maxDisplayType);
 		}
 
-		ArrayList<String> sources = new ArrayList<String>();
-		for(CMSDocumentDao ds:dataSources)
-			sources.add(ds.getDaoName());
-		refData.put("sources",sources);
-
+//		ArrayList<String> displayTypesal = new ArrayList<String>();
+//		for(String disp:displayTypes)
+//			displayTypesal.add(disp);
+		
 		String[] displayTypes = {"Single","Expanding","Tabbed","Verical Tabs","Vertical Tabs with Panel"};
-		refData.put("displayTypes",displayTypes);
+		refData.put("availableViews",displayTypes);
 
 		return new ModelAndView("config",refData);
 	}
 
 
-	@RequestMapping(params = {"action=Update"})
+	@RequestMapping(params = {"action=updateDocument"})
 	public void updateDocument(ActionRequest request,
-		@RequestParam(value = "channel", required = false) String channel,
+		@RequestParam(value = "document", required = false) String document,
 		@RequestParam(value = "source", required = false) String source,
 		@RequestParam(value = "index", required = false) String index_str,
 		@RequestParam(value = "mode", required = false, defaultValue = "normal") String mode)
 	{
-		logger.info("attempting to set page uri #" + index_str + " to: '" + channel + "' from: '" + source + "' is max: " + mode);
-		if(channel == null)
+		logger.info("attempting to set page uri #" + index_str + " to: '" + document + "' from: '" + source + "' is max: " + mode);
+		if(document == null)
 		{
 			logger.debug("Cannot set page to nothing.");
 			return;
@@ -126,14 +136,14 @@ public class CMSContentConfigController
 		CMSLayout layout = this.conf.getLayout(request,mode);
 		
 		CMSSubscription sub = new CMSSubscription();
-		sub.setDocId(channel);
+		sub.setDocId(document);
 		sub.setDocSource(source);
 		layout.updateSubscription(sub,index);
 		this.conf.setLayout(request,mode,layout);
 	}
 
-	@RequestMapping(params = {"action=updateDisplay"})
-	public void updateDisplay(ActionRequest request,
+	@RequestMapping(params = {"action=updateView"})
+	public void updateView(ActionRequest request,
 		@RequestParam(value = "disp_type", required = false) String disp_type,
 		@RequestParam(value = "mode", required = false, defaultValue = "normal") String mode)
 	{
