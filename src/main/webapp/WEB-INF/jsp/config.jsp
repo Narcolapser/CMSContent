@@ -69,9 +69,15 @@
 			<div name="${mode}_doc_pane">
 				<div name="${mode}_controls" class="form-inline">
 					<div class="form-group">
-						<button onclick="new_document('${mode}_doc_select')" class="btn btn-default">new</button>
-						<button onclick="edit_document('${mode}_doc_select')" class="btn btn-default">edit</button>
-						<button onclick="add_document('${mode}')" class="btn btn-default">add</button>
+						<div class="btn-group" role="group">
+							<button onclick="new_document('${mode}_doc_select')" class="btn btn-info">
+								<i class="fa fa-clone"></i> New</button>
+							<button onclick="add_document('${mode}')" class="btn btn-primary">
+								<i class="fa fa-link"></i> Add</button>
+							<button onclick="edit_document('${mode}_doc_select')" class="btn btn-warning">
+								<i class="fa fa-gears"></i> Edit</button>
+						</div>
+						<label for="${mode}_source">Document Source</label>
 						<select id="${mode}_source" class="form-control">
 							<c:forEach var="source" items="${sources}">
 								<option value="${source.getDaoName()}">${source.getDaoName()}</option>
@@ -87,7 +93,6 @@
 					</div>
 				</div>
 				<div>
-					<!--Active documents: ${activeDocumentsNormal}-->
 					<c:forEach var="doc" items="${activeDocumentsNormal}">
 						<p>${doc}</p>
 					</c:forEach>

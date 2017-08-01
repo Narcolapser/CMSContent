@@ -63,6 +63,10 @@ public class CMSContentConfigController
 	@Autowired
 	List<CMSDocumentDao> dataSources;
 
+//	@Autowired
+//	List<CMSLayoutInjector> layouts;
+
+
 	@Autowired
 	CMSConfigDao conf = null;
 
@@ -92,7 +96,7 @@ public class CMSContentConfigController
 		logger.info("active docs: " + content);
 		refData.put("activeDocumentsNormal",content);
 		String displayType = normal.getView();
-		refData.put("currentView",displayType);
+		refData.put("currentView",normal);
 
 		CMSLayout max = this.conf.getLayout(request,"maximized");
 		if (max != null)
