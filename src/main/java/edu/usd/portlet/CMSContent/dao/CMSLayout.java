@@ -4,16 +4,30 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import edu.usd.portlet.cmscontent.dao.CMSSubscription;
 import org.springframework.web.portlet.ModelAndView;
 
 public class CMSLayout
 {
+	protected final Log logger = LogFactory.getLog(this.getClass());
+
 	protected String view;
+	protected String name;
 	protected Map<String,String> properties;
 	protected List<CMSSubscription> subscriptions;
 	
 	public CMSLayout(){}
+	
+	public CMSLayout(CMSLayout val)
+	{
+		this.view = val.view;
+		this.name = val.name;
+		this.properties = val.properties;
+		this.subscriptions = val.subscriptions;
+	}
 	
 	public CMSLayout(String view, Map<String,String> properties, List<CMSSubscription> subscriptions)
 	{
@@ -30,6 +44,16 @@ public class CMSLayout
 	public void setView(String val)
 	{
 		this.view = val;
+	}
+	
+	public String getName()
+	{
+		return this.name;
+	}
+	
+	public void setName(String val)
+	{
+		this.name = val;
 	}
 	
 	public Map<String,String> getProperties()
@@ -75,6 +99,11 @@ public class CMSLayout
 	
 	public ModelAndView display(Map<String, Object> model)
 	{
-		return new ModelAndView(this.view,model);
+		return new ModelAndView(this.getView(),model);
+	}
+	public CMSLayout copy(CMSLayout val)
+	{
+		logger.info("Layout Copying is copying");
+		return new CMSLayout(val);
 	}
 }
