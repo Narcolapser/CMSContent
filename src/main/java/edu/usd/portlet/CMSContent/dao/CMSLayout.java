@@ -14,10 +14,10 @@ public class CMSLayout
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	protected String view;
-	protected String name;
-	protected Map<String,String> properties;
-	protected List<CMSSubscription> subscriptions;
+	public String view;
+	public String name;
+	public Map<String,String> properties;
+	public List<CMSSubscription> subscriptions;
 	
 	public CMSLayout(){}
 	
@@ -99,7 +99,7 @@ public class CMSLayout
 	
 	public ModelAndView display(Map<String, Object> model)
 	{
-		return new ModelAndView(this.getView(),model);
+		return new ModelAndView(this.view,model);
 	}
 	public CMSLayout copy(CMSLayout val)
 	{

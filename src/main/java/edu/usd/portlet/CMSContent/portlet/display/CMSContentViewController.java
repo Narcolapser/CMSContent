@@ -22,7 +22,6 @@ import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSLayout;
-import edu.usd.portlet.cmscontent.dao.CMSLayoutInjector;
 //import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 //import edu.usd.portlet.cmscontent.dao.InternalDao;
 
@@ -59,7 +58,7 @@ public class CMSContentViewController {
 	List<CMSDocumentDao> dataSources;
 
 	@Autowired
-	List<CMSLayoutInjector> layouts;
+	List<CMSLayout> layouts;
 
 	@Autowired
 	private CMSConfigDao conf = null;
@@ -80,13 +79,16 @@ public class CMSContentViewController {
 
 		CMSLayout layout = this.conf.getLayout(request);
 		logger.debug("Number of layouts: " + layouts.size());
-		for(CMSLayoutInjector lay:layouts)
+		for(CMSLayout lay:layouts)
 		{
-			logger.debug("lay: " + lay.getName() + ";" + lay.getView());
-			layout.setView(lay.getView());
+//			logger.debug("Lay: " + lay.getName() + ";" + lay.getView());
+//			logger.debug("Lay: " + layout.getName() + ";" + layout.getView());
+//			logger.debug("Match?: " + lay.getName().equals(layout.getView()));
+			if (lay.getName().equals(layout.getView()))
+			{
+				layout = lay.copy(layout);
+			}
 		}
-//			if (lay.getName().equals(layout.getView()))
-//				layout = lay.copy(layout);
 		logger.debug("Layout: " + layout.getName());
 		logger.debug("View: " + layout.getView());
 
