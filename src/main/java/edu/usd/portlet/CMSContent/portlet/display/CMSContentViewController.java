@@ -22,6 +22,7 @@ import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSLayout;
+import edu.usd.portlet.cmscontent.dao.CMSLayoutInjector;
 //import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 //import edu.usd.portlet.cmscontent.dao.InternalDao;
 
@@ -58,6 +59,9 @@ public class CMSContentViewController {
 	List<CMSDocumentDao> dataSources;
 
 	@Autowired
+	List<CMSLayoutInjector> layouts;
+
+	@Autowired
 	private CMSConfigDao conf = null;
 	public void setConf(CMSConfigDao conf)
 	{
@@ -74,8 +78,19 @@ public class CMSContentViewController {
 		//Creating the model object that will be passed to the view.
 		Map<String, Object> refData = new HashMap<String, Object>();
 
-		//Preparing a the list of page content.
 		CMSLayout layout = this.conf.getLayout(request);
+		logger.debug("Number of layouts: " + layouts.size());
+		for(CMSLayoutInjector lay:layouts)
+		{
+			logger.debug("lay: " + lay.getName() + ";" + lay.getView());
+			layout.setView(lay.getView());
+		}
+//			if (lay.getName().equals(layout.getView()))
+//				layout = lay.copy(layout);
+		logger.debug("Layout: " + layout.getName());
+		logger.debug("View: " + layout.getView());
+
+		//Preparing a the list of page content.
 		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
 		for(CMSDocument entry:layout.getSubscriptionsAsDocs())
 			for(CMSDocumentDao ds:dataSources)

@@ -121,7 +121,6 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 		PortletPreferences prefs = request.getPreferences();
 		String[] pageUriArray = prefs.getValues("pageUri",null);
 		String source;
-		//ArrayList<CMSDocument> ret = new ArrayList<CMSDocument>();
 		List<CMSSubscription> ret = new ArrayList<CMSSubscription>();
 		try
 		{
@@ -129,7 +128,6 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			{
 				if(val == null)
 				{
-					//ret.add(new CMSDocument("","blank","blank","blank"));
 					CMSSubscription csub = new CMSSubscription();
 					csub.setDocId("blank");
 					csub.setDocSource("blank");
@@ -138,7 +136,6 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 				}
 				//default is commonspot for backwards compatibility reasons.
 				source = prefs.getValue(val,"CommonSpot");
-				//ret.add(new CMSDocument("",val,source,""));
 				CMSSubscription csub = new CMSSubscription();
 				csub.setDocId(val);
 				csub.setDocSource(source);
@@ -148,7 +145,6 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 		catch(Exception e)
 		{
 			logger.info("There were no values set");
-			//ret.add(new CMSDocument("","blank","blank","blank"));
 			CMSSubscription csub = new CMSSubscription();
 			csub.setDocId("blank");
 			csub.setDocSource("blank");
