@@ -63,8 +63,8 @@ public class CMSContentConfigController
 	@Autowired
 	List<CMSDocumentDao> dataSources;
 
-//	@Autowired
-//	List<CMSLayoutInjector> layouts;
+	@Autowired
+	List<CMSLayout> layouts;
 
 
 	@Autowired
@@ -111,8 +111,8 @@ public class CMSContentConfigController
 //		for(String disp:displayTypes)
 //			displayTypesal.add(disp);
 		
-		String[] displayTypes = {"Single","Expanding","Tabbed","Verical Tabs","Vertical Tabs with Panel"};
-		refData.put("availableViews",displayTypes);
+//		String[] displayTypes = {"Single","Expanding","Tabbed","Verical Tabs","Vertical Tabs with Panel"};
+		refData.put("availableViews",layouts);
 
 		return new ModelAndView("config",refData);
 	}

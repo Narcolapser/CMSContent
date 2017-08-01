@@ -40,30 +40,26 @@
 
 <div class="usdChannel" id="content-wrapper">
 	<div id="content">
-		<portlet:actionURL var="updateView">
-			<portlet:param name="action" value="updateView" />
-		</portlet:actionURL>
-
+		<c:set var="mode" value="normal"/>
+		
 		<div id="left_col">
 			<h2>Portlet view type:</h2>
-			<form id="disp_type_form" action="${updateView}">
-				<select id="disp_type" name="disp_type" class="form-control">
-					<c:forEach var="disp" items="${availableViews}">
-						<c:choose>
-							<c:when test="${disp == currentView}">
-								<option value="${disp}" selected="selected">${disp}</option>
-							</c:when>
-							<c:otherwise>
-								<option value="${disp}">${disp}</option>
-							</c:otherwise>
-						</c:choose>
-					</c:forEach>
-				</select>
-				<input type="submit" name="action" class="btn btn-default" value="updateDisplay"/>
-			</form>
+			<select id="${mode}_disp_type" name="disp_type" class="form-control">
+				<c:forEach var="disp" items="${availableViews}">
+					<c:choose>
+						<c:when test="${disp.view == currentView.view}">
+							<option value="${disp.view}" selected="selected">${disp.name}</option>
+						</c:when>
+						<c:otherwise>
+							<option value="${disp.view}">${disp.name}</option>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+			</select>
+			<button class="btn btn-default" onclick="update_view('${mode}');return false"/>Update layout</button>
 		</div>
 
-		<c:set var="mode" value="normal"/>
+
 		<div id="right_col">
 			<h2>Documents</h2>
 			<div name="${mode}_doc_pane">
@@ -110,6 +106,9 @@
 <portlet:actionURL var="updateDocument">
 	<portlet:param name="action" value="updateDocument"/>
 </portlet:actionURL>
+<portlet:actionURL var="updateView">
+	<portlet:param name="action" value="updateView" />
+</portlet:actionURL>
 <SCRIPT LANGUAGE="javascript">
 //$(".chosen-select").chosen();
 
@@ -130,7 +129,6 @@ function add_document(val)
 	var selected = e.options[e.selectedIndex].value;
 	var source_e =document.getElementById(val+"_source");
 	var source_selected = source_e.options[source_e.selectedIndex].value;
-	alert({"document":selected,"source":source_selected,"index":e.length,"mode":val});
 	$.ajax({dataType:"json",
 		url:"${updateDocument}",
 		data:{"document":selected,
@@ -138,6 +136,17 @@ function add_document(val)
 			"index":e.length,
 			"mode":val},
 		success:add_back});
+}
+
+function update_view(mode)
+{
+	alert("Updating view!");
+//	var e = document.getElementById(mode+"_disp_type");
+//	var selected = e.options[e.selectedIndex].value;
+//	$.ajax({dataType:"json",
+//		url:"${updateView}",
+//		data:{"disp_type":selected,
+//			"mode":mode}});
 }
 
 function add_back(data, textStatus, jqXHR)
