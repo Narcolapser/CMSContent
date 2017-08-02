@@ -16,6 +16,7 @@ public class CMSLayout
 
 	public String view;
 	public String name;
+	public String description;
 	public Map<String,String> properties;
 	public List<CMSSubscription> subscriptions;
 	
@@ -25,6 +26,7 @@ public class CMSLayout
 	{
 		this.view = val.view;
 		this.name = val.name;
+		this.description = val.description;
 		this.properties = val.properties;
 		this.subscriptions = val.subscriptions;
 	}
@@ -32,6 +34,8 @@ public class CMSLayout
 	public CMSLayout(String view, Map<String,String> properties, List<CMSSubscription> subscriptions)
 	{
 		this.view = view;
+		this.name = name;
+		this.description = description;
 		this.properties = properties;
 		this.subscriptions = subscriptions;
 	}
@@ -54,6 +58,16 @@ public class CMSLayout
 	public void setName(String val)
 	{
 		this.name = val;
+	}
+	
+	public String getDescription()
+	{
+		return this.description;
+	}
+	
+	public void setDescription(String val)
+	{
+		this.description = val;
 	}
 	
 	public Map<String,String> getProperties()
