@@ -7,19 +7,6 @@
 <portlet:actionURL var="getPages" name="getPages"></portlet:actionURL>
 
 <style type="text/css">
-/*#wrap {
-   width:600px;
-   margin:0 auto;
-}
-#left_col {
-   float:left;
-   width:50%;
-}
-#right_col {
-   float:right;
-   width:50%;
-}*/
-
 #content-wrapper{
   display:table;
   width: 100%;
@@ -35,6 +22,10 @@
   padding: 10px;
 }
 
+div.col_content{
+	width: 100%;
+}
+
 </style>
 
 
@@ -44,19 +35,55 @@
 		
 		<div id="left_col">
 			<h2>Portlet view type:</h2>
-			<select id="${mode}_disp_type" name="disp_type" class="form-control">
-				<c:forEach var="disp" items="${availableViews}">
+			<select id="${mode}_view" name="view_type" class="form-control" OnChange="viewChange('${mode}')">
+				<c:forEach var="view" items="${availableViews}">
 					<c:choose>
-						<c:when test="${disp.view == currentView.view}">
-							<option value="${disp.view}" selected="selected">${disp.name}</option>
+						<c:when test="${view.view == currentView.view}">
+							<option value="${view.view}" selected="selected">${view.name}</option>
 						</c:when>
 						<c:otherwise>
-							<option value="${disp.view}">${disp.name}</option>
+							<option value="${view.view}">${view.name}</option>
 						</c:otherwise>
 					</c:choose>
 				</c:forEach>
 			</select>
 			<button class="btn btn-default" onclick="update_view('${mode}');return false"/>Update layout</button>
+			<div class="col_content">
+				<c:forEach var="view" items="${availableViews}">
+					<!-- ${view} ${view.view} ${currentView} ${currentView.view} -->
+					<c:choose>
+						<c:when test="${view.view == currentView.view}">
+							<div id="${mode}_${view.view}" class="${mode}_desc show">
+								<h3>View Description:</h3>
+								<p>${view.description}</p>
+							</div>
+						</c:when>
+						<c:otherwise>
+							<div id="${mode}_${view.view}" class="${mode}_desc hide">
+								<h3>View Description:</h3>
+								<p>${view.description}</p>
+							</div>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+			</div>
+			<div>
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th>Property</th>
+							<th>Value</th>
+						</tr>
+					</thead>
+					<tbody>
+						<c:forEach var="property" items="${currentView.properties}">
+						<tr>
+							<td>${property}</td>
+						</tr>
+						</c:forEach>
+					</tbody>
+				</table>
+			</div>
 		</div>
 
 
@@ -74,7 +101,7 @@
 								<i class="fa fa-gears"></i> Edit</button>
 						</div>
 						<label for="${mode}_source">Document Source</label>
-						<select id="${mode}_source" class="form-control">
+						<select id="${mode}_source" class="form-control" OnChange="OnChange(this.form.source_selector_${counter},'${mode}_doc_select');">
 							<c:forEach var="source" items="${sources}">
 								<option value="${source.getDaoName()}">${source.getDaoName()}</option>
 							</c:forEach>
@@ -89,9 +116,26 @@
 					</div>
 				</div>
 				<div>
-					<c:forEach var="doc" items="${activeDocumentsNormal}">
-						<p>${doc}</p>
-					</c:forEach>
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>Position</th>
+								<th>Title</th>
+								<th>Id</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:forEach var="doc" items="${activeDocumentsNormal}">
+								<tr>
+									<td><button>Up</button><button>Down</button></td>
+									<td>${doc.title}</td>
+									<td>${doc.id}</td>
+									<td><button>Remove</button></td>
+								</tr>
+							</c:forEach>
+						</tbody>
+					</table>
 				</div>
 			</div>
 		</div>
@@ -124,7 +168,6 @@ function edit_document(val)
 
 function add_document(val)
 {
-//	alert("Add!" + val);'${mode}_doc_select',
 	var e = document.getElementById(val+"_doc_select");
 	var selected = e.options[e.selectedIndex].value;
 	var source_e =document.getElementById(val+"_source");
@@ -134,25 +177,40 @@ function add_document(val)
 		data:{"document":selected,
 			"source":source_selected,
 			"index":e.length,
-			"mode":val},
-		success:add_back});
+			"mode":val}});
 }
 
 function update_view(mode)
 {
 	alert("Updating view!");
-//	var e = document.getElementById(mode+"_disp_type");
-//	var selected = e.options[e.selectedIndex].value;
-//	$.ajax({dataType:"json",
-//		url:"${updateView}",
-//		data:{"disp_type":selected,
-//			"mode":mode}});
+	var e = document.getElementById(mode+"_view_type");
+	var selected = e.options[e.selectedIndex].value;
+	$.ajax({dataType:"json",
+		url:"${updateView}",
+		data:{"view_type":selected,
+			"mode":mode}});
 }
 
-function add_back(data, textStatus, jqXHR)
+function viewChange(mode)
 {
-	alert("BACK!");
-	alert(data);
+	var all = document.getElementsByClassName(mode + "_desc");
+	var e = document.getElementById(mode+"_view");
+	var selected = e.options[e.selectedIndex].value;
+	for(i = 0; i < all.length; i ++)
+	{
+		var obj = all[i];
+		var classes = obj.className.split(" ");
+		comp = mode + "_" + selected;
+		if(obj.id == comp)
+		{
+			obj.className = mode + "_desc show";
+		}
+		else
+		{
+			obj.className = mode + "_desc hide";
+		}
+	}
+	
 }
 
 function populate_pages(data, textStatus, jqXHR)
@@ -169,16 +227,17 @@ function populate_pages(data, textStatus, jqXHR)
 			data["pages"][i]["id"]);
 	}
 }
-function OnChange(sources,pages)
+function OnChange(sources,doc_selector)
 {
 	var myindex = sources.selectedIndex;
 	var SelValue = sources.options[myindex].value;
 
 	pages.options.length=0;
 	pages.options[0] = new Option("Loading...","");
-	$.ajax({dataType:"json",
-		url:"/CMSContent/v1/api/getPagesWithIndex.json",
-		data:{"source":SelValue,"index":pages.id},
-		success:populate_pages});
+	alert("on change!");
+//	$.ajax({dataType:"json",
+//		url:"/CMSContent/v1/api/getPagesWithIndex.json",
+//		data:{"source":SelValue,"index":doc_selector},
+//		success:populate_pages});
 }
 </SCRIPT>

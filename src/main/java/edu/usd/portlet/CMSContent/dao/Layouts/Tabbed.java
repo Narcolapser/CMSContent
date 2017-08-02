@@ -22,6 +22,10 @@ public class Tabbed extends CMSLayout
 	public Tabbed(){}
 	public String getName(){return "Tabbed";}
 	public String getView(){return "view_tabbed";}
+	public String getDescription()
+	{
+		return "A simple tabbed layout.";
+	}
 
 	public CMSLayout copy(CMSLayout val)
 	{

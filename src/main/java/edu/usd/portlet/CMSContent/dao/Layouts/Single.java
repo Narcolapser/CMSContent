@@ -22,6 +22,10 @@ public class Single extends CMSLayout
 	public Single(){}
 	public String getName(){return "Single";}
 	public String getView(){return "view_single";}
+	public String getDescription()
+	{
+		return "The simplest of layouts. Only the top document listed will be displayed.";
+	}
 
 	public CMSLayout copy(CMSLayout val)
 	{
