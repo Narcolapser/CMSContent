@@ -235,9 +235,9 @@ function OnChange(sources,doc_selector)
 	pages.options.length=0;
 	pages.options[0] = new Option("Loading...","");
 	alert("on change!");
-//	$.ajax({dataType:"json",
-//		url:"/CMSContent/v1/api/getPagesWithIndex.json",
-//		data:{"source":SelValue,"index":doc_selector},
-//		success:populate_pages});
+	$.ajax({dataType:"json",
+		url:"/CMSContent/v1/api/getPagesWithIndex.json",
+		data:{"source":SelValue,"index":doc_selector},
+		success:populate_pages});
 }
 </SCRIPT>
