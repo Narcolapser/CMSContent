@@ -92,10 +92,29 @@ public class CMSLayout
 	
 	public void updateSubscription(CMSSubscription val, int index)
 	{
-		if (this.subscriptions.size() < index)
-			this.subscriptions.add(val);
+		logger.info("Index: " + index + " list length: " + this.subscriptions.size());
+		if (this.subscriptions.size() <= index)
+			if (val != null)
+			{
+				logger.info("Added subscription");
+				this.subscriptions.add(val);
+			}
+			else
+			{
+				logger.info("This is the gimp!");
+			}
 		else
-			this.subscriptions.set(index,val);
+			if (val == null)
+			{
+				logger.info("Removed subscription");
+				this.subscriptions.remove(index);
+			}
+			else
+			{
+				logger.info("changed subscription");
+				this.subscriptions.set(index,val);
+			}
+		logger.info("Completeing the update function");
 	}
 	
 	public List<CMSDocument> getSubscriptionsAsDocs()
