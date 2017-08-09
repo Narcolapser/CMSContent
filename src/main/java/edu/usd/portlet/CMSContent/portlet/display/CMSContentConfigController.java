@@ -75,15 +75,11 @@ public class CMSContentConfigController
 	{
 		logger.debug("Started primary view");
 		final Map<String, Object> refData = new HashMap<String, Object>();
-		//final PortletPreferences preferences = request.getPreferences();
 
 		logger.debug("fetching available pages");
 		ArrayList<String> sources = new ArrayList<String>();
 		for(CMSDocumentDao ds:dataSources)
 			refData.put(ds.getDaoName(),ds.getAllDocumentsContentless());
-//		{
-//			sources.add(ds.getDaoName());
-//		}
 		refData.put("sources",dataSources);
 
 		CMSLayout normal = this.conf.getLayout(request,"normal");
@@ -107,11 +103,6 @@ public class CMSContentConfigController
 			refData.put("maximizedCurrentView",maxDisplayType);
 		}
 
-//		ArrayList<String> displayTypesal = new ArrayList<String>();
-//		for(String disp:displayTypes)
-//			displayTypesal.add(disp);
-		
-//		String[] displayTypes = {"Single","Expanding","Tabbed","Verical Tabs","Vertical Tabs with Panel"};
 		refData.put("availableViews",layouts);
 
 		return new ModelAndView("config",refData);
@@ -126,23 +117,20 @@ public class CMSContentConfigController
 		@RequestParam(value = "mode", required = false, defaultValue = "normal") String mode)
 	{
 		logger.info("attempting to set page uri #" + index_str + " to: '" + document + "' from: '" + source + "' is max: " + mode);
-		if(document == null)
+		CMSSubscription sub = null;
+		if(document != null)
 		{
-			logger.debug("Cannot set page to nothing.");
-			return;
-		}
-		if(source.equals("None"))
-		{
-			logger.debug("Cannot set to no data source.");
-			return;
+			logger.info("Document is not null: " + document);
+			sub = new CMSSubscription();
+			sub.setDocId(document);
+			sub.setDocSource(source);
 		}
 		int index = Integer.parseInt(index_str) - 1;
 		CMSLayout layout = this.conf.getLayout(request,mode);
 		
-		CMSSubscription sub = new CMSSubscription();
-		sub.setDocId(document);
-		sub.setDocSource(source);
+		logger.info("updating subscription");
 		layout.updateSubscription(sub,index);
+		logger.info("subscription updated.");
 		this.conf.setLayout(request,mode,layout);
 	}
 

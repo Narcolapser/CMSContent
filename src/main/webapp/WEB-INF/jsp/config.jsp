@@ -8,18 +8,18 @@
 
 <style type="text/css">
 #content-wrapper{
-  display:table;
-  width: 100%;
+	display:table;
+	width: 100%;
 }
 
 #content{
-  display:table-row;
+	display:table-row;
 }
 
 #content>div{
-  display:table-cell;
-  width:50%;
-  padding: 10px;
+	display:table-cell;
+	width:50%;
+	padding: 10px;
 }
 
 div.col_content{
@@ -110,13 +110,13 @@ div.col_content{
 					<div id="${mode}_doc_selector">
 						<select id="${mode}_doc_select">
 							<c:forEach var="doc" items="${Internal}">
-								<option value="${doc.id}">Title: ${doc.title}, Id: ${doc.id}</option>
+								<option value="${doc.id}" data-title="${doc.title}">Title: ${doc.title}, Id: ${doc.id}</option>
 							</c:forEach>
 						</select>
 					</div>
 				</div>
 				<div>
-					<table class="table table-striped">
+					<table class="table table-striped" id="${mode}_docs_table">
 						<thead>
 							<tr>
 								<th>Position</th>
@@ -126,13 +126,24 @@ div.col_content{
 							</tr>
 						</thead>
 						<tbody>
+							<c:set var="index" value="1"/>
 							<c:forEach var="doc" items="${activeDocumentsNormal}">
-								<tr>
-									<td><button>Up</button><button>Down</button></td>
+								<tr class="${mode} ${index}">
+									<td>
+										<div class="btn-group" role="group">
+											<button onclick="up_document('${mode}',this);return false" class="btn btn-default">
+												<i class="fa fa-arrow-up"></i>
+											</button>
+											<button onclick="down_document('${mode}',this);return false" class="btn btn-default">
+												<i class="fa fa-arrow-down"></i>
+											</button>
+										</div>
+									</td>
 									<td>${doc.title}</td>
 									<td>${doc.id}</td>
-									<td><button>Remove</button></td>
+									<td><button onclick="remove_document('${mode}',this);return false;">Remove</button></td>
 								</tr>
+								<c:set var="index" value="${index + 1}"/>
 							</c:forEach>
 						</tbody>
 					</table>
@@ -170,14 +181,85 @@ function add_document(val)
 {
 	var e = document.getElementById(val+"_doc_select");
 	var selected = e.options[e.selectedIndex].value;
-	var source_e =document.getElementById(val+"_source");
+	var selected_title = e.options[e.selectedIndex].getAttribute("data-title");
+	var source_e = document.getElementById(val+"_source");
 	var source_selected = source_e.options[source_e.selectedIndex].value;
 	$.ajax({dataType:"json",
 		url:"${updateDocument}",
 		data:{"document":selected,
 			"source":source_selected,
 			"index":e.length,
-			"mode":val}});
+			"mode":val},
+		success:add_doc_success});
+	
+	var table = document.getElementById(val+"_docs_table");
+	table = table.children[1];
+	var last_row = table.children[table.children.length - 1];
+	var row = new_doc_row(selected_title,selected,val);
+	table.insertBefore(row,last_row.nextSibling);
+}
+function new_doc_row(title,id,mode)
+{
+	var new_row = document.createElement("TR");
+	new_row.innerHTML = '<td><div class="btn-group" role="group"><button onclick="up_document(\''+mode+'\',this);return false" class="btn btn-default"><i class="fa fa-arrow-up"></i></button><button onclick="down_document(\''+mode+'\',this);return false" class="btn btn-default"><i class="fa fa-arrow-down"></i></button></div></td><td>'+title+'</td><td>'+id+'</td><td><button onclick="remove_document(\''+mode+'\',this);return false;">Remove</button></td>';
+	return new_row;
+}
+
+function remove_document(mode,button)
+{
+	//alert("remove!" + val);
+	var table = document.getElementById(mode+"_docs_table")
+	var val = button.parentNode.parentNode.rowIndex;
+	alert("Index: " + val);
+	$.ajax({dataType:"json",
+		url:"${updateDocument}",
+		data:{"index":val,
+			"mode":mode},
+		success:remove_doc_success});
+	table.deleteRow(val-1);
+	
+}
+
+function up_document(mode,button)
+{
+	//alert("up!");
+	var row = button.parentNode.parentNode.parentNode;
+	if (row.rowIndex == 0)
+		return false;
+	var table = row.parentNode;
+	var rows = table.getElementsByTagName('tr');
+	var prev = rows[row.rowIndex - 2];
+	var title = row.cells[1].innerText;
+	var id = row.cells[2].innerText;
+	var newItem = new_doc_row(title,id,mode)
+	newItem.className = mode + " " + (row.rowIndex -1);
+	prev.className = mode + " " + row.rowIndex;
+	table.removeChild(row);
+	table.insertBefore(newItem,prev);
+}
+
+function down_document(mode,button)
+{
+	var row = button.parentNode.parentNode.parentNode;
+	var table = row.parentNode;
+	var rows = table.getElementsByTagName('tr');
+	var next = rows[row.rowIndex + 1];
+	var prev = rows[row.rowIndex - 2];
+	var title = row.cells[1].innerText;
+	var id = row.cells[2].innerText;
+	var newItem = new_doc_row(title,id,mode)
+	newItem.className = mode + " " + (row.rowIndex + 1);
+	
+	if (prev != null)
+		prev.className = mode + " " + row.rowIndex - 1;
+	if (next != null)
+	{
+		table.insertBefore(newItem,next);
+//		next.className = mode + " " + row.rowIndex - 1;
+	}
+	else
+		table.appendChild(newItem);
+	table.removeChild(row);
 }
 
 function update_view(mode)
