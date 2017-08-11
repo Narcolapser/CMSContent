@@ -27,16 +27,16 @@ making a new portlet. This re-write seeks to solve those issues by:
 
 ###0.5
 
-* Change content if view is maximized.
+* Change content if view is maximized. - Check
 * Maximized view set:
-  * Vertical Tabs
+  * Vertical Tabs - Check
   * Vertical Tabs with right side pane
-  * Horizontal Tabs
+  * Horizontal Tabs - Check
   * Horizontal Tabs with right side pane
   * Horizontal Tabs with left side Pane
   * Vertical tabs on right
-* Recreate config interface
-* Refactor views into classes to allow view specific properties and settings. 
+* Recreate config interface - Check
+* Refactor views into classes to allow view specific properties and settings. - partial check
 
 ###0.6:
 
