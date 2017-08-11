@@ -6,22 +6,29 @@
 <link rel="stylesheet" href="/CMSContent/css/chosen.css">
 
 <c:set var="n"><portlet:namespace/></c:set>
+<c:set var="selected" value=""/>
+<c:if test="${not empty parameters.get('tab')[0]}">
+	<c:set var="selected" value="${parameters.get('tab')[0]}"/>
+</c:if>
 
 <style type="text/css">
 	#${n}contentForm { min-height: 100px; padding: 10px; margin: 10px; }
 	.cke_source { color: #000000; }
 </style>
 
-<p>This is an editor</p>
-
 <select id="docselector" class="chosen-select" data-placeholder="Select document..." OnChange='OnChange();'>
 	<option value="new" selected>New page</option>
 	<c:forEach var="doc" items="${Internal}">
-		<option value="${doc.id}">${doc.title}</option>
+		<c:choose>
+			<c:when test="${doc.id == selected}">
+				<option selected="selected" value="${doc.id}">${doc.title}</option>
+			</c:when>
+			<c:otherwise>
+				<option value="${doc.id}">${doc.title}</option>
+			</c:otherwise>
+		</c:choose>
 	</c:forEach>
 </select>
-
-<h2>Hopefully there is an editor below this line.</h2>
 
 <portlet:actionURL name="updateDocument" var="updateDocument"/>
 <form id="${n}contentForm" commandName="form" action="${updateDocument}" method="post">
@@ -40,8 +47,8 @@
 	<input type="hidden" id="doc_source_hidden" name="doc_source" value="Internal">
 	<textarea id="${n}content" name="content">put content here.</textarea>
 	<p>
-		<input type="submit" name="action" value="Update" class="btn btn-default"/>
-		<a onclick="addtext()" class="btn btn-default">Cancel</a>
+		<input type="submit" name="action" value="Update" class="btn btn-primary"/>
+		<a href="https://dev-uportal.usd.edu/uPortal/p/cmseditor" class="btn btn-danger">Cancel</a>
 	</p>
 	
 </form>
@@ -86,6 +93,8 @@ $(document).ready(function(){
 });
 
 });
+
+
 function addtext()
 {
 	setText("<p>new</br>text</p>");
@@ -99,7 +108,7 @@ function OnChange()
 	var selector = document.getElementById("docselector");
 	var myindex = selector.selectedIndex;
 	var doc_id = selector.options[myindex].value;
-	
+
 	setText("<p>Loading...</p>");
 	
 	${n}.jQuery.ajax({dataType:"json",
@@ -119,6 +128,12 @@ function update_text(data, textStatus, jqXHR)
 	doc_source.value=data.doc.source;
 	doc_source_hidden.value=data.doc.source;
 }
+<c:if test="${not empty parameters.get('tab')[0]}">
+CKEDITOR.on("instanceReady", function(event)
+{
+	OnChange();
+});
+</c:if>
 </script>
 
 <!--${CommonSpot}-->

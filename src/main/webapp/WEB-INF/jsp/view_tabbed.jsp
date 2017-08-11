@@ -56,6 +56,14 @@
 </div>
 <script src="/ResourceServingWebapp/rs/jquery/1.10.2/jquery-1.10.2.min.js" type="text/javascript"></script>
 <script src="/ResourceServingWebapp/rs/jqueryui/1.10.3/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
+<script src="/CMSContent/js/zeroclipboard/dist/ZeroClipboard.js" type="text/javascript"></script>s
 <link rel="stylesheet" href="/ResourceServingWebapp/rs/jqueryui/1.10.3/theme/smoothness/jquery-ui-1.10.3-smoothness.min.css">
 <script>
+<c:set var="counter" value="${0}"/>
+<c:forEach var="page" items="${content}">
+	document.getElementById('copy-btn-${counter}').setAttribute("data-clipboard-text",
+		location.protocol + '//' + location.host + location.pathname + "?tab=${counter}");
+	var client = new ZeroClipboard( document.getElementById('copy-btn-${counter}') );
+	<c:set var="counter" value="${counter + 1}"/>
+</c:forEach>
 </script>
