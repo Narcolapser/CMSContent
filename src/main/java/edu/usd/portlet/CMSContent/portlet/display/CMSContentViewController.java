@@ -101,7 +101,7 @@ public class CMSContentViewController {
 		refData.put("content",content);
 
 		//Get channel ID
-		refData.put("channelId",request.getWindowID());
+		refData.put("channelId","CMS" + request.getWindowID());
 
 		//Get portlet path. Not sure if this is truely necessary. I'll probably depricate it.
 		refData.put("portletPath",request.getContextPath());

@@ -136,7 +136,7 @@ public class CMSContentConfigController
 
 	@RequestMapping(params = {"action=updateView"})
 	public void updateView(ActionRequest request,
-		@RequestParam(value = "disp_type", required = false) String disp_type,
+		@RequestParam(value = "view_type", required = false) String disp_type,
 		@RequestParam(value = "mode", required = false, defaultValue = "normal") String mode)
 	{
 		logger.debug("setting view to " + disp_type + " for mode " + mode);
@@ -145,5 +145,42 @@ public class CMSContentConfigController
 		this.conf.setLayout(request,mode,layout);
 	}
 
-
+	@RequestMapping(params = {"action=reorder"})
+	public void updateOrder(ActionRequest request,
+		@RequestParam(value = "index", required = true) String index_str,
+		@RequestParam(value = "direction", required = true) String direction,
+		@RequestParam(value = "mode", required = false, defaultValue = "normal") String mode)
+	{
+		logger.debug("Reordering, moving index: " + index_str + " " + direction + " for mode: " + mode);
+		CMSLayout layout = this.conf.getLayout(request,mode);
+		List<CMSSubscription> subs = layout.getSubscriptions();
+		int index = Integer.parseInt(index_str) -1;
+		for(CMSSubscription temp:subs)
+		{
+			logger.debug(temp.getDocId());
+		}
+		if (direction.equals("up"))
+		{
+			if (index <= 0)
+				return;
+			CMSSubscription sub = subs.get(index);
+			subs.set(index,subs.get(index-1));
+			subs.set(index-1,sub);
+		}
+		else
+		{
+			//index += 1;
+			if (index >= subs.size())
+				return;
+			CMSSubscription sub = subs.get(index);
+			subs.set(index,subs.get(index+1));
+			subs.set(index+1,sub);
+		}
+		for(CMSSubscription temp:subs)
+		{
+			logger.debug(temp.getDocId());
+		}
+		layout.setSubscriptions(subs);
+		this.conf.setLayout(request,mode,layout);
+	}
 }
