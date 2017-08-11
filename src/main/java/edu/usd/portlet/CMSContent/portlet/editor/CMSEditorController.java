@@ -97,6 +97,9 @@ public class CMSEditorController {
 		for(CMSDocumentDao ds:dataSources)
 			sources.add(ds.getDaoName());
 		refData.put("sources",sources.toArray());
+		
+		//get any paramaters that were passed.
+		refData.put("parameters",request.getParameterMap());
 
 		return new ModelAndView("editor",refData);
 	}

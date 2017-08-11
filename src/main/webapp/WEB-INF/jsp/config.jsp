@@ -35,19 +35,21 @@ div.col_content{
 		
 		<div id="left_col">
 			<h2>Portlet view type:</h2>
-			<select id="${mode}_view_type" name="view_type" class="form-control" OnChange="viewChange('${mode}')">
-				<c:forEach var="view" items="${availableViews}">
-					<c:choose>
-						<c:when test="${view.view == currentView.view}">
-							<option value="${view.view}" selected="selected">${view.name}</option>
-						</c:when>
-						<c:otherwise>
-							<option value="${view.view}">${view.name}</option>
-						</c:otherwise>
-					</c:choose>
-				</c:forEach>
-			</select>
-			<button class="btn btn-default" onclick="update_view('${mode}');return false"/>Update layout</button>
+			<div class="form-group">
+				<select id="${mode}_view_type" name="view_type" class="form-control" OnChange="viewChange('${mode}')">
+					<c:forEach var="view" items="${availableViews}">
+						<c:choose>
+							<c:when test="${view.view == currentView.view}">
+								<option value="${view.view}" selected="selected">${view.name}</option>
+							</c:when>
+							<c:otherwise>
+								<option value="${view.view}">${view.name}</option>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
+				</select>
+				<button class="btn btn-default" onclick="update_view('${mode}');return false"/>Update layout</button>
+			</div>
 			<div class="col_content">
 				<c:forEach var="view" items="${availableViews}">
 					<!-- ${view} ${view.view} ${currentView} ${currentView.view} -->
@@ -93,22 +95,23 @@ div.col_content{
 				<div name="${mode}_controls" class="form-inline">
 					<div class="form-group">
 						<div class="btn-group" role="group">
-							<button onclick="new_document('${mode}_doc_select')" class="btn btn-info">
-								<i class="fa fa-clone"></i> New</button>
+							<a onclick="new_document('${mode}_doc_select')" class="btn btn-info"
+								href="https://dev-uportal.usd.edu/uPortal/p/cmseditor.ctf2/max/render.uP">
+								<i class="fa fa-clone"></i> New</a>
 							<button onclick="add_document('${mode}')" class="btn btn-primary">
 								<i class="fa fa-link"></i> Add</button>
 							<button onclick="edit_document('${mode}_doc_select')" class="btn btn-warning">
 								<i class="fa fa-gears"></i> Edit</button>
 						</div>
 						<label for="${mode}_source">Document Source</label>
-						<select id="${mode}_source" class="form-control" OnChange="OnChange(this.form.source_selector_${counter},'${mode}_doc_select');">
+						<select id="${mode}_source" class="form-control" OnChange="OnChange('${mode}_source','${mode}_doc_select');">
 							<c:forEach var="source" items="${sources}">
 								<option value="${source.getDaoName()}">${source.getDaoName()}</option>
 							</c:forEach>
 						</select>
 					</div>
 					<div id="${mode}_doc_selector">
-						<select id="${mode}_doc_select">
+						<select id="${mode}_doc_select" class="chosen-select">
 							<c:forEach var="doc" items="${Internal}">
 								<option value="${doc.id}" data-title="${doc.title}">Title: ${doc.title}, Id: ${doc.id}</option>
 							</c:forEach>
@@ -141,7 +144,7 @@ div.col_content{
 									</td>
 									<td>${doc.title}</td>
 									<td>${doc.id}</td>
-									<td><button onclick="remove_document('${mode}',this);return false;">Remove</button></td>
+									<td><button class="btn btn-danger" onclick="remove_document('${mode}',this);return false;">Remove</button></td>
 								</tr>
 								<c:set var="index" value="${index + 1}"/>
 							</c:forEach>
@@ -168,7 +171,7 @@ div.col_content{
 	<portlet:param name="action" value="reorder" />
 </portlet:actionURL>
 <SCRIPT LANGUAGE="javascript">
-//$(".chosen-select").chosen();
+$(".chosen-select").chosen();
 
 function new_document(val)
 {
@@ -192,8 +195,7 @@ function add_document(val)
 		data:{"document":selected,
 			"source":source_selected,
 			"index":e.length,
-			"mode":val},
-		success:add_doc_success});
+			"mode":val}});
 	
 	var table = document.getElementById(val+"_docs_table");
 	table = table.children[1];
@@ -204,7 +206,11 @@ function add_document(val)
 function new_doc_row(title,id,mode)
 {
 	var new_row = document.createElement("TR");
-	new_row.innerHTML = '<td><div class="btn-group" role="group"><button onclick="up_document(\''+mode+'\',this);return false" class="btn btn-default"><i class="fa fa-arrow-up"></i></button><button onclick="down_document(\''+mode+'\',this);return false" class="btn btn-default"><i class="fa fa-arrow-down"></i></button></div></td><td>'+title+'</td><td>'+id+'</td><td><button onclick="remove_document(\''+mode+'\',this);return false;">Remove</button></td>';
+	var content =  '<td><div class="btn-group" role="group"><button onclick="up_document(\''+mode+'\',this);return false" class="btn btn-default">';
+	content += '<i class="fa fa-arrow-up"></i></button><button onclick="down_document(\''+mode+'\',this);return false" class="btn btn-default">';
+	content += '<i class="fa fa-arrow-down"></i></button></div></td><td>'+title+'</td><td>'+id+'</td><td><button class="btn btn-danger"';
+	content += ' onclick="remove_document(\''+mode+'\',this);return false;">Remove</button></td>';
+	new_row.innerHTML = content
 	return new_row;
 }
 
@@ -215,9 +221,8 @@ function remove_document(mode,button)
 	$.ajax({dataType:"json",
 		url:"${updateDocument}",
 		data:{"index":val,
-			"mode":mode},
-		success:remove_doc_success});
-	table.deleteRow(val-1);
+			"mode":mode}});
+	table.deleteRow(val);
 	
 }
 
@@ -304,6 +309,7 @@ function viewChange(mode)
 function populate_pages(data, textStatus, jqXHR)
 {
 	CID = data["index"]
+	alert("Index: " + CID);
 	var pages = document.getElementById(CID);
 
 	pages.options.length=0;
@@ -314,18 +320,25 @@ function populate_pages(data, textStatus, jqXHR)
 			", Full Id: " + data["pages"][i]["id"],
 			data["pages"][i]["id"]);
 	}
+	$("#"+CID).trigger("chosen:updated");
+//	var chosen = document.getElementById(CID+"_chosen");
+//	chosen.outerHTML = "";
+//	delete chosen;
+//	$(".chosen-select").chosen();
 }
-function OnChange(sources,doc_selector)
+function OnChange(sources_id,doc_selector_id)
 {
+	var sources = document.getElementById(sources_id);
+	var pages = document.getElementById(doc_selector_id);
 	var myindex = sources.selectedIndex;
 	var SelValue = sources.options[myindex].value;
 
 	pages.options.length=0;
 	pages.options[0] = new Option("Loading...","");
-	alert("on change!");
+	//alert("on change!");
 	$.ajax({dataType:"json",
 		url:"/CMSContent/v1/api/getPagesWithIndex.json",
-		data:{"source":SelValue,"index":doc_selector},
+		data:{"source":SelValue,"index":doc_selector_id},
 		success:populate_pages});
 }
 </SCRIPT>
