@@ -53,14 +53,14 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 //			else
 				return getLayoutLegacy(request);
 		
-		logger.info("Not a legacy portlet!");
+		logger.debug("Not a legacy portlet!");
 		
 		CMSLayout ret = new CMSLayout();
 		
 		String view = prefs.getValue(mode,"view_single");
-		logger.info("Found view: " + view);
+		logger.debug("Found view: " + view);
 		String[] subs = prefs.getValues(mode+".subscriptions",new String[0]);
-		logger.info("found subs: " + subs.length + " for " + mode+".subscriptions");
+		logger.debug("found subs: " + subs.length + " for " + mode+".subscriptions");
 		List<CMSSubscription> subscriptions = new ArrayList<CMSSubscription>();
 		for(String sub:subs)
 		{
@@ -71,7 +71,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			csub.setDocId(id);
 			csub.setDocSource(source);
 			subscriptions.add(csub);
-			logger.info("Found subscription: " + source + ";" + id);
+			//logger.debug("Found subscription: " + source + ";" + id);
 		}
 		logger.info("Total subscriptions: " + subscriptions.size());
 		
@@ -84,13 +84,12 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 	public void setLayout(PortletRequest request, String mode, CMSLayout layout)
 	{
 		PortletPreferences prefs = request.getPreferences();
-		logger.info("resetting layout.");
+		logger.debug("resetting layout.");
 		try
 		{
 			//Legacy:
 			prefs.reset("pageUri");
 			prefs.store();
-			logger.info("Cleared pageUri");
 			prefs.reset(mode);
 			prefs.reset(mode+".subscriptions");
 
@@ -108,11 +107,11 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			prefs.setValues(mode+".subscriptions",subs.toArray(insertArray));
 
 			prefs.store();
-			logger.info("layout reset.");
+			logger.debug("layout reset.");
 		}
 		catch(Exception e)
 		{
-			logger.info("Failure!");
+			logger.debug("Failure!" + e);
 		}
 	}
 
@@ -144,7 +143,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 		}
 		catch(Exception e)
 		{
-			logger.info("There were no values set");
+			logger.debug("There were no values set");
 			CMSSubscription csub = new CMSSubscription();
 			csub.setDocId("blank");
 			csub.setDocSource("blank");
