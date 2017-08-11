@@ -42,9 +42,9 @@ public class InternalDaoImpl implements InternalDao, DisposableBean
 		List<String> ret = new ArrayList<String>();
 		try
 		{
-			logger.debug("Fetching from interal CMS" + this.internalDocumentDao);
+			//logger.debug("Fetching from interal CMS" + this.internalDocumentDao);
 			List<CMSDocument> docs = this.internalDocumentDao.getAllDocuments();
-			logger.debug("Fetched from internal CMS");
+			//logger.debug("Fetched from internal CMS");
 			for(CMSDocument doc:docs)
 				ret.add(doc.getTitle());
 			return ret;
@@ -60,9 +60,9 @@ public class InternalDaoImpl implements InternalDao, DisposableBean
 	{
 		try
 		{
-			logger.debug("Fetching from interal CMS" + this.internalDocumentDao);
+			//logger.debug("Fetching from interal CMS" + this.internalDocumentDao);
 			List<CMSDocument> docs = this.internalDocumentDao.getAllDocuments();
-			logger.debug("Fetched from internal CMS");
+			//logger.debug("Fetched from internal CMS");
 			return docs;
 		}
 		catch (Exception e)
@@ -77,9 +77,9 @@ public class InternalDaoImpl implements InternalDao, DisposableBean
 		CMSDocument page;
 		try
 		{
-			logger.debug("Fetching from interal CMS" + this.internalDocumentDao);
+			//logger.debug("Fetching from interal CMS" + this.internalDocumentDao);
 			List<CMSDocument> docs = this.internalDocumentDao.getAllDocuments();
-			logger.debug("Fetched from internal CMS");
+			//logger.debug("Fetched from internal CMS");
 			page = this.internalDocumentDao.getDocumentById(Id);
 		}
 		catch (Exception e)
@@ -103,8 +103,3 @@ public class InternalDaoImpl implements InternalDao, DisposableBean
 	public void destroy() throws Exception {
 	}
 }
-
-//		CMSDocument doc = new CMSDocument();
-//		doc.setTitle("Testing?");
-//		docs.add(doc);
-

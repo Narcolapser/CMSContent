@@ -35,7 +35,7 @@ div.col_content{
 		
 		<div id="left_col">
 			<h2>Portlet view type:</h2>
-			<select id="${mode}_view" name="view_type" class="form-control" OnChange="viewChange('${mode}')">
+			<select id="${mode}_view_type" name="view_type" class="form-control" OnChange="viewChange('${mode}')">
 				<c:forEach var="view" items="${availableViews}">
 					<c:choose>
 						<c:when test="${view.view == currentView.view}">
@@ -164,6 +164,9 @@ div.col_content{
 <portlet:actionURL var="updateView">
 	<portlet:param name="action" value="updateView" />
 </portlet:actionURL>
+<portlet:actionURL var="reorderDocs">
+	<portlet:param name="action" value="reorder" />
+</portlet:actionURL>
 <SCRIPT LANGUAGE="javascript">
 //$(".chosen-select").chosen();
 
@@ -207,10 +210,8 @@ function new_doc_row(title,id,mode)
 
 function remove_document(mode,button)
 {
-	//alert("remove!" + val);
 	var table = document.getElementById(mode+"_docs_table")
 	var val = button.parentNode.parentNode.rowIndex;
-	alert("Index: " + val);
 	$.ajax({dataType:"json",
 		url:"${updateDocument}",
 		data:{"index":val,
@@ -222,25 +223,31 @@ function remove_document(mode,button)
 
 function up_document(mode,button)
 {
-	//alert("up!");
 	var row = button.parentNode.parentNode.parentNode;
 	if (row.rowIndex == 0)
 		return false;
+	var index = row.rowIndex;
 	var table = row.parentNode;
 	var rows = table.getElementsByTagName('tr');
 	var prev = rows[row.rowIndex - 2];
 	var title = row.cells[1].innerText;
 	var id = row.cells[2].innerText;
 	var newItem = new_doc_row(title,id,mode)
-	newItem.className = mode + " " + (row.rowIndex -1);
-	prev.className = mode + " " + row.rowIndex;
+	newItem.className = mode + " " + (index -1);
+	prev.className = mode + " " + index;
 	table.removeChild(row);
 	table.insertBefore(newItem,prev);
+	$.ajax({dataType:"json",
+		url:"${reorderDocs}",
+		data:{"index":index,
+			"direction":"up",
+			"mode":mode}});
 }
 
 function down_document(mode,button)
 {
 	var row = button.parentNode.parentNode.parentNode;
+	var index = row.rowIndex;
 	var table = row.parentNode;
 	var rows = table.getElementsByTagName('tr');
 	var next = rows[row.rowIndex + 1];
@@ -248,23 +255,22 @@ function down_document(mode,button)
 	var title = row.cells[1].innerText;
 	var id = row.cells[2].innerText;
 	var newItem = new_doc_row(title,id,mode)
-	newItem.className = mode + " " + (row.rowIndex + 1);
-	
-	if (prev != null)
-		prev.className = mode + " " + row.rowIndex - 1;
+
 	if (next != null)
-	{
 		table.insertBefore(newItem,next);
-//		next.className = mode + " " + row.rowIndex - 1;
-	}
 	else
 		table.appendChild(newItem);
 	table.removeChild(row);
+
+	$.ajax({dataType:"json",
+		url:"${reorderDocs}",
+		data:{"index":index,
+			"direction":"down",
+			"mode":mode}});
 }
 
 function update_view(mode)
 {
-	alert("Updating view!");
 	var e = document.getElementById(mode+"_view_type");
 	var selected = e.options[e.selectedIndex].value;
 	$.ajax({dataType:"json",
@@ -276,7 +282,7 @@ function update_view(mode)
 function viewChange(mode)
 {
 	var all = document.getElementsByClassName(mode + "_desc");
-	var e = document.getElementById(mode+"_view");
+	var e = document.getElementById(mode+"_view_type");
 	var selected = e.options[e.selectedIndex].value;
 	for(i = 0; i < all.length; i ++)
 	{
