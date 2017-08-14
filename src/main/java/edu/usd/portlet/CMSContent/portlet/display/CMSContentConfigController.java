@@ -90,18 +90,27 @@ public class CMSContentConfigController
 				if (ds.getDaoName().equals(entry.getSource()))
 					content.add(ds.getDocument(entry.getId()));
 		logger.info("active docs: " + content);
-		refData.put("activeDocumentsNormal",content);
+		final Map<String, Object> contentMap = new HashMap<String, Object>();
+		contentMap.put("normal",content);
+		final Map<String, Object> layoutMap = new HashMap<String, Object>();
 		String displayType = normal.getView();
-		refData.put("currentView",normal);
+		layoutMap.put("normal",normal);
 
 		CMSLayout max = this.conf.getLayout(request,"maximized");
 		if (max != null)
 		{
-			List<CMSDocument> maxUris = max.getSubscriptionsAsDocs();
-			refData.put("pageUrisMaximized",maxUris);
+			List<CMSDocument> maxDocs = max.getSubscriptionsAsDocs();
+			content = new ArrayList<CMSDocument>();
+			for(CMSDocument entry:maxDocs)
+				for(CMSDocumentDao ds:dataSources)
+					if (ds.getDaoName().equals(entry.getSource()))
+						content.add(ds.getDocument(entry.getId()));
+			contentMap.put("maximized",content);
 			String maxDisplayType = max.getView();
-			refData.put("maximizedCurrentView",maxDisplayType);
+			layoutMap.put("maximized",max);
 		}
+		refData.put("activeDocs",contentMap);
+		refData.put("activeViews",layoutMap);
 
 		refData.put("availableViews",layouts);
 
