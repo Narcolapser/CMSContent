@@ -38,8 +38,8 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 	public CMSLayout getLayout(PortletRequest request)
 	{
 		WindowState state = request.getWindowState();
-//		if (WindowState.MAXIMIZED.equals(state))
-//			return getLayout(request,"maximized");
+		if (WindowState.MAXIMIZED.equals(state))
+			return getLayout(request,"maximized");
 		return getLayout(request,"normal");
 	}
 	

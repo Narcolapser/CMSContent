@@ -30,8 +30,8 @@ making a new portlet. This re-write seeks to solve those issues by:
 * Change content if view is maximized. - Check
 * Recreate config interface - partial check
 * Refactor views into classes to allow view specific properties and settings. - partial check
-  * Refine Vertical Tabs
-  * Refine Tabs
+  * Refine Vertical Tabs - Check
+  * Refine Tabs - Check
 
 ###0.6:
 

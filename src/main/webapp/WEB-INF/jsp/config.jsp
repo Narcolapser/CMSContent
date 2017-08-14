@@ -30,129 +30,152 @@ div.col_content{
 
 
 <div class="usdChannel" id="content-wrapper">
-	<div id="content">
-		<c:set var="mode" value="normal"/>
-		
-		<div id="left_col">
-			<h2>Portlet view type:</h2>
-			<div class="form-group">
-				<select id="${mode}_view_type" name="view_type" class="form-control" OnChange="viewChange('${mode}')">
-					<c:forEach var="view" items="${availableViews}">
-						<c:choose>
-							<c:when test="${view.view == currentView.view}">
-								<option value="${view.view}" selected="selected">${view.name}</option>
-							</c:when>
-							<c:otherwise>
-								<option value="${view.view}">${view.name}</option>
-							</c:otherwise>
-						</c:choose>
-					</c:forEach>
-				</select>
-				<button class="btn btn-default" onclick="update_view('${mode}');return false"/>Update layout</button>
-			</div>
-			<div class="col_content">
-				<c:forEach var="view" items="${availableViews}">
-					<!-- ${view} ${view.view} ${currentView} ${currentView.view} -->
-					<c:choose>
-						<c:when test="${view.view == currentView.view}">
-							<div id="${mode}_${view.view}" class="${mode}_desc show">
-								<h3>View Description:</h3>
-								<p>${view.description}</p>
-							</div>
-						</c:when>
-						<c:otherwise>
-							<div id="${mode}_${view.view}" class="${mode}_desc hide">
-								<h3>View Description:</h3>
-								<p>${view.description}</p>
-							</div>
-						</c:otherwise>
-					</c:choose>
-				</c:forEach>
-			</div>
-			<div>
-				<table class="table table-striped">
-					<thead>
-						<tr>
-							<th>Property</th>
-							<th>Value</th>
-						</tr>
-					</thead>
-					<tbody>
-						<c:forEach var="property" items="${currentView.properties}">
-						<tr>
-							<td>${property}</td>
-						</tr>
-						</c:forEach>
-					</tbody>
-				</table>
-			</div>
-		</div>
+	<c:set var="mode" value="normal"/>
+	<c:set var="modes" value = "${['normal','maximized']}"/>
+	
+	<ul class="nav nav-tabs">
+		<c:forEach var="mode" items="${modes}">
+			<c:set var="classes"></c:set>
+			<c:if test="${mode eq 'normal'}">
+				<c:set var="classes">class="active"</c:set>
+			</c:if>
+			<li ${classes}>
+				<a href="#cms-${mode}" data-toggle="tab">${mode}</a>
+			</li>
+		</c:forEach>
+	</ul>
 
-
-		<div id="right_col">
-			<h2>Documents</h2>
-			<div name="${mode}_doc_pane">
-				<div name="${mode}_controls" class="form-inline">
-					<div class="form-group">
-						<div class="btn-group" role="group">
-							<a onclick="new_document('${mode}_doc_select')" class="btn btn-info"
-								href="https://dev-uportal.usd.edu/uPortal/p/cmseditor.ctf2/max/render.uP">
-								<i class="fa fa-clone"></i> New</a>
-							<button onclick="add_document('${mode}')" class="btn btn-primary">
-								<i class="fa fa-link"></i> Add</button>
-							<button onclick="edit_document('${mode}_doc_select')" class="btn btn-warning">
-								<i class="fa fa-gears"></i> Edit</button>
+	<div class="tab-content">
+		<c:forEach var="mode" items="${modes}">
+			<c:set var="classes">class="tab-pane"</c:set>
+			<c:if test="${mode eq 'normal'}">
+				<c:set var="classes">class="tab-pane active"</c:set>
+			</c:if>
+			<div id="cms-${mode}" ${classes}>
+				<div id="content">
+					<div id="left_col">
+						<h2>Portlet view type:</h2>
+						<div class="form-group">
+							<select id="${mode}_view_type" name="view_type" class="form-control" OnChange="viewChange('${mode}')">
+								<c:forEach var="view" items="${availableViews}">
+									<c:choose>
+										<c:when test="${view.view == activeViews[mode].view}">
+											<option value="${view.view}" selected="selected">${view.name}</option>
+										</c:when>
+										<c:otherwise>
+											<option value="${view.view}">${view.name}</option>
+										</c:otherwise>
+									</c:choose>
+								</c:forEach>
+							</select>
+							<button class="btn btn-default" onclick="update_view('${mode}');return false"/>Update layout</button>
 						</div>
-						<label for="${mode}_source">Document Source</label>
-						<select id="${mode}_source" class="form-control" OnChange="OnChange('${mode}_source','${mode}_doc_select');">
-							<c:forEach var="source" items="${sources}">
-								<option value="${source.getDaoName()}">${source.getDaoName()}</option>
-							</c:forEach>
-						</select>
-					</div>
-					<div id="${mode}_doc_selector">
-						<select id="${mode}_doc_select" class="chosen-select">
-							<c:forEach var="doc" items="${Internal}">
-								<option value="${doc.id}" data-title="${doc.title}">Title: ${doc.title}, Id: ${doc.id}</option>
-							</c:forEach>
-						</select>
-					</div>
-				</div>
-				<div>
-					<table class="table table-striped" id="${mode}_docs_table">
-						<thead>
-							<tr>
-								<th>Position</th>
-								<th>Title</th>
-								<th>Id</th>
-								<th></th>
-							</tr>
-						</thead>
-						<tbody>
-							<c:set var="index" value="1"/>
-							<c:forEach var="doc" items="${activeDocumentsNormal}">
-								<tr class="${mode} ${index}">
-									<td>
-										<div class="btn-group" role="group">
-											<button onclick="up_document('${mode}',this);return false" class="btn btn-default">
-												<i class="fa fa-arrow-up"></i>
-											</button>
-											<button onclick="down_document('${mode}',this);return false" class="btn btn-default">
-												<i class="fa fa-arrow-down"></i>
-											</button>
+						<div class="col_content">
+							<c:forEach var="view" items="${availableViews}">
+								<!-- ${view} ${view.view} ${currentView} ${currentView.view} -->
+								<c:choose>
+									<c:when test="${view.view == currentView.view}">
+										<div id="${mode}_${view.view}" class="${mode}_desc show">
+											<h3>View Description:</h3>
+											<p>${view.description}</p>
 										</div>
-									</td>
-									<td>${doc.title}</td>
-									<td>${doc.id}</td>
-									<td><button class="btn btn-danger" onclick="remove_document('${mode}',this);return false;">Remove</button></td>
-								</tr>
-								<c:set var="index" value="${index + 1}"/>
+									</c:when>
+									<c:otherwise>
+										<div id="${mode}_${view.view}" class="${mode}_desc hide">
+											<h3>View Description:</h3>
+											<p>${view.description}</p>
+										</div>
+									</c:otherwise>
+								</c:choose>
 							</c:forEach>
-						</tbody>
-					</table>
+						</div>
+						<div>
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th>Property</th>
+										<th>Value</th>
+									</tr>
+								</thead>
+								<tbody>
+									<c:forEach var="property" items="${currentView.properties}">
+									<tr>
+										<td>${property}</td>
+									</tr>
+									</c:forEach>
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+
+					<div id="right_col">
+						<h2>Documents</h2>
+						<div name="${mode}_doc_pane">
+							<div name="${mode}_controls" class="form-inline">
+								<div class="form-group">
+									<div class="btn-group" role="group">
+										<a onclick="new_document('${mode}_doc_select')" class="btn btn-info"
+											href="https://dev-uportal.usd.edu/uPortal/p/cmseditor.ctf2/max/render.uP">
+											<i class="fa fa-clone"></i> New</a>
+										<button onclick="add_document('${mode}')" class="btn btn-primary">
+											<i class="fa fa-link"></i> Add</button>
+										<button onclick="edit_document('${mode}_doc_select')" class="btn btn-warning">
+											<i class="fa fa-gears"></i> Edit</button>
+									</div>
+									<label for="${mode}_source">Document Source</label>
+									<select id="${mode}_source" class="form-control" OnChange="OnChange('${mode}_source','${mode}_doc_select');">
+										<c:forEach var="source" items="${sources}">
+											<option value="${source.getDaoName()}">${source.getDaoName()}</option>
+										</c:forEach>
+									</select>
+								</div>
+								<div id="${mode}_doc_selector">
+									<select id="${mode}_doc_select" class="chosen-select">
+										<c:forEach var="doc" items="${Internal}">
+											<option value="${doc.id}" data-title="${doc.title}">Title: ${doc.title}, Id: ${doc.id}</option>
+										</c:forEach>
+									</select>
+								</div>
+							</div>
+							<div>
+								<table class="table table-striped" id="${mode}_docs_table">
+									<thead>
+										<tr>
+											<th>Position</th>
+											<th>Title</th>
+											<th>Id</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<c:set var="index" value="1"/>
+										<c:forEach var="doc" items="${activeDocs[mode]}">
+											<tr class="${mode} ${index}">
+												<td>
+													<div class="btn-group" role="group">
+														<button onclick="up_document('${mode}',this);return false" class="btn btn-default">
+															<i class="fa fa-arrow-up"></i>
+														</button>
+														<button onclick="down_document('${mode}',this);return false" class="btn btn-default">
+															<i class="fa fa-arrow-down"></i>
+														</button>
+													</div>
+												</td>
+												<td>${doc.title}</td>
+												<td>${doc.id}</td>
+												<td><button class="btn btn-danger" onclick="remove_document('${mode}',this);return false;">Remove</button></td>
+											</tr>
+											<c:set var="index" value="${index + 1}"/>
+										</c:forEach>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
-		</div>
+		</c:forEach>
 	</div>
 
 
@@ -171,16 +194,14 @@ div.col_content{
 	<portlet:param name="action" value="reorder" />
 </portlet:actionURL>
 <SCRIPT LANGUAGE="javascript">
-$(".chosen-select").chosen();
-
-function new_document(val)
-{
-	alert("New!" + val);
-}
+$(".chosen-select").chosen({width: "100%"});
 
 function edit_document(val)
 {
-	alert("Edit!" + val);
+	var e = document.getElementById(val);
+	var selected = e.options[e.selectedIndex].value;
+	alert(selected);
+	window.location.href = "https://dev-uportal.usd.edu/uPortal/p/cmseditor.ctf4/max/render.uP?doc="+selected;
 }
 
 function add_document(val)
@@ -201,7 +222,10 @@ function add_document(val)
 	table = table.children[1];
 	var last_row = table.children[table.children.length - 1];
 	var row = new_doc_row(selected_title,selected,val);
-	table.insertBefore(row,last_row.nextSibling);
+	if (last_row != null)
+		table.insertBefore(row,last_row.nextSibling);
+	else
+		table.appendChild(row);
 }
 function new_doc_row(title,id,mode)
 {
@@ -321,10 +345,6 @@ function populate_pages(data, textStatus, jqXHR)
 			data["pages"][i]["id"]);
 	}
 	$("#"+CID).trigger("chosen:updated");
-//	var chosen = document.getElementById(CID+"_chosen");
-//	chosen.outerHTML = "";
-//	delete chosen;
-//	$(".chosen-select").chosen();
 }
 function OnChange(sources_id,doc_selector_id)
 {

@@ -7,8 +7,8 @@
 
 <c:set var="n"><portlet:namespace/></c:set>
 <c:set var="selected" value=""/>
-<c:if test="${not empty parameters.get('tab')[0]}">
-	<c:set var="selected" value="${parameters.get('tab')[0]}"/>
+<c:if test="${not empty parameters.get('doc')[0]}">
+	<c:set var="selected" value="${parameters.get('doc')[0]}"/>
 </c:if>
 
 <style type="text/css">
@@ -128,7 +128,7 @@ function update_text(data, textStatus, jqXHR)
 	doc_source.value=data.doc.source;
 	doc_source_hidden.value=data.doc.source;
 }
-<c:if test="${not empty parameters.get('tab')[0]}">
+<c:if test="${not empty parameters.get('doc')[0]}">
 CKEDITOR.on("instanceReady", function(event)
 {
 	OnChange();
