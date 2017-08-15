@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  *
- * @author mglazier
+ * @author Toben Archer
  */
 @Configuration
 @EnableJpaRepositories("edu.usd.portlet.cmscontent.dao")

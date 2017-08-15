@@ -20,39 +20,28 @@ package edu.usd.portlet.cmscontent.portlet.display;
 
 import java.util.Map;
 import java.util.HashMap;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.LinkedList;
-import java.util.Arrays;
+import java.util.ArrayList;
 
-//import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
-import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
 import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-
-
-//import java.sql.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.portlet.ModelAndView;
 import org.springframework.beans.factory.annotation.Autowired;
 
-//import edu.usd.portlet.cmscontent.dao.UsdSql;
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
+import edu.usd.portlet.cmscontent.dao.CMSLayout;
+import edu.usd.portlet.cmscontent.dao.CMSSubscription;
 import edu.usd.portlet.cmscontent.dao.InternalDao;
 
 import javax.naming.Context;
@@ -60,7 +49,7 @@ import javax.naming.InitialContext;
 
 
 /**
- * This class handles retrieves information and displays the view page.
+ * This class handles retrieves information and displays the config page.
  * 
  * @author Toben Archer
  * @version $Id$
@@ -71,130 +60,136 @@ public class CMSContentConfigController
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	private CMSDocumentDao dbo = null; // Spring managed
-	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
+	@Autowired
+	List<CMSDocumentDao> dataSources;
 
 	@Autowired
-	public void setdbo(CMSDocumentDao dbo) {
-		this.dbo = dbo;
-	}
-	
-	@Autowired 
-	private InternalDao intdbo = null;
-	public void setInternalDao(InternalDao intdbo)
-	{
-		this.intdbo = intdbo;
-	}
+	List<CMSLayout> layouts;
+
 
 	@Autowired
-	private CMSConfigDao conf = null;
-
-	public void setConf(CMSConfigDao conf)
-	{
-		this.conf = conf;
-	}
+	CMSConfigDao conf = null;
 
 	@RequestMapping
-	public ModelAndView viewContent(RenderRequest request, RenderResponse response) {
+	public ModelAndView viewContent(RenderRequest request)
+	{
 		logger.debug("Started primary view");
 		final Map<String, Object> refData = new HashMap<String, Object>();
-		//final PortletPreferences preferences = request.getPreferences();
 
 		logger.debug("fetching available pages");
-		//List<CMSDocument> pages = dbo.getAvailablePages();
-		List<CMSDocument> cspages = csdbo.getAllDocumentsContentless();
-		List<CMSDocument> intpages = intdbo.getAllDocumentsContentless();
-		List<CMSDocument> pages = new ArrayList<CMSDocument>();
+		ArrayList<String> sources = new ArrayList<String>();
+		for(CMSDocumentDao ds:dataSources)
+			refData.put(ds.getDaoName(),ds.getAllDocumentsContentless());
+		refData.put("sources",dataSources);
 
-		logger.debug("puttin the pages");
-		refData.put("CommonSpot",cspages);
-		refData.put("Internal",intpages);
-		refData.put("availablePages",pages);
-		refData.put("None",pages);
+		CMSLayout normal = this.conf.getLayout(request,"normal");
+		List<CMSDocument> docs = normal.getSubscriptionsAsDocs();
+		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
+		for(CMSDocument entry:docs)
+			for(CMSDocumentDao ds:dataSources)
+				if (ds.getDaoName().equals(entry.getSource()))
+					content.add(ds.getDocument(entry.getId()));
+		logger.info("active docs: " + content);
+		final Map<String, Object> contentMap = new HashMap<String, Object>();
+		contentMap.put("normal",content);
+		final Map<String, Object> layoutMap = new HashMap<String, Object>();
+		String displayType = normal.getView();
+		layoutMap.put("normal",normal);
 
-		logger.debug("getting page Uris");
-		List<CMSDocument> uris = this.conf.getPageUris(request);
-		refData.put("pageUris",uris);
+		CMSLayout max = this.conf.getLayout(request,"maximized");
+		if (max != null)
+		{
+			List<CMSDocument> maxDocs = max.getSubscriptionsAsDocs();
+			content = new ArrayList<CMSDocument>();
+			for(CMSDocument entry:maxDocs)
+				for(CMSDocumentDao ds:dataSources)
+					if (ds.getDaoName().equals(entry.getSource()))
+						content.add(ds.getDocument(entry.getId()));
+			contentMap.put("maximized",content);
+			String maxDisplayType = max.getView();
+			layoutMap.put("maximized",max);
+		}
+		refData.put("activeDocs",contentMap);
+		refData.put("activeViews",layoutMap);
 
-		logger.debug("getting page Uris");
-		List<CMSDocument> maxUris = this.conf.getMaxPageUris(request);
-		refData.put("pageUriMaximized",maxUris);
-
-		String[] sources = {"CommonSpot","Internal"};//,"None"};
-		refData.put("sources",sources);
-
-		//get display type. e.g. single, collapsing, tabbed.
-		logger.debug("getting display type.");
-		String displayType = this.conf.getDisplayType(request);
-		refData.put("displayType",displayType);
-		
-		//get display type. e.g. single, collapsing, tabbed.
-		logger.debug("getting maximized display type.");
-		String maxDisplayType = this.conf.getMaximizedDisplayType(request);
-		refData.put("maximizedDisplayType",maxDisplayType);
-		
-
-		String[] displayTypes = {"Single","Expanding","Tabbed","Verical Tabs","Vertical Tabs with Panel"};
-		refData.put("displayTypes",displayTypes);
+		refData.put("availableViews",layouts);
 
 		return new ModelAndView("config",refData);
 	}
 
-	@RequestMapping(params = {"action=add"})
-	public void addPage(ActionRequest request, ActionResponse response,
-		@RequestParam(value = "is_max", required = false, defaultValue = "false") String is_max)
-	{
-		if (is_max.equals("true"))
-			this.conf.addMaxPage(request);
-		else
-			this.conf.addPage(request);
-	}
 
-	@RequestMapping(params = {"action=Update"})
-	public void updatePage(ActionRequest request, ActionResponse response,
-		@RequestParam(value = "channel", required = false) String channel,
+	@RequestMapping(params = {"action=updateDocument"})
+	public void updateDocument(ActionRequest request,
+		@RequestParam(value = "document", required = false) String document,
 		@RequestParam(value = "source", required = false) String source,
 		@RequestParam(value = "index", required = false) String index_str,
-		@RequestParam(value = "is_max", required = false, defaultValue = "false") String is_max)
+		@RequestParam(value = "mode", required = false, defaultValue = "normal") String mode)
 	{
-		logger.info("attempting to set page uri #" + index_str + " to: '" + channel + "' from: '" + source + "' is max: " + is_max);
-		if(channel == null)
+		logger.info("attempting to set page uri #" + index_str + " to: '" + document + "' from: '" + source + "' is max: " + mode);
+		CMSSubscription sub = null;
+		if(document != null)
 		{
-			logger.debug("Cannot set page to nothing.");
-			return;
+			logger.info("Document is not null: " + document);
+			sub = new CMSSubscription();
+			sub.setDocId(document);
+			sub.setDocSource(source);
 		}
-		if(source.equals("None"))
+		int index = Integer.parseInt(index_str) - 1;
+		CMSLayout layout = this.conf.getLayout(request,mode);
+		
+		logger.info("updating subscription");
+		layout.updateSubscription(sub,index);
+		logger.info("subscription updated.");
+		this.conf.setLayout(request,mode,layout);
+	}
+
+	@RequestMapping(params = {"action=updateView"})
+	public void updateView(ActionRequest request,
+		@RequestParam(value = "view_type", required = false) String disp_type,
+		@RequestParam(value = "mode", required = false, defaultValue = "normal") String mode)
+	{
+		logger.debug("setting view to " + disp_type + " for mode " + mode);
+		CMSLayout layout = this.conf.getLayout(request,mode);
+		layout.setView(disp_type);
+		this.conf.setLayout(request,mode,layout);
+	}
+
+	@RequestMapping(params = {"action=reorder"})
+	public void updateOrder(ActionRequest request,
+		@RequestParam(value = "index", required = true) String index_str,
+		@RequestParam(value = "direction", required = true) String direction,
+		@RequestParam(value = "mode", required = false, defaultValue = "normal") String mode)
+	{
+		logger.debug("Reordering, moving index: " + index_str + " " + direction + " for mode: " + mode);
+		CMSLayout layout = this.conf.getLayout(request,mode);
+		List<CMSSubscription> subs = layout.getSubscriptions();
+		int index = Integer.parseInt(index_str) -1;
+		for(CMSSubscription temp:subs)
 		{
-			logger.debug("Cannot set to no data source.");
-			return;
+			logger.debug(temp.getDocId());
 		}
-		int index = Integer.parseInt(index_str);
-		if (is_max.equals("true"))
-			this.conf.updateMaxPage(request, index, channel, source);
+		if (direction.equals("up"))
+		{
+			if (index <= 0)
+				return;
+			CMSSubscription sub = subs.get(index);
+			subs.set(index,subs.get(index-1));
+			subs.set(index-1,sub);
+		}
 		else
-			this.conf.updatePage(request, index, channel, source);
-		//get the portlets preferences.
-	}
-
-	@RequestMapping(params = {"action=remove"})
-	public void removePage(ActionRequest request, ActionResponse response,
-		@RequestParam(value = "index", required = false) String index_str)
-	{
-		int index = Integer.parseInt(index_str);
-		this.conf.removePage(request,index);
-	}
-
-	@RequestMapping(params = {"action=updateDisplay"})
-	public void updateDisplay(ActionRequest request, ActionResponse response,
-		@RequestParam(value = "disp_type", required = false) String disp_type)
-	{
-		this.conf.setDisplayType(request,disp_type);
-	}
-
-	@RequestMapping(params = {"action=updateMaxDisplay"})
-	public void updateMaxDisplay(ActionRequest request, ActionResponse response,
-		@RequestParam(value = "disp_type", required = false) String disp_type)
-	{
-		this.conf.setMaximizedDisplayType(request,disp_type);
+		{
+			//index += 1;
+			if (index >= subs.size())
+				return;
+			CMSSubscription sub = subs.get(index);
+			subs.set(index,subs.get(index+1));
+			subs.set(index+1,sub);
+		}
+		for(CMSSubscription temp:subs)
+		{
+			logger.debug(temp.getDocId());
+		}
+		layout.setSubscriptions(subs);
+		this.conf.setLayout(request,mode,layout);
 	}
 }
