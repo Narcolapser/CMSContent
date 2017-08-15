@@ -7,7 +7,6 @@ import javax.persistence.Column;
 
 import org.hibernate.annotations.Type;
 
-
 /**
  * @author Toben Archer
  * @version $Id$

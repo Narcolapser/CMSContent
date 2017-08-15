@@ -3,6 +3,7 @@ package edu.usd.portlet.cmscontent.dao;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.stereotype.Component;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletPreferences;
@@ -26,6 +27,7 @@ import edu.usd.portlet.cmscontent.dao.UsdSql;
  * @version $Id$
  */
 
+@Component
 public class CommonSpotDaoImpl implements CMSDocumentDao, DisposableBean
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
@@ -142,6 +144,13 @@ public class CommonSpotDaoImpl implements CMSDocumentDao, DisposableBean
 			UsdSql.closePoolConnection(connection);
 		}
 		return pages;
+	}
+	
+	public void saveDocument(CMSDocument val){}
+	
+	public String getDaoName()
+	{
+		return "CommonSpot";
 	}
 
 	public void destroy() throws Exception {
