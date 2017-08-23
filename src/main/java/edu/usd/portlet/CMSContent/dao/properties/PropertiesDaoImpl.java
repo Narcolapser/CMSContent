@@ -20,6 +20,7 @@ import javax.portlet.WindowState;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
@@ -34,6 +35,9 @@ import edu.usd.portlet.cmscontent.dao.CMSSubscription;
 public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
+	
+	@Autowired
+	List<CMSLayout> layouts;
 	
 	public CMSLayout getLayout(PortletRequest request)
 	{
@@ -58,6 +62,17 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 		CMSLayout ret = new CMSLayout();
 		
 		String view = prefs.getValue(mode,"view_single");
+		
+		for(CMSLayout layout:layouts)
+		{
+			logger.debug("Layout option: " + layout.getView() + " looking for: " + view);
+			if (layout.getView().equals(view))
+			{
+				ret = layout.copy(layout);
+				logger.debug("Match!: " + ret.getView());
+			}
+		}
+		
 		logger.debug("Found view: " + view);
 		String[] subs = prefs.getValues(mode+".subscriptions",new String[0]);
 		logger.debug("found subs: " + subs.length + " for " + mode+".subscriptions");
@@ -71,7 +86,6 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			csub.setDocId(id);
 			csub.setDocSource(source);
 			subscriptions.add(csub);
-			//logger.debug("Found subscription: " + source + ";" + id);
 		}
 		logger.info("Total subscriptions: " + subscriptions.size());
 		
