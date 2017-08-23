@@ -69,9 +69,10 @@ public class CMSLayout
 	{
 		this.description = val;
 	}
-	
+
 	public Map<String,String> getProperties()
 	{
+		logger.debug("Layout properties!");
 		return this.properties;
 	}
 	
