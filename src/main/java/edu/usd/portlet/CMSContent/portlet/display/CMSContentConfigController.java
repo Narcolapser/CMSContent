@@ -83,6 +83,9 @@ public class CMSContentConfigController
 		refData.put("sources",dataSources);
 
 		CMSLayout normal = this.conf.getLayout(request,"normal");
+		normal.getProperties();
+		logger.debug("Layout is: " + normal.getName());
+		
 		List<CMSDocument> docs = normal.getSubscriptionsAsDocs();
 		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
 		for(CMSDocument entry:docs)
