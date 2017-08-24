@@ -26,6 +26,9 @@ div.col_content{
 	width: 100%;
 }
 
+.form-group{
+	padding: 0px 0px 10px 0px;
+}
 </style>
 
 
@@ -47,6 +50,14 @@ div.col_content{
 
 	<div class="tab-content">
 		<c:forEach var="mode" items="${modes}">
+			<c:choose>
+				<c:when test="${mode == maximized}"> 
+					<c:set var="currentView" value="${maximized}"/>
+				</c:when>
+				<c:otherwise>
+					<c:set var="currentView" value="${normal}"/>
+				</c:otherwise>
+			</c:choose>
 			<c:set var="classes">class="tab-pane"</c:set>
 			<c:if test="${mode eq 'normal'}">
 				<c:set var="classes">class="tab-pane active"</c:set>
@@ -72,9 +83,9 @@ div.col_content{
 						</div>
 						<div class="col_content">
 							<c:forEach var="view" items="${availableViews}">
-								<!-- ${view} ${view.view} ${currentView} ${currentView.view} -->
+								<!-- View: ${view} v.v: ${view.view} current view:${activeViews[mode]} c.v:${activeViews[mode].view} -->
 								<c:choose>
-									<c:when test="${view.view == currentView.view}">
+									<c:when test="${view.view == activeViews[mode].view}">
 										<div id="${mode}_${view.view}" class="${mode}_desc show">
 											<h3>View Description:</h3>
 											<p>${view.description}</p>
@@ -98,9 +109,12 @@ div.col_content{
 									</tr>
 								</thead>
 								<tbody>
-									<c:forEach var="property" items="${currentView.properties}">
+									<c:forEach var="property" items="${activeViews[mode].properties.keySet()}">
 									<tr>
+										<c:set var="prop">${mode}_${property.replace(" ","_")}</c:set>
 										<td>${property}</td>
+										<td><input id="${prop}" type="text" value="${activeViews[mode].properties.get(property)}"></input></td>
+										<td><a class="btn btn-default" onclick="update_property('${prop}');return false">Update</a></td>
 									</tr>
 									</c:forEach>
 								</tbody>
@@ -189,6 +203,9 @@ div.col_content{
 </portlet:actionURL>
 <portlet:actionURL var="updateView">
 	<portlet:param name="action" value="updateView" />
+</portlet:actionURL>
+<portlet:actionURL var="updateProperty">
+	<portlet:param name="action" value="updateProperty" />
 </portlet:actionURL>
 <portlet:actionURL var="reorderDocs">
 	<portlet:param name="action" value="reorder" />
@@ -306,6 +323,17 @@ function update_view(mode)
 		url:"${updateView}",
 		data:{"view_type":selected,
 			"mode":mode}});
+}
+
+function update_property(prop)
+{
+	var e = document.getElementById(prop);
+	var value = e.value;
+	alert("Update: " + prop + ":" + value);
+	$.ajax({dataType:"json",
+		url:"${updateProperty}",
+		data:{"property":prop,
+			"value":value}});
 }
 
 function viewChange(mode)

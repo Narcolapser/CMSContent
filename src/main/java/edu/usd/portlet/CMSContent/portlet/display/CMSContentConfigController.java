@@ -66,7 +66,6 @@ public class CMSContentConfigController
 	@Autowired
 	List<CMSLayout> layouts;
 
-
 	@Autowired
 	CMSConfigDao conf = null;
 
@@ -154,6 +153,24 @@ public class CMSContentConfigController
 		logger.debug("setting view to " + disp_type + " for mode " + mode);
 		CMSLayout layout = this.conf.getLayout(request,mode);
 		layout.setView(disp_type);
+		this.conf.setLayout(request,mode,layout);
+	}
+	
+	@RequestMapping(params = {"action=updateProperty"})
+	public void updateProperty(ActionRequest request,
+		@RequestParam(value = "property", required = true) String prop,
+		@RequestParam(value = "value", required = true) String value)
+	{
+		String mode = "";
+		if (prop.indexOf("_") > 7)
+			mode = "maximized";
+		else
+			mode = "normal";
+		prop = prop.substring(prop.indexOf("_") + 1,prop.length()).replace("_"," ");
+		logger.debug("setting property " + prop + " of " +mode + " to: " + value);
+
+		CMSLayout layout = this.conf.getLayout(request,mode);
+		layout.setProperty(prop,value);
 		this.conf.setLayout(request,mode,layout);
 	}
 
