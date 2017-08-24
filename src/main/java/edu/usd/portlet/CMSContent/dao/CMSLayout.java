@@ -81,6 +81,16 @@ public class CMSLayout
 		this.properties = val;
 	}
 	
+	public String getProperty(String key)
+	{
+		return this.properties.get(key);
+	}
+
+	public void setProperty(String key, String value)
+	{
+		this.properties.put(key,value);
+	}
+	
 	public List<CMSSubscription> getSubscriptions()
 	{
 		return this.subscriptions;
