@@ -106,8 +106,10 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			prefs.store();
 			prefs.reset(mode);
 			prefs.reset(mode+".subscriptions");
+			prefs.reset(mode+".properties");
 
 			prefs.setValue(mode,layout.getView());
+			
 			ArrayList<String> subs = new ArrayList<String>();
 			for(CMSSubscription cmssub:layout.getSubscriptions())
 			{
@@ -116,9 +118,18 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 				sub += cmssub.getDocId();
 				subs.add(sub);
 			}
-
 			String[] insertArray = new String[subs.size()];
 			prefs.setValues(mode+".subscriptions",subs.toArray(insertArray));
+			
+			ArrayList<String> props = new ArrayList<String>();
+			for(String key:layout.getProperties().keySet())
+			{
+				String prop = key+";";
+				prop += layout.getProperty(key);
+				props.add(prop);
+			}
+			String[] propArray = new String[subs.size()];
+			prefs.setValues(mode+".properties",props.toArray(propArray));
 
 			prefs.store();
 			logger.debug("layout reset.");

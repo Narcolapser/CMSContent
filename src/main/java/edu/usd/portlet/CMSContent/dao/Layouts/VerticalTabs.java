@@ -41,8 +41,8 @@ public class VerticalTabs extends CMSLayout
 	public Map<String,String> getDefaultProperties()
 	{
 		Map<String,String> ret = new HashMap<String,String>();
-		ret.put("Link buttons","False");
-		ret.put("Tab column width","400");
+		ret.put("Link buttons (True/False)","False");
+		ret.put("Tab column width (in pixels)","400");
 		return ret;
 	}
 	
