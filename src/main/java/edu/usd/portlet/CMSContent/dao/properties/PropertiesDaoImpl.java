@@ -62,14 +62,13 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 		CMSLayout ret = new CMSLayout();
 		
 		String view = prefs.getValue(mode,"view_single");
-		
 		for(CMSLayout layout:layouts)
 		{
-			logger.debug("Layout option: " + layout.getView() + " looking for: " + view);
+			//logger.debug("Layout option: " + layout.getView() + " looking for: " + view);
 			if (layout.getView().equals(view))
 			{
 				ret = layout.copy(layout);
-				logger.debug("Match!: " + ret.getView());
+				//logger.debug("Match!: " + ret.getView());
 			}
 		}
 		
@@ -88,6 +87,24 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			subscriptions.add(csub);
 		}
 		logger.info("Total subscriptions: " + subscriptions.size());
+		
+		String[] props = prefs.getValues(mode+".properties",new String[0]);
+		logger.debug("found props: " + props.length + " for " + mode + ".properties");
+		for(String prop:props)
+		{
+			try
+			{
+				int delimiter = prop.indexOf(";");
+				String property = prop.substring(0,delimiter);
+				String value = prop.substring(delimiter+1);
+				logger.debug("Property found, Key: " + property + " Value: " + value);
+				ret.setProperty(property,value);
+			}
+			catch (Exception e)
+			{
+				logger.info("Error while trying to load property: " + prop + " Error: " + e);
+			}
+		}
 		
 		ret.setView(view);
 		ret.setSubscriptions(subscriptions);
