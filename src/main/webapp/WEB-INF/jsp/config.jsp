@@ -329,7 +329,6 @@ function update_property(prop)
 {
 	var e = document.getElementById(prop);
 	var value = e.value;
-	alert("Update: " + prop + ":" + value);
 	$.ajax({dataType:"json",
 		url:"${updateProperty}",
 		data:{"property":prop,
