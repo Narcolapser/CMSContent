@@ -3,6 +3,7 @@
 <script src="/ResourceServingWebapp/rs/jqueryui/1.10.3/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
 <script src="/CMSContent/js/chosen.jquery.js" type="text/javascript"></script>
 <script src="/CMSContent/js/ckeditor/ckeditor.js" type="text/javascript"></script>
+<script src="/CMSContent/js/jquery.form.min.js" type="text/javascript"></script>
 <link rel="stylesheet" href="/CMSContent/css/chosen.css">
 
 <c:set var="n"><portlet:namespace/></c:set>
@@ -48,7 +49,7 @@
 	<textarea id="${n}content" name="content">put content here.</textarea>
 	<p>
 		<input type="submit" name="action" value="Update" class="btn btn-primary"/>
-		<a href="https://dev-uportal.usd.edu/uPortal/p/cmseditor" class="btn btn-danger">Cancel</a>
+		<a id="return_btn" href="https://dev-uportal.usd.edu/uPortal/p/cmseditor" class="btn btn-danger">Return</a>
 	</p>
 	
 </form>
@@ -90,6 +91,11 @@ $(document).ready(function(){
 		],
 		allowedContent: true
 	});
+	$('#${n}contentForm').ajaxForm(function() {
+		alert("Page updated.");
+	});
+	var ret_button = document.getElementById("return_btn");
+	ret_button.href=document.referrer;
 });
 
 });
