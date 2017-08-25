@@ -79,18 +79,10 @@ public class CMSContentViewController {
 
 		CMSLayout layout = this.conf.getLayout(request);
 		logger.debug("Number of layouts: " + layouts.size());
-		for(CMSLayout lay:layouts)
-		{
-//			logger.debug("Lay: " + lay.getName() + ";" + lay.getView());
-//			logger.debug("Lay: " + layout.getName() + ";" + layout.getView());
-//			logger.debug("Match?: " + lay.getName().equals(layout.getView()));
-			if (lay.getName().equals(layout.getView()))
-			{
-				layout = lay.copy(layout);
-			}
-		}
 		logger.debug("Layout: " + layout.getName());
 		logger.debug("View: " + layout.getView());
+		refData.put("properties",layout.getProperties());
+		refData.put("layout",layout);
 
 		//Preparing a the list of page content.
 		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();

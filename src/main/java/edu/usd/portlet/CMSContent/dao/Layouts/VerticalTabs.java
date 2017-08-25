@@ -52,7 +52,7 @@ public class VerticalTabs extends CMSLayout
 		Map<String,String> ret = this.getDefaultProperties();
 		for(String val:ret.keySet())
 		{
-			logger.debug("Key: " + val);
+			logger.debug("Key: " + val + " Value: " + ret.get(val));
 			if(!this.properties.containsKey(val))
 				this.properties.put(val,ret.get(val));
 		}
