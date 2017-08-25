@@ -33,7 +33,7 @@ public class VerticalTabs extends CMSLayout
 		CMSLayout l = new VerticalTabs();
 		l.view = "view_vertical_tabs";
 		l.name = "Vertical Tabs";
-		logger.info("mid-copy: layout: " + l.getName() + ";" + l.getView());
+		//logger.info("mid-copy: layout: " + l.getName() + ";" + l.getView());
 		l.properties = new HashMap<String,String>();
 		return l;
 	}
@@ -48,11 +48,11 @@ public class VerticalTabs extends CMSLayout
 	
 	public Map<String,String> getProperties()
 	{
-		logger.debug("Vertical tabs properties!");
+		//logger.debug("Vertical tabs properties!");
 		Map<String,String> ret = this.getDefaultProperties();
 		for(String val:ret.keySet())
 		{
-			logger.debug("Key: " + val + " Value: " + ret.get(val));
+			//logger.debug("Key: " + val + " Value: " + ret.get(val));
 			if(!this.properties.containsKey(val))
 				this.properties.put(val,ret.get(val));
 		}

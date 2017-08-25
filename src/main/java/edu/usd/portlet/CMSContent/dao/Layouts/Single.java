@@ -33,7 +33,7 @@ public class Single extends CMSLayout
 		CMSLayout l = new CMSLayout(val);
 		l.view = "view_single";
 		l.name = "Single";
-		logger.info("mid-copy: layout: " + l.getName() + ";" + l.getView());
+		//logger.info("mid-copy: layout: " + l.getName() + ";" + l.getView());
 		return l;
 	}
 }

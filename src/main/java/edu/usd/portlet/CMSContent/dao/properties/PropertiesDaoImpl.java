@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Collections;
+import java.util.Set;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletPreferences;
@@ -89,7 +90,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 		logger.info("Total subscriptions: " + subscriptions.size());
 		
 		String[] props = prefs.getValues(mode+".properties",new String[0]);
-		logger.debug("found props: " + props.length + " for " + mode + ".properties");
+		//logger.debug("found props: " + props.length + " for " + mode + ".properties");
 		for(String prop:props)
 		{
 			try
@@ -97,12 +98,12 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 				int delimiter = prop.indexOf(";");
 				String property = prop.substring(0,delimiter);
 				String value = prop.substring(delimiter+1);
-				logger.debug("Property found, Key: " + property + " Value: " + value);
+				//logger.debug("Property found, Key: " + property + " Value: " + value);
 				ret.setProperty(property,value);
 			}
 			catch (Exception e)
 			{
-				logger.info("Error while trying to load property: " + prop + " Error: " + e);
+				//logger.info("Error while trying to load property: " + prop + " Error: " + e);
 			}
 		}
 		
@@ -115,7 +116,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 	public void setLayout(PortletRequest request, String mode, CMSLayout layout)
 	{
 		PortletPreferences prefs = request.getPreferences();
-		logger.debug("resetting layout.");
+		logger.debug("resetting layout. to: " + layout.getView());
 		try
 		{
 			//Legacy:
@@ -137,17 +138,23 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			}
 			String[] insertArray = new String[subs.size()];
 			prefs.setValues(mode+".subscriptions",subs.toArray(insertArray));
-			
 			ArrayList<String> props = new ArrayList<String>();
-			for(String key:layout.getProperties().keySet())
+			Set<String> keys = layout.getProperties().keySet();
+			for(String key:keys)
 			{
-				String prop = key+";";
-				prop += layout.getProperty(key);
-				props.add(prop);
+				try
+				{
+					String prop = key+";";
+					prop += layout.getProperty(key);
+					props.add(prop);
+				}
+				catch (Exception e)
+				{
+				
+				}
 			}
 			String[] propArray = new String[subs.size()];
 			prefs.setValues(mode+".properties",props.toArray(propArray));
-
 			prefs.store();
 			logger.debug("layout reset.");
 		}

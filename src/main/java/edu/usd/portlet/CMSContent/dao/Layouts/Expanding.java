@@ -33,7 +33,7 @@ public class Expanding extends CMSLayout
 		CMSLayout l = new CMSLayout(val);
 		l.view = "view_expanding";
 		l.name = "Expanding";
-		logger.info("mid-copy: layout: " + l.getName() + ";" + l.getView());
+		//logger.info("mid-copy: layout: " + l.getName() + ";" + l.getView());
 		return l;
 	}
 }

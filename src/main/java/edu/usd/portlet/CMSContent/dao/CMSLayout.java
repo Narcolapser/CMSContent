@@ -3,6 +3,7 @@ package edu.usd.portlet.cmscontent.dao;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -73,6 +74,8 @@ public class CMSLayout
 	public Map<String,String> getProperties()
 	{
 		logger.debug("Layout properties!");
+		if(this.properties == null)
+			this.properties = new HashMap<String,String>();
 		return this.properties;
 	}
 	
