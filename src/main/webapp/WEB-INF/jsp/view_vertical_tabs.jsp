@@ -1,9 +1,9 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 <!--vertical tabbed page view.-->
 
-<c:set var="tab_width" value="${376}"/>
+<c:set var="tab_width" value="${276}"/>
 <c:if test="${properties.get('Link buttons (True/False)') == 'True'}">
-	<c:set var="tab_width" value="${338}"/>
+	<c:set var="tab_width" value="${238}"/>
 </c:if><!--Tab width: ${tab_width}-->
 <style>
 #content-wrapper{
@@ -18,7 +18,7 @@
 	padding: 10px;
 }
 .left_col{
-	width:400px;
+	width:300px;
 }
 .right_col{
 	width: auto;
@@ -33,6 +33,9 @@ a.tab-btn{
 button.copy-btn{
 	padding: 10px 12px;
 	border: 0px;
+}
+.nav-pills > li.active > a{
+	background-color: #AD0000;
 }
 </style>
 <c:set var="req" value="${pageContext.request}" />
