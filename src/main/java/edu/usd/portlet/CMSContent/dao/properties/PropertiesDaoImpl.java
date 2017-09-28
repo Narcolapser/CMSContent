@@ -85,6 +85,10 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			CMSSubscription csub = new CMSSubscription();
 			csub.setDocId(id);
 			csub.setDocSource(source);
+			
+			String[] groups = prefs.getValues(mode+".subscriptions."+sub,new String[0]);
+			csub.setSecurityGroups(Arrays.asList(groups));
+			
 			subscriptions.add(csub);
 		}
 		logger.info("Total subscriptions: " + subscriptions.size());
@@ -122,22 +126,41 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			//Legacy:
 			prefs.reset("pageUri");
 			prefs.store();
-			prefs.reset(mode);
-			prefs.reset(mode+".subscriptions");
-			prefs.reset(mode+".properties");
+
+			Enumeration<String> pks = prefs.getNames();
+			List<String> prefkeys = new ArrayList<String>();
+			while(pks.hasMoreElements())
+			{
+				String pref = pks.nextElement();
+				if (pref.contains(mode))
+				{
+					logger.debug("pk: " + pref);
+					prefkeys.add(pref);
+				}
+			}
+			for(String pk : prefkeys)
+				prefs.reset(pk);
 
 			prefs.setValue(mode,layout.getView());
 			
 			ArrayList<String> subs = new ArrayList<String>();
+			logger.debug("subs: " + layout.getSubscriptions().size());
 			for(CMSSubscription cmssub:layout.getSubscriptions())
 			{
+				
 				String sub = cmssub.getDocSource();
 				sub += ";";
 				sub += cmssub.getDocId();
 				subs.add(sub);
+				if(cmssub.getSecurityGroups() != null)
+				{
+					String[] insertArray = new String[cmssub.getSecurityGroups().size()];
+					prefs.setValues(mode+".subscriptions."+sub, cmssub.getSecurityGroups().toArray(insertArray));
+				}
 			}
 			String[] insertArray = new String[subs.size()];
 			prefs.setValues(mode+".subscriptions",subs.toArray(insertArray));
+			
 			ArrayList<String> props = new ArrayList<String>();
 			Set<String> keys = layout.getProperties().keySet();
 			for(String key:keys)

@@ -34,7 +34,7 @@ button.copy-btn{
 	padding: 10px 12px;
 	border: 0px;
 }
-.nav-pills > li.active > a{
+.nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus{
 	background-color: #AD0000;
 }
 </style>
