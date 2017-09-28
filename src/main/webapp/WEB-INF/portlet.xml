@@ -44,6 +44,124 @@
 			<title>CMSContent</title>
 			<short-title>CMSContent</short-title>
 		</portlet-info>
+		
+	
+		<security-role-ref>
+			<role-name>Distance Students</role-name>
+			<role-link>USD Permission Distance Students</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Faculty</role-name>
+			<role-link>USD Permission Faculty</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Graduate Students</role-name>
+			<role-link>USD Permission Graduate Students</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>ITS</role-name>
+			<role-link>USD Permission ITS</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>ITS AIS</role-name>
+			<role-link>USD Permission ITS AIS</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>ITS Web</role-name>
+			<role-link>USD Permission ITS Web</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Law</role-name>
+			<role-link>USD Permission Law</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Law Faculty</role-name>
+			<role-link>USD Permission Law Faculty</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Law Staff</role-name>
+			<role-link>USD Permission Law Staff</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Law Students</role-name>
+			<role-link>USD Permission Law Students</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Mailhost Cloud</role-name>
+			<role-link>USD Permission Mailhost Cloud</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Mailhost Exchange</role-name>
+			<role-link>USD Permission Mailhost Exchange</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Mailhost University Center</role-name>
+			<role-link>USD Permission Mailhost University Center</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Marketing</role-name>
+			<role-link>USD Permission Marketing</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Med</role-name>
+			<role-link>USD Permission Med</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Med Faculty</role-name>
+			<role-link>USD Permission Med Faculty</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Med Resident</role-name>
+			<role-link>USD Permission Med Resident</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Med Staff</role-name>
+			<role-link>USD Permission Med Staff</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Med Student</role-name>
+			<role-link>USD Permission Med Student</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Proctor Testing</role-name>
+			<role-link>USD Permission Proctor Testing</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Staff</role-name>
+			<role-link>USD Permission Staff</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Student</role-name>
+			<role-link>USD Permission Student</role-link>
+		</security-role-ref>
+
+		<security-role-ref>
+			<role-name>Web Developers</role-name>
+			<role-link>USD Permission Web Developers</role-link>
+		</security-role-ref>
+
+
 	</portlet>
 	
 	<portlet>

@@ -35,7 +35,7 @@ making a new portlet. This re-write seeks to solve those issues by:
 
 ###0.6:
 
-* Integrate security into the portlet. Allow who sees what to be configured per page.
+* Integrate security into the portlet. Allow who sees what to be configured per document.
 * Get properties to save and load. - Check
 * More layouts:
   * Vertical Tabs with right side pane

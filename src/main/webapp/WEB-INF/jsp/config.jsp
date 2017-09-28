@@ -29,6 +29,9 @@ div.col_content{
 .form-group{
 	padding: 0px 0px 10px 0px;
 }
+.pos_col{
+	min-width: 93px;
+}
 </style>
 
 
@@ -156,9 +159,10 @@ div.col_content{
 								<table class="table table-striped" id="${mode}_docs_table">
 									<thead>
 										<tr>
-											<th>Position</th>
+											<th class="pos_col" >Position</th>
 											<th>Title</th>
 											<th>Id</th>
+											<th>Security Groups</th>
 											<th></th>
 										</tr>
 									</thead>
@@ -166,7 +170,7 @@ div.col_content{
 										<c:set var="index" value="1"/>
 										<c:forEach var="doc" items="${activeDocs[mode]}">
 											<tr class="${mode} ${index}">
-												<td>
+												<td class="pos_col" >
 													<div class="btn-group" role="group">
 														<button onclick="up_document('${mode}',this);return false" class="btn btn-default">
 															<i class="fa fa-arrow-up"></i>
@@ -178,6 +182,13 @@ div.col_content{
 												</td>
 												<td>${doc.title}</td>
 												<td>${doc.id}</td>
+												<td>
+													<select id="security_select_${mode}_${doc.id}" class="chosen-select-multi" multiple="" data-placeholder="Select security groups..." OnChange="sec_change('security_select_${mode}_${doc.id}','${mode}','${doc.id}');">
+														<c:forEach var="role" items="${securityRoles}">
+															<option value="${role}" data-title="${role}">${role}</option>
+														</c:forEach>
+													</select>
+												</td>
 												<td><button class="btn btn-danger" onclick="remove_document('${mode}',this);return false;">Remove</button></td>
 											</tr>
 											<c:set var="index" value="${index + 1}"/>
@@ -207,17 +218,47 @@ div.col_content{
 <portlet:actionURL var="updateProperty">
 	<portlet:param name="action" value="updateProperty" />
 </portlet:actionURL>
+<portlet:actionURL var="updateSecurity">
+	<portlet:param name="action" value="updateSecurity" />
+</portlet:actionURL>
 <portlet:actionURL var="reorderDocs">
 	<portlet:param name="action" value="reorder" />
 </portlet:actionURL>
 <SCRIPT LANGUAGE="javascript">
+
 $(".chosen-select").chosen({width: "100%"});
+$(".chosen-select-multi").chosen({width: "100%",no_results_text:"Security role not found."});
+
+function sec_change(val,mode,doc)
+{
+	var e = document.getElementById(val);
+	var values = getSelectValues(e);
+	$.ajax({dataType:"json",
+		url:"${updateSecurity}",
+		data:{"document":doc,
+			"groups":JSON.stringify(values),
+			"mode":mode}});
+}
+
+function getSelectValues(select) {
+	var result = [];
+	var options = select && select.options;
+	var opt;
+
+	for (var i=0, iLen=options.length; i<iLen; i++) {
+		opt = options[i];
+
+		if (opt.selected) {
+			result.push(opt.value || opt.text);
+		}
+	}
+	return result;
+}
 
 function edit_document(val)
 {
 	var e = document.getElementById(val);
 	var selected = e.options[e.selectedIndex].value;
-	alert(selected);
 	window.location.href = "https://dev-uportal.usd.edu/uPortal/p/cmseditor.ctf4/max/render.uP?doc="+selected;
 }
 
@@ -247,10 +288,10 @@ function add_document(val)
 function new_doc_row(title,id,mode)
 {
 	var new_row = document.createElement("TR");
-	var content =  '<td><div class="btn-group" role="group"><button onclick="up_document(\''+mode+'\',this);return false" class="btn btn-default">';
+	var content =	'<td><div class="btn-group" role="group"><button onclick="up_document(\''+mode+'\',this);return false" class="btn btn-default">';
 	content += '<i class="fa fa-arrow-up"></i></button><button onclick="down_document(\''+mode+'\',this);return false" class="btn btn-default">';
-	content += '<i class="fa fa-arrow-down"></i></button></div></td><td>'+title+'</td><td>'+id+'</td><td><button class="btn btn-danger"';
-	content += ' onclick="remove_document(\''+mode+'\',this);return false;">Remove</button></td>';
+	content += '<i class="fa fa-arrow-down"></i></button></div></td><td>'+title+'</td><td>'+id+'</td>';
+	content += '<td><button class="btn btn-danger" onclick="remove_document(\''+mode+'\',this);return false;">Remove</button></td>';
 	new_row.innerHTML = content
 	return new_row;
 }
@@ -360,7 +401,6 @@ function viewChange(mode)
 function populate_pages(data, textStatus, jqXHR)
 {
 	CID = data["index"]
-	alert("Index: " + CID);
 	var pages = document.getElementById(CID);
 
 	pages.options.length=0;
@@ -382,7 +422,6 @@ function OnChange(sources_id,doc_selector_id)
 
 	pages.options.length=0;
 	pages.options[0] = new Option("Loading...","");
-	//alert("on change!");
 	$.ajax({dataType:"json",
 		url:"/CMSContent/v1/api/getPagesWithIndex.json",
 		data:{"source":SelValue,"index":doc_selector_id},
