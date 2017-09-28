@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.RenderRequest;
@@ -43,6 +44,10 @@ import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 import edu.usd.portlet.cmscontent.dao.CMSLayout;
 import edu.usd.portlet.cmscontent.dao.CMSSubscription;
 import edu.usd.portlet.cmscontent.dao.InternalDao;
+import edu.usd.portlet.cmscontent.dao.security.Role;
+
+import edu.usd.portlet.cmscontent.service.PortletXMLGroupService;
+import edu.usd.portlet.cmscontent.service.IGroupService;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -68,6 +73,9 @@ public class CMSContentConfigController
 
 	@Autowired
 	CMSConfigDao conf = null;
+	
+	@Autowired
+	IGroupService groupService;
 
 	@RequestMapping
 	public ModelAndView viewContent(RenderRequest request)
@@ -115,6 +123,16 @@ public class CMSContentConfigController
 		refData.put("activeViews",layoutMap);
 
 		refData.put("availableViews",layouts);
+		
+		//Get security roles:
+		List<Role> allRoles = groupService.getAllRoles();
+		List<String> userRoleNames = new ArrayList<String>();
+		for (Role r : allRoles)
+		{
+			String roleName = r.getName();
+			userRoleNames.add(roleName);
+		}
+		refData.put("securityRoles",userRoleNames);
 
 		return new ModelAndView("config",refData);
 	}
@@ -171,6 +189,28 @@ public class CMSContentConfigController
 
 		CMSLayout layout = this.conf.getLayout(request,mode);
 		layout.setProperty(prop,value);
+		this.conf.setLayout(request,mode,layout);
+	}
+	
+	@RequestMapping(params = {"action=updateSecurity"})
+	public void updateSecurity(ActionRequest request,
+		@RequestParam(value = "document", required = true) String doc,
+		@RequestParam(value = "groups", required = false) String json,
+		@RequestParam(value = "mode", required = false, defaultValue = "normal") String mode)
+	{
+		String groups = json.substring(1,json.length()-1).replace("\"","");
+//		logger.debug("updating security 3");
+//		logger.debug("updating the security groups of " + doc + " to " + groups);
+		String[] gval = groups.split(",");
+		List<String> sgroups = Arrays.asList(gval);
+		CMSLayout layout = this.conf.getLayout(request,mode);
+		List<CMSSubscription> subs = layout.getSubscriptions();
+		for(CMSSubscription sub : subs)
+		{
+			if(sub.getDocId().equals(doc))
+				sub.setSecurityGroups(sgroups);
+		}
+		layout.setSubscriptions(subs);
 		this.conf.setLayout(request,mode,layout);
 	}
 
