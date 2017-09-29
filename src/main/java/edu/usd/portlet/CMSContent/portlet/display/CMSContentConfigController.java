@@ -93,12 +93,11 @@ public class CMSContentConfigController
 		normal.getProperties();
 		logger.debug("Layout is: " + normal.getName());
 		
-		List<CMSDocument> docs = normal.getSubscriptionsAsDocs();
-		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
-		for(CMSDocument entry:docs)
+		List<CMSSubscription> content = normal.getSubscriptions();
+		for(CMSSubscription sub : content)
 			for(CMSDocumentDao ds:dataSources)
-				if (ds.getDaoName().equals(entry.getSource()))
-					content.add(ds.getDocument(entry.getId()));
+				if(ds.getDaoName().equals(sub.getDocSource()))
+					sub.setDocTitle(ds.getDocument(sub.getDocId()).getTitle());
 		logger.info("active docs: " + content);
 		final Map<String, Object> contentMap = new HashMap<String, Object>();
 		contentMap.put("normal",content);
@@ -109,12 +108,11 @@ public class CMSContentConfigController
 		CMSLayout max = this.conf.getLayout(request,"maximized");
 		if (max != null)
 		{
-			List<CMSDocument> maxDocs = max.getSubscriptionsAsDocs();
-			content = new ArrayList<CMSDocument>();
-			for(CMSDocument entry:maxDocs)
-				for(CMSDocumentDao ds:dataSources)
-					if (ds.getDaoName().equals(entry.getSource()))
-						content.add(ds.getDocument(entry.getId()));
+			content = max.getSubscriptions();
+			for(CMSSubscription sub : content)
+			for(CMSDocumentDao ds:dataSources)
+				if(ds.getDaoName().equals(sub.getDocSource()))
+					sub.setDocTitle(ds.getDocument(sub.getDocId()).getTitle());
 			contentMap.put("maximized",content);
 			String maxDisplayType = max.getView();
 			layoutMap.put("maximized",max);
