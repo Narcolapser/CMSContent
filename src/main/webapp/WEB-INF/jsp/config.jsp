@@ -180,12 +180,26 @@ div.col_content{
 														</button>
 													</div>
 												</td>
-												<td>${doc.title}</td>
-												<td>${doc.id}</td>
+												<td>${doc.docTitle}</td>
+												<td>${doc.docId}</td>
 												<td>
-													<select id="security_select_${mode}_${doc.id}" class="chosen-select-multi" multiple="" data-placeholder="Select security groups..." OnChange="sec_change('security_select_${mode}_${doc.id}','${mode}','${doc.id}');">
+													<select id="security_select_${mode}_${doc.docId}" class="chosen-select-multi" multiple="" data-placeholder="Everyone" OnChange="sec_change('security_select_${mode}_${doc.docId}','${mode}','${doc.docId}');">
 														<c:forEach var="role" items="${securityRoles}">
-															<option value="${role}" data-title="${role}">${role}</option>
+															<c:set var="contains" value="false"/>
+															<c:forEach var="irole" items="${doc.securityGroups}">
+																<c:if test="${irole eq role}">
+																	<c:set var="contains" value="true"/>
+																</c:if>
+																<!-- role: ${role} irole: ${irole} contains: ${contains}-->
+															</c:forEach>
+															<c:choose>
+																<c:when test="${contains}">
+																	<option value="${role}" data-title="${role}" selected="selected">${role}</option>
+																</c:when>
+																<c:otherwise>
+																	<option value="${role}" data-title="${role}">${role}</option>
+																</c:otherwise>
+															</c:choose>
 														</c:forEach>
 													</select>
 												</td>
