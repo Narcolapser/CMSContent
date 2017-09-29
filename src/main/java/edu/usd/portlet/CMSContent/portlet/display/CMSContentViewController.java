@@ -87,40 +87,25 @@ public class CMSContentViewController {
 
 		//Preparing a the list of page content.
 		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
-//		for(CMSDocument entry:layout.getSubscriptionsAsDocs())
-//			for(CMSDocumentDao ds:dataSources)
-//				if (ds.getDaoName().equals(entry.getSource()))
-//					content.add(ds.getDocument(entry.getId()));
 
-//		for(CMSSubscription sub:layout.getSubscriptions())
-//			for(String role : sub.getSecurityGroups())
-//				if(request.isUserInRole(role))
-//					for(CMSDocumentDao ds:dataSources)
-//						if(ds.getDaoName().equals(sub.getDocSource()))
-//							content.add(ds.getDocument(sub.getDocId()));
-
-		for(CMSSubscription sub:layout.getSubscriptions()){
-			for(CMSDocumentDao ds:dataSources){
+		for(CMSSubscription sub:layout.getSubscriptions())
+			for(CMSDocumentDao ds:dataSources)
 				if(ds.getDaoName().equals(sub.getDocSource()))
 				{
 					List<String> groups = sub.getSecurityGroups();
-					logger.debug("groups: " + groups);
-					logger.debug("Group size: " + groups.size());
-					if (groups == null || groups.size() == 0){
-						logger.debug("included by default");
+					if (groups == null || groups.get(0).equals(""))
 						content.add(ds.getDocument(sub.getDocId()));
-					}
-					else{
-						for(String role : sub.getSecurityGroups()){
-							if(request.isUserInRole(role)){
-								logger.debug("Included because user was in role");
+					else
+					{
+						for(String role : sub.getSecurityGroups())
+							if(request.isUserInRole(role))
+							{
 								content.add(ds.getDocument(sub.getDocId()));
+								break;
 							}
-						}
 					}
 				}
-			}
-		}
+
 		refData.put("content",content);
 
 		//Get channel ID

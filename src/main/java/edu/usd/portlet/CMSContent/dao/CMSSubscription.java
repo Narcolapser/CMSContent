@@ -6,6 +6,7 @@ public class CMSSubscription
 {
 	private String docId;
 	private String docSource;
+	private String docTitle;
 	private List<String> securityGroups;
 	
 	public CMSSubscription(){}
@@ -45,5 +46,14 @@ public class CMSSubscription
 	public void setSecurityGroups(List<String> val)
 	{
 		this.securityGroups = val;
+	}
+	public String getDocTitle()
+	{
+		return this.docTitle;
+	}
+	
+	public void setDocTitle(String val)
+	{
+		this.docTitle = val;
 	}
 }
