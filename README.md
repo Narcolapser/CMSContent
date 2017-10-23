@@ -42,6 +42,11 @@ making a new portlet. This re-write seeks to solve those issues by:
 
 * Forms. 
 
+###0.8:
+
+* upload files
+* portlet caching
+
 ###Abandoned:
 * More layouts:
   * Vertical Tabs with right side pane
