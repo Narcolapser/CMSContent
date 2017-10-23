@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.json.JSONObject;
+import org.json.JSONException;
 
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.InternalDao;
@@ -54,6 +56,29 @@ public final class CMSRestController {
 		return pages;
 	}
 
+	@RequestMapping("saveForm")
+	public String saveForm(
+		@RequestParam(value="form", defaultValue = "") String form
+		)
+	{
+		logger.debug("Recieved request to update form: " + form);
+		try
+		{
+			JSONObject obj = new JSONObject(form);
+			logger.debug(obj.getJSONObject("form"));
+//			CMSDocument doc = new CMSDocument();
+//			doc.setTitle("" + obj.getJSONObject("doc").getJSONObject("name"));
+//			doc.setId("form:" + obj.getJSONObject("doc").getJSONObject("id"));
+//			doc.setSource("Internal");
+//			doc.setContent("" + obj.getJSONObject("form"));
+		}
+		catch(JSONException e)
+		{
+			logger.error("Failure to decode json: " + form + " error: " + e);
+		}
+		return "{\"result\":\"success\"}";
+	}
+
 	@RequestMapping("getPagesWithIndex")
 	public PagesAndIndex getPagesWithIndex(
 		@RequestParam(value="source", defaultValue = "CommonSpot") String source,
@@ -80,7 +105,7 @@ public final class CMSRestController {
 		}
 		catch(Exception e)
 		{
-			logger.info("Failed to retrieve information" + e.toString());
+			logger.error("Failed to retrieve information" + e.toString());
 			ret = new PagesAndIndex();
 		}
 		return ret;
