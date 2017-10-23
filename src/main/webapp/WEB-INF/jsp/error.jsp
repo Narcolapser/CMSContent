@@ -18,4 +18,4 @@
 	under the License.
 
 --%>
-<div><p>test error</p></div>
+<div><p>an error has occured.</p></div>
