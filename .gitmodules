@@ -1,0 +1,3 @@
+[submodule "src/main/webapp/js/zeroclipboard"]
+	path = src/main/webapp/js/zeroclipboard
+	url = https://github.com/zeroclipboard/zeroclipboard.git

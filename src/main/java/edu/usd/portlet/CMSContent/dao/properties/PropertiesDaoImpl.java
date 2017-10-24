@@ -11,16 +11,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Collections;
+import java.util.Set;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletPreferences;
 import javax.portlet.ReadOnlyException;
 import javax.portlet.ValidatorException;
+import javax.portlet.WindowState;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
-import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
+import edu.usd.portlet.cmscontent.dao.CMSDocument;
+import edu.usd.portlet.cmscontent.dao.CMSLayout;
+import edu.usd.portlet.cmscontent.dao.CMSSubscription;
 
 /**
  * @author Toben Archer
@@ -30,341 +36,200 @@ import edu.usd.portlet.cmscontent.dao.CMSPageInfo;
 public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
-
-	public List<CMSPageInfo> getPageUrisSecure(PortletRequest request)
+	
+	@Autowired
+	List<CMSLayout> layouts;
+	
+	public CMSLayout getLayout(PortletRequest request)
 	{
-		return new ArrayList<CMSPageInfo>();
+		WindowState state = request.getWindowState();
+		if (WindowState.MAXIMIZED.equals(state))
+			return getLayout(request,"maximized");
+		return getLayout(request,"normal");
+	}
+	
+	public CMSLayout getLayout(PortletRequest request, String mode)
+	{
+	
+		PortletPreferences prefs = request.getPreferences();
+		if ((prefs.getValue("pageUri",null) != null))
+//			if (mode.equals("maximized"))
+//				return new CMSLayout();
+//			else
+				return getLayoutLegacy(request);
+		
+		logger.debug("Not a legacy portlet!");
+		
+		CMSLayout ret = new CMSLayout();
+		
+		String view = prefs.getValue(mode,"view_single");
+		for(CMSLayout layout:layouts)
+		{
+			//logger.debug("Layout option: " + layout.getView() + " looking for: " + view);
+			if (layout.getView().equals(view))
+			{
+				ret = layout.copy(layout);
+				//logger.debug("Match!: " + ret.getView());
+			}
+		}
+		
+		logger.debug("Found view: " + view);
+		String[] subs = prefs.getValues(mode+".subscriptions",new String[0]);
+		logger.debug("found subs: " + subs.length + " for " + mode+".subscriptions");
+		List<CMSSubscription> subscriptions = new ArrayList<CMSSubscription>();
+		for(String sub:subs)
+		{
+			int delimiter = sub.indexOf(";");
+			String source = sub.substring(0,delimiter);
+			String id = sub.substring(delimiter+1);
+			CMSSubscription csub = new CMSSubscription();
+			csub.setDocId(id);
+			csub.setDocSource(source);
+			
+			String[] groups = prefs.getValues(mode+".subscriptions."+sub,new String[0]);
+			csub.setSecurityGroups(Arrays.asList(groups));
+			
+			subscriptions.add(csub);
+		}
+		logger.info("Total subscriptions: " + subscriptions.size());
+		
+		String[] props = prefs.getValues(mode+".properties",new String[0]);
+		//logger.debug("found props: " + props.length + " for " + mode + ".properties");
+		for(String prop:props)
+		{
+			try
+			{
+				int delimiter = prop.indexOf(";");
+				String property = prop.substring(0,delimiter);
+				String value = prop.substring(delimiter+1);
+				//logger.debug("Property found, Key: " + property + " Value: " + value);
+				ret.setProperty(property,value);
+			}
+			catch (Exception e)
+			{
+				//logger.info("Error while trying to load property: " + prop + " Error: " + e);
+			}
+		}
+		
+		ret.setView(view);
+		ret.setSubscriptions(subscriptions);
+		
+		return ret;
+	}
+	
+	public void setLayout(PortletRequest request, String mode, CMSLayout layout)
+	{
+		PortletPreferences prefs = request.getPreferences();
+		logger.debug("resetting layout. to: " + layout.getView());
+		try
+		{
+			//Legacy:
+			prefs.reset("pageUri");
+			prefs.store();
+
+			Enumeration<String> pks = prefs.getNames();
+			List<String> prefkeys = new ArrayList<String>();
+			while(pks.hasMoreElements())
+			{
+				String pref = pks.nextElement();
+				if (pref.contains(mode))
+				{
+					logger.debug("pk: " + pref);
+					prefkeys.add(pref);
+				}
+			}
+			for(String pk : prefkeys)
+				prefs.reset(pk);
+
+			prefs.setValue(mode,layout.getView());
+			
+			ArrayList<String> subs = new ArrayList<String>();
+			logger.debug("subs: " + layout.getSubscriptions().size());
+			for(CMSSubscription cmssub:layout.getSubscriptions())
+			{
+				
+				String sub = cmssub.getDocSource();
+				sub += ";";
+				sub += cmssub.getDocId();
+				subs.add(sub);
+				if(cmssub.getSecurityGroups() != null)
+				{
+					String[] insertArray = new String[cmssub.getSecurityGroups().size()];
+					prefs.setValues(mode+".subscriptions."+sub, cmssub.getSecurityGroups().toArray(insertArray));
+				}
+			}
+			String[] insertArray = new String[subs.size()];
+			prefs.setValues(mode+".subscriptions",subs.toArray(insertArray));
+			
+			ArrayList<String> props = new ArrayList<String>();
+			Set<String> keys = layout.getProperties().keySet();
+			for(String key:keys)
+			{
+				try
+				{
+					String prop = key+";";
+					prop += layout.getProperty(key);
+					props.add(prop);
+				}
+				catch (Exception e)
+				{
+				
+				}
+			}
+			String[] propArray = new String[subs.size()];
+			prefs.setValues(mode+".properties",props.toArray(propArray));
+			prefs.store();
+			logger.debug("layout reset.");
+		}
+		catch(Exception e)
+		{
+			logger.debug("Failure!" + e);
+		}
 	}
 
-	// Return a list of page Uri's and the data source they came from. This is 
-	// meant to be used in the editor rather than for displaying.
-	// ret.get(page uri) -> data source.
-	public List<CMSPageInfo> getPageUris(PortletRequest request)
+	private CMSLayout getLayoutLegacy(PortletRequest request)
 	{
 		PortletPreferences prefs = request.getPreferences();
 		String[] pageUriArray = prefs.getValues("pageUri",null);
 		String source;
-		ArrayList<CMSPageInfo> ret = new ArrayList<CMSPageInfo>();
+		List<CMSSubscription> ret = new ArrayList<CMSSubscription>();
 		try
 		{
 			for(String val:pageUriArray)
 			{
 				if(val == null)
 				{
-					ret.add(new CMSPageInfo("","blank","blank"));
+					CMSSubscription csub = new CMSSubscription();
+					csub.setDocId("blank");
+					csub.setDocSource("blank");
+					ret.add(csub);
 					continue;
 				}
 				//default is commonspot for backwards compatibility reasons.
 				source = prefs.getValue(val,"CommonSpot");
-				ret.add(new CMSPageInfo("",val,source));
+				CMSSubscription csub = new CMSSubscription();
+				csub.setDocId(val);
+				csub.setDocSource(source);
+				ret.add(csub);
 			}
 		}
 		catch(Exception e)
 		{
-			logger.info("There were no values set");
-			ret.add(new CMSPageInfo("","blank","blank"));
-		}
-		return ret;
-	}
-
-	public void addPage(PortletRequest request)
-	{
-		logger.info("attempting to add a page");
-		//get the portlets preferences.
-		PortletPreferences prefs = request.getPreferences();
-
-		//get the current list of channel paths.
-		String[] pageUriArray = prefs.getValues("pageUri",new String[0]);
-
-		//in some instances there can arrive a particularly trouble some point. 
-		//the portlet might have errored or something and this will result in
-		//pageUri being undefined and returning null. Also can happen if this is
-		//a new portlet I believe. In this case, we need to add a page, and then
-		//continue on. 
-
-		//create an array list to remove nulls and insert new items
-		ArrayList<String> pageUris = new ArrayList<String>();
-		logger.info("pageUriArray contents:");
-		for(String val:pageUriArray)
-		{
-			//logger.info(val);
-			if (val == null)
-				logger.debug("Skipping null value");
-			else
-			{
-				logger.debug("Adding value: " + val);
-				pageUris.add(val);
-			}
-		}
-		//add an item to that list.
-		pageUris.add("blank");
-
-		//convert back and save it as the new list of channels. Putting it in an
-		//array that is no bigger than necessary to avoid excess null values.
-		String[] insertArray = new String[pageUris.size()];
-		try
-		{
-			//clear the previous values
-			prefs.reset("pageUri");
-			prefs.store();
-			//add the new list back in.
-			prefs.setValues("pageUri",pageUris.toArray(insertArray));
-			//Save.
-			prefs.store();
-		}
-		catch(ReadOnlyException e)
-		{
-			logger.debug("Error trying to set values, Javax Read Only Exception: " + e);
-		}
-		catch(IOException e)
-		{
-			logger.debug("Error trying to save new values. Java IOException: " + e);
-		}
-		catch(ValidatorException e)
-		{
-			logger.debug("Error trying to save new values. Javax Validator Exception: " + e);
-		}
-	}
-
-	public void updatePage(PortletRequest request, int index, String uri, String source)
-	{
-		PortletPreferences prefs = request.getPreferences();
-
-		//get the current list of uri paths.
-		String[] pageUriArray = prefs.getValues("pageUri",null);
-
-		//in some instances there can arrive a particularly trouble some point. 
-		//the portlet might have errored or something and this will result in
-		//pageUri being undefined and returning null. Also can happen if this is
-		//a new portlet I believe. In this case, we need to add a page, and then
-		//continue on. 
-		ArrayList<String> pageUris = getPropList(request);
-		if (pageUriArray == null)
-		{
-			addPage(request);
-			pageUriArray = prefs.getValues("pageUri",null);
-			pageUris = getPropList(request);
-		}
-
-//		//create an array list to remove nulls and insert new items
-//		ArrayList<String> pageUris = new ArrayList<String>();
-//		logger.info("pageUriArray contents:");
-//		for(String val:pageUriArray)
-//		{
-//			//logger.info(val);
-//			if (val == null)
-//				logger.debug("Skipping null value");
-//			else
-//			{
-//				logger.debug("Adding value: " + val);
-//				pageUris.add(val);
-//			}
-//		}
-
-		//update the pageUri property.
-		try
-		{
-			prefs.reset("pageUri");
-			prefs.store();
-			//beware the off by 1 errors!
-			pageUris.set(index - 1,uri);
-			prefs.setValues("pageUri",pageUris.toArray(pageUriArray));
-			prefs.store();
-		}
-		catch(ReadOnlyException e)
-		{
-			logger.debug("Error trying to clear values, Javax Read Only Exception: " + e);
-		}
-		catch(IOException e)
-		{
-			logger.debug("Error trying to clear values. Java IOException: " + e);
-		}
-		catch(ValidatorException e)
-		{
-			logger.debug("Error trying to clear values. Javax Validator Exception: " + e);
-		}
-
-		logger.debug("pageUri has been updated");
-
-
-		clearExcessPages(request);
-		try
-		{
-			prefs.reset(uri);
-			prefs.setValue(uri,source);
-			prefs.store();
-		}
-		catch(ReadOnlyException e)
-		{
-			logger.debug("Error trying to set values, Javax Read Only Exception: " + e);
-		}
-		catch(IOException e)
-		{
-			logger.debug("Error trying to save new values. Java IOException: " + e);
-		}
-		catch(ValidatorException e)
-		{
-			logger.debug("Error trying to save new values. Javax Validator Exception: " + e);
+			logger.debug("There were no values set");
+			CMSSubscription csub = new CMSSubscription();
+			csub.setDocId("blank");
+			csub.setDocSource("blank");
+			ret.add(csub);
 		}
 		
-		logger.error("Done setting value.");
+		CMSLayout layout = new CMSLayout();
+		
+		layout.setView("view_single");
+		layout.setSubscriptions(ret);
+		
+		return layout;
 	}
 
-	public void removePage(PortletRequest request, int index)
-	// Remove the page of the specified index.
-	{
-		logger.info("attempting to remove page uri #" + index);
-		//get the portlets preferences.
-		PortletPreferences prefs = request.getPreferences();
-
-		ArrayList<String> pageUris = getPropList(request);
-		String[] insertArray = new String[pageUris.size()];
-
-		try
-		{
-			prefs.reset("pageUri");
-			prefs.store();
-			//beware the off by 1 errors!
-			pageUris.remove(index - 1);
-			prefs.setValues("pageUri",pageUris.toArray(insertArray));
-			prefs.store();
-		}
-		catch(ReadOnlyException e)
-		{
-			logger.debug("Error trying to clear values, Javax Read Only Exception: " + e);
-		}
-		catch(IOException e)
-		{
-			logger.debug("Error trying to clear values. Java IOException: " + e);
-		}
-		catch(ValidatorException e)
-		{
-			logger.debug("Error trying to clear values. Javax Validator Exception: " + e);
-		}
-
-		logger.debug("pageUri has been removed, remove it's unique data.");
-
-		clearExcessPages(request);
-
-		logger.debug("Done removing page.");
-	}
-
-	private void clearExcessPages(PortletRequest request)
-	{
-		PortletPreferences prefs = request.getPreferences();
-		ArrayList<String> pageUris = getPropList(request);
-		try
-		{
-			//remove the excess page references
-			Enumeration<String> en_props = prefs.getNames();
-			ArrayList<String> props = Collections.list(en_props);
-			//while(props.hasMoreElements())
-			for(String name:props)
-			{
-				//String name = props.nextElement();
-				if (name.equals("pageUri") || name.equals("displayType"))
-				{
-					logger.debug("Skipping " + name);
-					continue;
-				}
-				if (pageUris.indexOf(name) == -1)
-				{
-					logger.debug("removing " + name);
-					prefs.reset(name);
-					prefs.store();
-				}
-			}
-		}
-		catch(ReadOnlyException e)
-		{
-			logger.debug("Error trying to set values, Javax Read Only Exception: " + e);
-		}
-		catch(IOException e)
-		{
-			logger.debug("Error trying to save new values. Java IOException: " + e);
-		}
-		catch(ValidatorException e)
-		{
-			logger.debug("Error trying to save new values. Javax Validator Exception: " + e);
-		}
-	}
-
-	private ArrayList<String> getPropList(PortletRequest request)
-	{
-		PortletPreferences prefs = request.getPreferences();
-		//get the current list of channel paths.
-		String[] pageUriArray = prefs.getValues("pageUri",null);
-
-		//convert to an array list.
-		ArrayList<String> pageUris = new ArrayList<String>();
-		logger.info("pageUriArray contents:");
-		try
-		{
-			for(String val:pageUriArray)
-			{
-				if (val == null)
-					logger.debug("Skipping null value");
-				else
-				{
-					logger.debug("Adding value: " + val);
-					pageUris.add(val);
-				}
-			}
-		}
-		catch (NullPointerException e)
-		{
-			return null;
-		}
-		return pageUris;
-	}
-
-	public String getDisplayType(PortletRequest request)
-	{
-		final PortletPreferences preferences = request.getPreferences();
-		String displayType = preferences.getValue("displayType","Single");
-		return displayType;
-	}
-
-	public void setDisplayType(PortletRequest request, String disp_type)
-	{
-		logger.info("attempting to update diplay type to: " + disp_type);
-		//get the portlets preferences.
-		PortletPreferences prefs = request.getPreferences();
-
-		try
-		{
-			prefs.setValue("displayType",disp_type);
-			prefs.store();
-		}
-		catch(ReadOnlyException e)
-		{
-			logger.debug("Error trying to set values, Javax Read Only Exception: " + e);
-		}
-		catch(IOException e)
-		{
-			logger.debug("Error trying to save new values. Java IOException: " + e);
-		}
-		catch(ValidatorException e)
-		{
-			logger.debug("Error trying to save new values. Javax Validator Exception: " + e);
-		}
-
-		logger.debug("Done updating display type.");
-	}
-
-	public Map<String,String> getDisplayAttributes(PortletRequest request)
-	{
-		PortletPreferences prefs = request.getPreferences();
-		String[] atts = prefs.getValues("displayAttributes",null);
-		String[] parts;
-		Map<String,String> ret = new HashMap<String,String>();
-		for(String val:atts)
-		{
-			parts = val.split(":");
-			ret.put(parts[0],parts[1]);
-		}
-		return ret;
-	}
 
 	public void destroy() throws Exception {
 	}
