@@ -65,7 +65,7 @@ public final class CMSRestController {
 		try
 		{
 			JSONObject obj = new JSONObject(form);
-			logger.debug(obj.getJSONObject("form"));
+			logger.debug(obj.getJSONObject("doc"));
 //			CMSDocument doc = new CMSDocument();
 //			doc.setTitle("" + obj.getJSONObject("doc").getJSONObject("name"));
 //			doc.setId("form:" + obj.getJSONObject("doc").getJSONObject("id"));
