@@ -15,22 +15,63 @@
 	specific language governing permissions and limitations
 	under the License.
 -->
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:p="http://www.springframework.org/schema/p"
-	xmlns:ehcache-spring="http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring"
-	xsi:schemaLocation="http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.5.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-		http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+  http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+  http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-	<bean id="cmsDataDaoImpl" class="edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl"></bean>
+<!--	<tx:annotation-driven/>-->
+	<!-- ============================= Hibernate configuration ============================ -->
+	<context:annotation-config />
+	<context:component-scan base-package="edu.usd.portlet.cmscontent.dao"/>
+
+	<context:property-placeholder
+		location="classpath:datasource.properties" />
+
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${hibernate.connection.driver_class}" />
+		<property name="url" value="${hibernate.connection.url}" />
+		<property name="username" value="${hibernate.connection.username}" />
+		<property name="password" value="${hibernate.connection.password}" />
+	</bean>
+	
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="annotatedClasses" value="edu.usd.portlet.cmscontent.dao.CMSDocument" />
+
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+
+	<!-- ============================== Internal Autowirings ============================== -->
+<!--	<bean id="cmsDataDaoImpl" class="edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl"></bean>-->
 
 <!--	<bean id="cmsDataDaoImpl" class="edu.usd.portlet.cmscontent.dao.DNNDaoImpl"></bean>-->
 
-	<bean id="cmsConfigDaoImpl" class="edu.usd.portlet.cmscontent.dao.PropertiesDaoImpl"></bean>
+<!--	<bean id="cmsDataDaoImpl" class="edu.usd.portlet.cmscontent.dao.InternalDaoImpl"></bean>-->
 
-	<!-- ========================= PORTLET SPECIFIC DEFINITIONS ========================= -->
+	<bean id="cmsConfigDaoImpl" class="edu.usd.portlet.cmscontent.dao.PropertiesDaoImpl"></bean>
+	
+	<bean id="groupService" class="edu.usd.portlet.cmscontent.service.PortletXMLGroupService"></bean>
+
+
+	<!-- ========================== PORTLET SPECIFIC DEFINITIONS ========================== -->
 
 	<!-- Default ExceptionHandler -->
 	<bean id="defaultExceptionHandlerTemplate" class="org.springframework.web.portlet.handler.SimpleMappingExceptionResolver">
@@ -43,5 +84,5 @@
 				<prop key="java.lang.RuntimeException">error</prop>
 			</props>
 		</property>
-</bean>
+	</bean>
 </beans>
