@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.json.JSONObject;
 import org.json.JSONException;
+import org.json.JSONArray;
 
 import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.InternalDao;
@@ -34,6 +35,10 @@ public final class CMSRestController {
 	{
 		this.intdbo = intdbo;
 	}
+	
+	@Autowired
+	List<CMSDocumentDao> dataSources;
+
 
 //	@RequestMapping("test")
 //	public Message test(@RequestParam(value="name", defaultValue = "Me") String name)
@@ -65,12 +70,17 @@ public final class CMSRestController {
 		try
 		{
 			JSONObject obj = new JSONObject(form);
-			logger.debug(obj.getJSONObject("doc"));
-//			CMSDocument doc = new CMSDocument();
-//			doc.setTitle("" + obj.getJSONObject("doc").getJSONObject("name"));
-//			doc.setId("form:" + obj.getJSONObject("doc").getJSONObject("id"));
-//			doc.setSource("Internal");
-//			doc.setContent("" + obj.getJSONObject("form"));
+			CMSDocument doc = new CMSDocument();
+			doc.setTitle("" + obj.getJSONObject("doc").getString("name"));
+			doc.setId("form:" + obj.getJSONObject("doc").getString("id"));
+			doc.setSource("Internal");
+			doc.setContent("" + obj.getJSONArray("form"));
+			logger.debug(doc);
+			CMSDocumentDao dbo = dataSources.get(0);
+			for(CMSDocumentDao ds:dataSources)
+				if (ds.getDaoName() == "Internal")
+					dbo = ds;
+			dbo.saveDocument(doc);
 		}
 		catch(JSONException e)
 		{
