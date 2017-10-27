@@ -40,7 +40,11 @@ making a new portlet. This re-write seeks to solve those issues by:
 
 ###0.7:
 
-* Forms. 
+* Forms.
+* CMS Editor fixes:
+  * make update/save work on first click.
+  * Add the ability to delete documents. 
+* Fix issue where re-arranged documents or new documents loose security config dialog.
 
 ###0.8:
 
@@ -53,3 +57,4 @@ making a new portlet. This re-write seeks to solve those issues by:
   * Horizontal Tabs with right side pane
   * Horizontal Tabs with left side Pane
   * Vertical tabs on right
+
