@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.portlet.RenderRequest;
+import javax.portlet.PortletRequest;
 import javax.portlet.WindowState;
 
 import org.apache.commons.logging.Log;
@@ -160,6 +161,9 @@ public class CMSContentViewController {
 
 		//get any paramaters that were passed.
 		refData.put("parameters",request.getParameterMap());
+		
+		//get username.
+		refData.put("username",((Map)request.getAttribute(PortletRequest.USER_INFO)).get("username"));
 
 		return layout.display(refData);
 	}
