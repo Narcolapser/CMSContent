@@ -89,6 +89,16 @@ public final class CMSRestController {
 		return "{\"result\":\"success\"}";
 	}
 
+	@RequestMapping("formResponse")
+	public String formResponse(
+		@RequestParam(value="form", defaultValue = "") String form,
+		@RequestParam(value="replyType", defaultValue = "") String replyType
+		)
+	{
+		logger.debug("Recieved form response: " + form + " which will be sent to: " + replyType);
+		return "{\"result\":\"success\"}";
+	}
+
 	@RequestMapping("getPagesWithIndex")
 	public PagesAndIndex getPagesWithIndex(
 		@RequestParam(value="source", defaultValue = "CommonSpot") String source,
