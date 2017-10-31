@@ -10,16 +10,27 @@
 	<tbody>
 		<tr>
 			<td>Form:</td>
-			<td><select class="chosen-select">
-				<option value="new" selected="selected">New Form</option>
-				<c:forEach var="form" items="${forms}">
-					<option value="${form.id}">${form.title}</option>
-				</c:forEach>
-			</select></td>
+			<td>
+				<select id="formSelector" class="chosen-select" OnChange='OnChange();' data-placeholder="Select document...">
+					<c:forEach var="form" items="${Internal}">
+						<c:if test="${form.id.contains('form:')}">
+							<option value="${form.id}">${form.title}</option>
+						</c:if>
+					</c:forEach>
+				</select>
+			</td>
 			<td>Form Name:</td>
-			<td><input type="text"></input></td>
+			<td><input id="formName" type="text"></input></td>
 			<td>Form Path:</td>
-			<td><input type="text"></input></td>
+			<td><input id="formPath" type="text"></input></td>
+			<td>Form Response Type:</td>
+			<td>
+				<select id="formResp">
+					<c:forEach var="res" items="${responders}">
+						<option value="${res}">${res}</option>
+					</c:forEach>
+				</select>
+			</td>
 		</tr>
 	</tbody>
 </table>
@@ -32,7 +43,7 @@
 		<th>Options (if applicable, seperated by commas)</th>
 		<td></td>
 	</thead>
-	<tbody>
+	<tbody id="control_body">
 	</tbody>
 </table>
 <button onclick="add_control();return false" class="btn btn-default">
@@ -53,11 +64,11 @@
 			</div>
 		</td>
 		<td>
-			<span>Label: </span><input type="text"></input>
+			<span>Label: </span><input name="label" type="text"></input>
 		</td>
 		<td>
 			<span>Type: </span>
-			<select>
+			<select name="type" >
 				<option value="text">Text</option>
 				<option value="select">Drop Down</option>
 				<option value="bool">True/False</option>
@@ -68,11 +79,12 @@
 			</select>
 		</td>
 		<td>
-			<span>Options: </span><input type="text"></input>
+			<span>Options: </span><input name="options" type="text"></input>
 		</td>
 		<td><button class="btn btn-danger" onclick="remove_document(this);return false;">Remove</button></td>
 	</tr>
 </c:set>
+
 <SCRIPT LANGUAGE="javascript">
 var ${n} = ${n} || {};
 <c:choose>
@@ -85,6 +97,54 @@ var ${n} = ${n} || {};
 </c:choose>
 var $ = ${n}.jQuery;
 $(".chosen-select").chosen();
+
+function OnChange()
+{
+	var selector = document.getElementById("formSelector");
+	var myindex = selector.selectedIndex;
+	var doc_id = selector.options[myindex].value;
+	
+	${n}.jQuery.ajax({dataType:"json",
+		url:"/CMSContent/v1/api/getDocument.json",
+		data:{"source":"Internal","id":doc_id},
+		success:update_text});
+}
+function update_text(data, textStatus, jqXHR)
+{
+	var form_title = document.getElementById("formName");
+	var form_id = document.getElementById("formPath");
+	var form_resp = document.getElementById("formResp");
+	form_title.value=data.doc.title;
+	form_id.value=data.doc.id.split(":")[1];
+	var form = JSON.parse(data.doc.content);
+	//alert("Form: " + form);
+	var new_tbody = document.createElement('tbody')
+	new_tbody.id = "control_body";
+	for(var i=0; i<form.length; i++)
+	{
+		//alert("Form entry: " + JSON.stringify(form[i]));
+		//{"options":"1223","label":"443","type":"label"}
+		if(form[i]["type"] == "respType")
+		{
+			for(var j=0; j<form_resp.options.length; j++)
+				if (form[i]["label"] == form_resp.options[j].value)
+					form_resp.selectedIndex = j;
+			continue;
+		}
+		var row = new_tbody.insertRow(new_tbody.length);
+		row.innerHTML = `${control_row}`;
+		row.children[1].children[1].value=form[i]["label"];
+		row.children[3].children[1].value=form[i]["options"];
+		for(var j=0; j< row.children[2].children[1].options.length; j++)
+			if (row.children[2].children[1].options[j].value==form[i]["type"])
+			{
+				row.children[2].children[1].selectedIndex = j;
+				break;
+			}
+	}
+	var old_tbody = document.getElementById("control_body");
+	old_tbody.parentNode.replaceChild(new_tbody, old_tbody)
+}
 
 function add_control()
 {
@@ -112,6 +172,10 @@ function update()
 	var doc_info = {};
 	doc_info['name'] = doc_table.rows[0].cells[3].children[0].value;
 	doc_info['id'] = doc_table.rows[0].cells[5].children[0].value;
+	var resp = {};
+	resp['label'] = doc_table.rows[0].cells[7].children[0].value;
+	resp['type'] = "respType";
+	form_json.push(resp);
 	$.ajax({dataType:"json",
 		url:"/CMSContent/v1/api/saveForm.json",
 		data:{"form":JSON.stringify({"form":form_json,"doc":doc_info})},
@@ -121,6 +185,10 @@ function form_saved(data, textStatus, jqXHR)
 {
 	alert("form saved");
 }
+
+<c:if test="${not empty parameters.get('doc')[0]}">
+
+</c:if>
 </script>
 
 

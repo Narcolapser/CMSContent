@@ -20,6 +20,7 @@ import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.InternalDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
+import edu.usd.portlet.cmscontent.dao.CMSResponder;
 
 @RestController
 @RequestMapping("/v1/api")
@@ -38,6 +39,9 @@ public final class CMSRestController {
 	
 	@Autowired
 	List<CMSDocumentDao> dataSources;
+	
+	@Autowired
+	List<CMSResponder> responders;
 
 
 //	@RequestMapping("test")
@@ -96,6 +100,9 @@ public final class CMSRestController {
 		)
 	{
 		logger.debug("Recieved form response: " + form + " which will be sent to: " + replyType);
+		for(CMSResponder re:responders)
+			if (replyType.equals(re.getName()))
+				re.respond(form);
 		return "{\"result\":\"success\"}";
 	}
 
