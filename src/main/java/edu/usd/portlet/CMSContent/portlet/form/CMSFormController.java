@@ -50,6 +50,7 @@ import edu.usd.portlet.cmscontent.dao.InternalDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
+import edu.usd.portlet.cmscontent.dao.CMSResponder;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -68,6 +69,9 @@ public class CMSFormController {
 
 	@Autowired
 	List<CMSDocumentDao> dataSources;
+
+	@Autowired
+	List<CMSResponder> responders;
 
 	@Autowired
 	private CMSConfigDao conf = null;
@@ -93,6 +97,12 @@ public class CMSFormController {
 		
 		//get any paramaters that were passed.
 		refData.put("parameters",request.getParameterMap());
+		
+		//get the available responders.
+		List<String> res = new ArrayList<String>();
+		for(CMSResponder re:responders)
+			res.add(re.getName());
+		refData.put("responders",res);
 
 		return new ModelAndView("form",refData);
 	}

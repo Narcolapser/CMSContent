@@ -2,7 +2,7 @@
 <!--Single page view.-->
 <c:choose>
 	<c:when test="${isForm[content[0].id]}">
-		<cms:form content="${content[0]}" formContent="${formContent}" username="${username}" replyType="coming soon"/>
+		<cms:form content="${content[0]}" formContent="${formContent}" username="${username}"/>
 		
 	</c:when>
 	<c:otherwise>
