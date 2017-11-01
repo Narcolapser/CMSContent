@@ -55,10 +55,10 @@
 	<tr>
 		<td class="pos_col" >
 			<div class="btn-group" role="group">
-				<button onclick="up_control(this);return false" class="btn btn-default">
+				<button onclick="move_control('up',this);return false" class="btn btn-default">
 					<i class="fa fa-arrow-up"></i>
 				</button>
-				<button onclick="down_control(this);return false" class="btn btn-default">
+				<button onclick="move_control('down',this);return false" class="btn btn-default">
 					<i class="fa fa-arrow-down"></i>
 				</button>
 			</div>
@@ -81,7 +81,7 @@
 		<td>
 			<span>Options: </span><input name="options" type="text"></input>
 		</td>
-		<td><button class="btn btn-danger" onclick="remove_document(this);return false;">Remove</button></td>
+		<td><button class="btn btn-danger" onclick="remove_control(this);return false;">Remove</button></td>
 	</tr>
 </c:set>
 
@@ -98,6 +98,28 @@ var ${n} = ${n} || {};
 var $ = ${n}.jQuery;
 $(".chosen-select").chosen();
 
+function remove_control(control)
+{
+	control.parentNode.parentNode.parentNode.deleteRow(control.parentNode.parentNode.rowIndex-1);
+}
+function move_control(dir,control)
+{
+	//alert("move: " + dir);
+	var row = control.parentNode.parentNode.parentNode;
+	var table = row.parentNode;
+	//alert(table);
+	var index = row.rowIndex;
+	table.deleteRow(row.rowIndex-1);
+	var nrow=null;
+	if (dir=='up')
+		nrow = table.insertRow(index-2);
+	else
+		nrow = table.insertRow(index);
+	nrow.innerHTML = row.innerHTML;
+	nrow.children[1].children[1].value = row.children[1].children[1].value;
+	nrow.children[3].children[1].value = row.children[3].children[1].value;
+	nrow.children[2].children[1].selectedIndex = row.children[2].children[1].selectedIndex;
+}
 function OnChange()
 {
 	var selector = document.getElementById("formSelector");
@@ -107,9 +129,9 @@ function OnChange()
 	${n}.jQuery.ajax({dataType:"json",
 		url:"/CMSContent/v1/api/getDocument.json",
 		data:{"source":"Internal","id":doc_id},
-		success:update_text});
+		success:update_content});
 }
-function update_text(data, textStatus, jqXHR)
+function update_content(data, textStatus, jqXHR)
 {
 	var form_title = document.getElementById("formName");
 	var form_id = document.getElementById("formPath");
