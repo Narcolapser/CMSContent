@@ -9,6 +9,10 @@ import org.apache.commons.logging.LogFactory;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Properties;
+import javax.mail.*;
+import javax.mail.internet.*;
+import javax.activation.*;
 
 import org.springframework.web.portlet.ModelAndView;
 
@@ -24,6 +28,27 @@ public class Email implements CMSResponder
 	public boolean respond(String json)
 	{
 		logger.debug("Processing response: " + json);
+		
+		String to="toben.archer@usd.edu";
+		String from="toben.archer@usd.edu";
+		String host = "exchange.usd.edu";
+		Properties properties = System.getProperties();
+		properties.setProperty("mail.smtp.host",host);
+		Session session = Session.getDefaultInstance(properties);
+		
+		try {
+			MimeMessage message = new MimeMessage(session);
+			message.setFrom(new InternetAddress(from));
+			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+			message.setSubject("This is the subject Line!");
+			message.setText(json);
+			Transport.send(message);
+			logger.debug("Message sent sucessfully");
+		}
+		catch (MessagingException mex)
+		{
+			logger.debug("Error sending message: " + mex);
+		}
 		return true;
 	}
 }
