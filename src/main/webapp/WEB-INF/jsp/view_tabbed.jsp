@@ -40,12 +40,26 @@
 				<c:choose>
 					<c:when test="${counter == active}">
 						<div id="${channelId}-${counter}" class="tab-pane active">
-							${page.content}
+							<c:choose>
+								<c:when test="${isForm[page.id]}">
+									<cms:form content="${page}" formContent="${formContent}" username="${username}" replyType="coming soon"/>
+								</c:when>
+								<c:otherwise>
+									<div class="usdChannel">${page.content}</div>
+								</c:otherwise>
+							</c:choose>
 						</div>
 					</c:when>
 					<c:otherwise>
 						<div id="${channelId}-${counter}" class="tab-pane">
-							${page.content}
+							<c:choose>
+								<c:when test="${isForm[page.id]}">
+									<cms:form content="${page}" formContent="${formContent}" username="${username}" replyType="coming soon"/>
+								</c:when>
+								<c:otherwise>
+									<div class="usdChannel">${page.content}</div>
+								</c:otherwise>
+							</c:choose>
 						</div>
 					</c:otherwise>
 				</c:choose>
