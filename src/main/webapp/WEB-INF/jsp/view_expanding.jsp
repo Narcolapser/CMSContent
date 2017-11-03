@@ -74,7 +74,14 @@
 					${page.title}
 				</div>
 				<div class="section_body" id="${channelId}_${counter}_body" style="display: none;">
-					${page.content}
+					<c:choose>
+						<c:when test="${isForm[page.id]}">
+							<cms:form content="${page}" formContent="${formContent}" username="${username}" replyType="coming soon"/>
+						</c:when>
+						<c:otherwise>
+							<div class="usdChannel">${page.content}</div>
+						</c:otherwise>
+					</c:choose>
 				</div>
 			</div>
 			<c:set var="counter" value="${counter + 1}"/>
