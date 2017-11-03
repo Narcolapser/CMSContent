@@ -76,7 +76,7 @@ button.copy-btn{
 							<div id="${channelId}-${counter}" class="tab-pane active">
 								<c:choose>
 									<c:when test="${isForm[page.id]}">
-										<cms:form content="${content}" formContent="${formContent}"/>
+										<cms:form content="${page}" formContent="${formContent}" username="${username}"/>
 									</c:when>
 									<c:otherwise>
 										<div class="usdChannel">${page.content}</div>
