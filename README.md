@@ -40,11 +40,12 @@ making a new portlet. This re-write seeks to solve those issues by:
 
 ###0.7:
 
-* Forms.
+* Forms. - check
 * CMS Editor fixes:
   * make update/save work on first click.
   * Add the ability to delete documents. 
-* Fix issue where re-arranged documents or new documents loose security config dialog.
+* Fix issue where re-arranged documents or new documents loose security config dialog. - check
+* Add edit/new form button to config view
 
 ###0.8:
 
