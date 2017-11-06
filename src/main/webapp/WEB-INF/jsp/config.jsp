@@ -132,13 +132,14 @@ div.col_content{
 							<div name="${mode}_controls" class="form-inline">
 								<div class="form-group">
 									<div class="btn-group" role="group">
-										<a onclick="new_document('${mode}_doc_select')" class="btn btn-info"
-											href="https://dev-uportal.usd.edu/uPortal/p/cmseditor.ctf2/max/render.uP">
-											<i class="fa fa-clone"></i> New</a>
+										<button onclick="new_document('${mode}_doc_select')" class="btn btn-info">
+											<i class="fa fa-plus-square-o"></i> New Doc</button>
+										<button onclick="new_form('${mode}')" class="btn btn-primary">
+											<i class="fa fa-code-fork"></i> New Form</button>
 										<button onclick="add_document('${mode}')" class="btn btn-primary">
 											<i class="fa fa-link"></i> Add</button>
 										<button onclick="edit_document('${mode}_doc_select')" class="btn btn-warning">
-											<i class="fa fa-gears"></i> Edit</button>
+											<i class="fa fa-edit"></i> Edit</button>
 									</div>
 									<label for="${mode}_source">Document Source</label>
 									<select id="${mode}_source" class="form-control" OnChange="OnChange('${mode}_source','${mode}_doc_select');">
@@ -276,6 +277,20 @@ function edit_document(val)
 	window.location.href = "https://dev-uportal.usd.edu/uPortal/p/cmseditor.ctf4/max/render.uP?doc="+selected;
 }
 
+function new_document(val)
+{
+	var e = document.getElementById(val);
+	var selected = e.options[e.selectedIndex].value;
+	window.location.href = "https://dev-uportal.usd.edu/uPortal/p/cmseditor.ctf2/max/render.uP";
+}
+
+function new_form(val)
+{
+	var e = document.getElementById(val);
+	var selected = e.options[e.selectedIndex].value;
+	window.location.href = "https://dev-uportal.usd.edu/uPortal/p/CMSForm.ctf2/max/render.uP";
+}
+
 function add_document(val)
 {
 	var e = document.getElementById(val+"_doc_select");
@@ -331,13 +346,7 @@ function up_document(mode,button)
 	var table = row.parentNode;
 	var rows = table.getElementsByTagName('tr');
 	var prev = rows[row.rowIndex - 2];
-	var title = row.cells[1].innerText;
-	var id = row.cells[2].innerText;
-	var newItem = new_doc_row(title,id,mode)
-	newItem.className = mode + " " + (index -1);
-	prev.className = mode + " " + index;
-	table.removeChild(row);
-	table.insertBefore(newItem,prev);
+	table.insertBefore(row,prev);
 	$.ajax({dataType:"json",
 		url:"${reorderDocs}",
 		data:{"index":index,
@@ -352,16 +361,12 @@ function down_document(mode,button)
 	var table = row.parentNode;
 	var rows = table.getElementsByTagName('tr');
 	var next = rows[row.rowIndex + 1];
-	var prev = rows[row.rowIndex - 2];
-	var title = row.cells[1].innerText;
-	var id = row.cells[2].innerText;
-	var newItem = new_doc_row(title,id,mode)
 
-	if (next != null)
-		table.insertBefore(newItem,next);
-	else
-		table.appendChild(newItem);
 	table.removeChild(row);
+	if (next != null)
+		table.insertBefore(row,next);
+	else
+		table.appendChild(row);
 
 	$.ajax({dataType:"json",
 		url:"${reorderDocs}",
