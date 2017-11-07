@@ -55,14 +55,21 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 	public void insertDocument(CMSDocument doc)
 	{
 		Session session = sessionFactory.openSession();
-//		String hql = "FROM CMSDocument WHERE id = '" + doc.getId() + "'";
-//		Query query = session.createQuery(hql);
-//		logger.debug("Record exist? " + (query.uniqueResult() == null));
-//		if (query.uniqueResult() == null)
-//			session.save(doc);
-//		else
-//			session.update(doc);
 		session.saveOrUpdate(doc);
 		session.flush();
+	}
+	
+	@Transactional(readOnly = false)
+	public void deleteDocument(String id)
+	{
+		logger.debug("Deleting form!");
+		Session session = this.sessionFactory.getCurrentSession();
+		logger.debug("Session got");
+		CMSDocument ret = (CMSDocument) session.load(CMSDocument.class, id);
+		logger.debug("fetched content.");
+		session.delete(ret);
+		logger.debug("deleted content.");
+		session.flush();
+		logger.debug("Form Deleted!");
 	}
 }

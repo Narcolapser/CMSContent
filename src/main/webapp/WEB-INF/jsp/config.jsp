@@ -68,7 +68,7 @@ div.col_content{
 			<div id="cms-${mode}" ${classes}>
 				<div id="content">
 					<div id="left_col">
-						<h2>Portlet view type:</h2>
+						<h2>Portlet layout type:</h2>
 						<div class="form-group">
 							<select id="${mode}_view_type" name="view_type" class="form-control" OnChange="viewChange('${mode}')">
 								<c:forEach var="view" items="${availableViews}">
@@ -90,13 +90,13 @@ div.col_content{
 								<c:choose>
 									<c:when test="${view.view == activeViews[mode].view}">
 										<div id="${mode}_${view.view}" class="${mode}_desc show">
-											<h3>View Description:</h3>
+											<h3>Layout Description:</h3>
 											<p>${view.description}</p>
 										</div>
 									</c:when>
 									<c:otherwise>
 										<div id="${mode}_${view.view}" class="${mode}_desc hide">
-											<h3>View Description:</h3>
+											<h3>Layout Description:</h3>
 											<p>${view.description}</p>
 										</div>
 									</c:otherwise>
@@ -134,12 +134,12 @@ div.col_content{
 									<div class="btn-group" role="group">
 										<button onclick="new_document('${mode}_doc_select')" class="btn btn-info">
 											<i class="fa fa-plus-square-o"></i> New Doc</button>
-										<button onclick="new_form('${mode}')" class="btn btn-primary">
+										<button onclick="new_form('${mode}')" class="btn btn-info">
 											<i class="fa fa-code-fork"></i> New Form</button>
-										<button onclick="add_document('${mode}')" class="btn btn-primary">
-											<i class="fa fa-link"></i> Add</button>
 										<button onclick="edit_document('${mode}_doc_select')" class="btn btn-warning">
 											<i class="fa fa-edit"></i> Edit</button>
+										<button onclick="add_document('${mode}')" class="btn btn-primary">
+											<i class="fa fa-link"></i> Add to Layout</button>
 									</div>
 									<label for="${mode}_source">Document Source</label>
 									<select id="${mode}_source" class="form-control" OnChange="OnChange('${mode}_source','${mode}_doc_select');">
@@ -151,7 +151,11 @@ div.col_content{
 								<div id="${mode}_doc_selector">
 									<select id="${mode}_doc_select" class="chosen-select">
 										<c:forEach var="doc" items="${Internal}">
-											<option value="${doc.id}" data-title="${doc.title}">Title: ${doc.title}, Id: ${doc.id}</option>
+											<c:set var="title">Doc Title: </c:set>
+											<c:if test="${fn:contains(doc.id,'form:')}">
+												<c:set var="title">Form Title: </c:set>
+											</c:if>
+											<option value="${doc.id}" data-title="${doc.title}">${title} ${doc.title}, Id: ${doc.id}</option>
 										</c:forEach>
 									</select>
 								</div>
@@ -239,6 +243,7 @@ div.col_content{
 <portlet:actionURL var="reorderDocs">
 	<portlet:param name="action" value="reorder" />
 </portlet:actionURL>
+<c:set var="server">dev-uportal.usd.edu</c:set>
 <SCRIPT LANGUAGE="javascript">
 
 $(".chosen-select").chosen({width: "100%"});
@@ -274,21 +279,23 @@ function edit_document(val)
 {
 	var e = document.getElementById(val);
 	var selected = e.options[e.selectedIndex].value;
-	window.location.href = "https://dev-uportal.usd.edu/uPortal/p/cmseditor.ctf4/max/render.uP?doc="+selected;
+	if (selected.includes("form:"))
+	{
+		alert(selected.substring(5,selected.length));
+		window.location.href = "https://${server}/uPortal/p/CMSForm.ctf2/max/render.uP?doc="+selected.substring(5,selected.length);
+	}
+	else
+		window.location.href = "https://${server}/uPortal/p/cmseditor.ctf4/max/render.uP?doc="+selected;
 }
 
 function new_document(val)
 {
-	var e = document.getElementById(val);
-	var selected = e.options[e.selectedIndex].value;
-	window.location.href = "https://dev-uportal.usd.edu/uPortal/p/cmseditor.ctf2/max/render.uP";
+	window.location.href = "https://${server}/uPortal/p/cmseditor.ctf2/max/render.uP";
 }
 
 function new_form(val)
 {
-	var e = document.getElementById(val);
-	var selected = e.options[e.selectedIndex].value;
-	window.location.href = "https://dev-uportal.usd.edu/uPortal/p/CMSForm.ctf2/max/render.uP";
+	window.location.href = "https://${server}/uPortal/p/CMSForm.ctf2/max/render.uP";
 }
 
 function add_document(val)
