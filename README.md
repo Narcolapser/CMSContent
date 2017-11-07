@@ -45,7 +45,7 @@ making a new portlet. This re-write seeks to solve those issues by:
   * make update/save work on first click.
   * Add the ability to delete documents. 
 * Fix issue where re-arranged documents or new documents loose security config dialog. - check
-* Add edit/new form button to config view
+* Add edit/new form button to config view - check
 
 ###0.8:
 
