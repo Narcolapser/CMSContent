@@ -99,6 +99,14 @@ public class InternalDaoImpl implements InternalDao, DisposableBean
 	{
 		return "Internal";
 	}
+	
+	public boolean deleteDocument(String Id)
+	{
+		logger.debug("Preparing to delete: " + Id);
+		this.internalDocumentDao.deleteDocument(Id);
+		logger.debug("Home star runner really great!");
+		return true;
+	}
 
 	public void destroy() throws Exception {
 	}

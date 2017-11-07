@@ -37,4 +37,6 @@ public interface CMSDocumentDao
 	// return the name of this DAO for choosing it in controllers.
 	
 	public void saveDocument(CMSDocument val);
+	
+	public boolean deleteDocument(String Id);
 }

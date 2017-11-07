@@ -65,6 +65,36 @@ public final class CMSRestController {
 		return pages;
 	}
 
+	public CMSDocumentDao getDbo(String name)
+	{
+		CMSDocumentDao dbo = dataSources.get(0);
+		for(CMSDocumentDao ds:dataSources)
+			if (ds.getDaoName() == name)
+				dbo = ds;
+		return dbo;
+	}
+
+	@RequestMapping("delete")
+	public String deleteDoc(
+		@RequestParam(value="sanitybit", defaultValue = "") String sanityBit,
+		@RequestParam(value="id", defaultValue = "") String id
+		)
+	{
+		logger.debug("Recieved delete request for: " + id + " sanity bit: " + sanityBit);
+		if (sanityBit.equals("31415"))
+		{
+			CMSDocumentDao dbo = getDbo("Internal");
+			logger.debug("Deleting from DBO: " + dbo.getDaoName());
+			dbo.deleteDocument(id);
+		}
+		else
+		{
+			logger.warn("Sanity check failed, bit value: " + sanityBit);
+		}
+		logger.debug("Home star runner ate a plate.");
+		return "{\"result\":\"success\"}";
+	}
+
 	@RequestMapping("saveForm")
 	public String saveForm(
 		@RequestParam(value="form", defaultValue = "") String form
@@ -80,10 +110,7 @@ public final class CMSRestController {
 			doc.setSource("Internal");
 			doc.setContent("" + obj.getJSONArray("form"));
 			logger.debug(doc);
-			CMSDocumentDao dbo = dataSources.get(0);
-			for(CMSDocumentDao ds:dataSources)
-				if (ds.getDaoName() == "Internal")
-					dbo = ds;
+			CMSDocumentDao dbo = getDbo("Internal");
 			dbo.saveDocument(doc);
 		}
 		catch(JSONException e)

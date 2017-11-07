@@ -5,6 +5,10 @@
 <script src="/CMSContent/js/chosen.jquery.js" type="text/javascript"></script>
 <link rel="stylesheet" href="/CMSContent/css/chosen.css">
 <c:set var="n"><portlet:namespace/></c:set>
+<c:set var="selected" value=""/>
+<c:if test="${not empty parameters.get('doc')[0]}">
+	<c:set var="selected" value="form:${parameters.get('doc')[0]}"/>
+</c:if>
 
 <table id="doc_table" class="table table-striped">
 	<tbody>
@@ -14,7 +18,14 @@
 				<select id="formSelector" class="chosen-select" OnChange='OnChange();' data-placeholder="Select document...">
 					<c:forEach var="form" items="${Internal}">
 						<c:if test="${form.id.contains('form:')}">
-							<option value="${form.id}">${form.title}</option>
+							<c:choose>
+								<c:when test="${form.id == selected}">
+									<option selected="selected" value="${form.id}">${form.title}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${form.id}">${form.title}</option>
+								</c:otherwise>
+							</c:choose>
 						</c:if>
 					</c:forEach>
 				</select>
@@ -46,10 +57,15 @@
 	<tbody id="control_body">
 	</tbody>
 </table>
-<button onclick="add_control();return false" class="btn btn-default">
-	<i class="fa fa-plus-square" colspan="4"></i>
-</button>
-<button onclick="update();return false" class="btn btn-default">Save</button>
+
+<div class="btn-group" role="group">
+	<button onclick="add_control();return false" class="btn btn-info" title="Add another control">
+		<i class="fa fa-plus-square" colspan="4"></i>
+	</button>
+	<button onclick="update();return false" class="btn btn-success" title="save form">Save</button>
+	<button onclick="delete_form();return false" class="btn btn-danger" title="save form">Delete</button>
+	<a id="return_btn" href="https://dev-uportal.usd.edu/uPortal/" class="btn btn-primary" title="return to config screen">Return</a>
+</div>
 
 <c:set var="control_row">
 	<tr>
@@ -208,9 +224,27 @@ function form_saved(data, textStatus, jqXHR)
 	alert("form saved");
 }
 
-<c:if test="${not empty parameters.get('doc')[0]}">
+function delete_form()
+{
 
-</c:if>
+	var doc_table = document.getElementById("doc_table");
+	$.ajax({dataType:"json",
+		url:"/CMSContent/v1/api/delete.json",
+		data:{"sanitybit":31415,"id":doc_table.rows[0].cells[5].children[0].value},
+		success:form_deleted});
+}
+function form_deleted(data,textStatus, jqXHR)
+{
+	alert("form Deleted");
+}
+
+$(document).ready(function(){
+	var ret_button = document.getElementById("return_btn");
+	ret_button.href=document.referrer;
+	<c:if test="${not empty parameters.get('doc')[0]}">
+	OnChange();
+	</c:if>
+});
 </script>
 
 
