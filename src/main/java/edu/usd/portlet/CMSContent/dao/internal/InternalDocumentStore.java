@@ -62,6 +62,15 @@ public class InternalDocumentStore
 		List<CMSDocument> docList = session.createQuery("from CMSDocument").list();
 		return docList;
 	}
+	
+	public void deleteDocument(String path)
+	{
+		logger.debug("drilling down, prep to delete");
+		Session session = this.sessionFactory.getCurrentSession();
+		CMSDocument ret = (CMSDocument) session.load(CMSDocument.class, path);
+		session.delete(ret);
+		logger.debug("BELETED!");
+	}
 
 //	public ArrayList<CMSDocumentInfo> getPages()
 //	{
