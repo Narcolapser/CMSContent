@@ -63,7 +63,7 @@
 		<i class="fa fa-plus-square" colspan="4"></i>
 	</button>
 	<button onclick="update();return false" class="btn btn-success" title="save form">Save</button>
-	<button onclick="delete_form();return false" class="btn btn-danger" title="save form">Delete</button>
+	<button onclick="delete_form();return false" class="btn btn-danger" title="delete form">Delete</button>
 	<a id="return_btn" href="https://dev-uportal.usd.edu/uPortal/" class="btn btn-primary" title="return to config screen">Return</a>
 </div>
 
