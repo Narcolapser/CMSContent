@@ -31,8 +31,7 @@
 	</c:forEach>
 </select>
 
-<portlet:actionURL name="updateDocument" var="updateDocument"/>
-<form id="${n}contentForm" commandName="form" action="${updateDocument}" method="post">
+<div>
 	<div class="form-group">
 		<label for="doc_title">Title:</label>
 		<input type="text" class="form-control" id="doc_title" name="doc_title">
@@ -48,11 +47,11 @@
 	<input type="hidden" id="doc_source_hidden" name="doc_source" value="Internal">
 	<textarea id="${n}content" name="content">put content here.</textarea>
 	<p>
-		<input type="submit" name="action" value="Update" class="btn btn-primary"/>
-		<a id="return_btn" href="https://dev-uportal.usd.edu/uPortal/p/cmseditor" class="btn btn-danger">Return</a>
+		<button onclick="update();return false" class="btn btn-success" title="save document">Save</button>
+		<button onclick="delete_doc();return false" class="btn btn-danger" title="delete document">Delete</button>
+		<a id="return_btn" href="https://dev-uportal.usd.edu/uPortal/p/cmseditor" class="btn btn-primary">Return</a>
 	</p>
-	
-</form>
+</div>
 
 
 <SCRIPT LANGUAGE="javascript">
@@ -96,8 +95,7 @@ $(document).ready(function(){
 	});
 	var ret_button = document.getElementById("return_btn");
 	ret_button.href=document.referrer;
-});
-
+	});
 });
 
 
@@ -134,6 +132,39 @@ function update_text(data, textStatus, jqXHR)
 	doc_id.value=data.doc.id;
 	doc_source.value=data.doc.source;
 	doc_source_hidden.value=data.doc.source;
+}
+function update()
+{
+	var doc_title = document.getElementById("doc_title");
+	var doc_id = document.getElementById("doc_id");
+	var doc_source = document.getElementById("doc_source");
+	var doc_source_hidden = document.getElementById("doc_source_hidden");
+	
+	${n}.jQuery.ajax({dataType:"json",
+		url:"/CMSContent/v1/api/saveDoc.json",
+		data:{"content":CKEDITOR.instances["${n}content"].getData(),
+			"doc_id":doc_id.value,
+			"doc_title":doc_title.value,
+			"doc_source":doc_source.value},
+		success:doc_saved});
+}
+function doc_saved(data, textStatus, jqXHR)
+{
+	alert("document saved");
+}
+
+function delete_doc()
+{
+	alert("Coming soon...");
+//	var doc_table = document.getElementById("doc_table");
+//	${n}.jQuery.ajax({dataType:"json",
+//		url:"/CMSContent/v1/api/delete.json",
+//		data:{"sanitybit":31415,"id":doc_table.rows[0].cells[5].children[0].value},
+//		success:doc_deleted});
+}
+function doc_deleted(data,textStatus, jqXHR)
+{
+	alert("form Deleted");
 }
 <c:if test="${not empty parameters.get('doc')[0]}">
 CKEDITOR.on("instanceReady", function(event)
