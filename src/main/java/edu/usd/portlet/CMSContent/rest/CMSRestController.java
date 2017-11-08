@@ -120,6 +120,22 @@ public final class CMSRestController {
 		return "{\"result\":\"success\"}";
 	}
 
+	@RequestMapping("saveDoc")
+	public String saveForm(
+		@RequestParam(value = "content", required = true) String content,
+		@RequestParam(value = "doc_id", required = true) String id,
+		@RequestParam(value = "doc_title", required = true) String title,
+		@RequestParam(value = "doc_source", required = false) String source)
+	{
+		logger.debug("Recieved request to update doc: " + id);
+		CMSDocument doc = new CMSDocument(title, id, source, content);
+		CMSDocumentDao dbo = getDbo(source);
+		dbo.saveDocument(doc);
+		return "{\"result\":\"success\"}";
+	}
+
+
+
 	@RequestMapping("formResponse")
 	public String formResponse(
 		@RequestParam(value="form", defaultValue = "") String form,
