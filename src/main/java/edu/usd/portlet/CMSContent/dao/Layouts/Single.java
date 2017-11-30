@@ -29,11 +29,10 @@ public class Single extends CMSLayout
 
 	public CMSLayout copy(CMSLayout val)
 	{
-		logger.info("Single is copying");
+		logger.debug("Single is copying");
 		CMSLayout l = new CMSLayout(val);
 		l.view = "view_single";
 		l.name = "Single";
-		//logger.info("mid-copy: layout: " + l.getName() + ";" + l.getView());
 		return l;
 	}
 }
