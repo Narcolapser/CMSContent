@@ -48,7 +48,7 @@ public class CommonSpotDaoImpl implements CMSDocumentDao, DisposableBean
 		{
 			connection = UsdSql.getPoolConnection();
 			content = "";
-			logger.info("fetching uri: " + pageUri);
+			logger.debug("fetching uri: " + pageUri);
 			selectStatement = connection.prepareStatement("SELECT Title, url, cachedContent FROM [uPortalUSD].[dbo].[vwCommonSpotExtraInfo] WHERE url=?");
 			selectStatement.setString(1, pageUri);
 
@@ -62,7 +62,7 @@ public class CommonSpotDaoImpl implements CMSDocumentDao, DisposableBean
 		}
 		catch(Exception e)
 		{
-			logger.info(e);
+			logger.info("There was a problem retrieving the requested content: " + e.getMessage());
 			page = new CMSDocument("There was a problem retrieving the requested content: " + e.getMessage(),"error");
 		}
 		finally
