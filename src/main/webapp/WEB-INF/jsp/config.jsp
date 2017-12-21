@@ -243,7 +243,7 @@ div.col_content{
 <portlet:actionURL var="reorderDocs">
 	<portlet:param name="action" value="reorder" />
 </portlet:actionURL>
-<c:set var="server">dev-uportal.usd.edu</c:set>
+<c:set var="server">${hostname}.usd.edu</c:set>
 <SCRIPT LANGUAGE="javascript">
 
 $(".chosen-select").chosen({width: "100%"});
@@ -281,7 +281,6 @@ function edit_document(val)
 	var selected = e.options[e.selectedIndex].value;
 	if (selected.includes("form:"))
 	{
-		alert(selected.substring(5,selected.length));
 		window.location.href = "https://${server}/uPortal/p/CMSForm.ctf2/max/render.uP?doc="+selected.substring(5,selected.length);
 	}
 	else
