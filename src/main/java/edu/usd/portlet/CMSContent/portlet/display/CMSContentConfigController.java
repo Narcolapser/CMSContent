@@ -137,7 +137,11 @@ public class CMSContentConfigController
 		//get the base url of this server.
 		try
 		{
-			refData.put("hostname",InetAddress.getLocalHost().getHostName());
+			String hostname = InetAddress.getLocalHost().getHostName();
+			if (hostname.contains("usd-uportal"))
+				refData.put("hostname","my");
+			else
+				refData.put("hostname","dev-uportal");
 		}
 		catch (java.net.UnknownHostException e)
 		{
