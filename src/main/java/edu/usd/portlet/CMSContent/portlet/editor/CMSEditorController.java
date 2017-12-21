@@ -54,7 +54,6 @@ import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-
 /**
  * This class handles the builtin CMS Content editor.
  * 
