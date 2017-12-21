@@ -19,6 +19,7 @@
 package edu.usd.portlet.cmscontent.portlet.search;
 
 import java.util.Locale;
+import java.util.Random;
 
 import javax.portlet.Event;
 import javax.portlet.EventRequest;
@@ -39,6 +40,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.portlet.bind.annotation.EventMapping;
 import org.springframework.web.portlet.context.PortletConfigAware;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+
+
 /**
  * SearchContentController provides responses to the portal's builtin search.
  * 
@@ -49,10 +56,11 @@ import org.springframework.web.portlet.context.PortletConfigAware;
 @RequestMapping("VIEW")
 public class SearchContentController
 {
-
+	protected final Log logger = LogFactory.getLog(this.getClass());
 	@EventMapping(SearchConstants.SEARCH_REQUEST_QNAME_STRING)
 	public void searchContent(EventRequest request, EventResponse response)
 	{
+		logger.info("======================================================================");
 		final Event event = request.getEvent();
 		final SearchRequest searchQuery = (SearchRequest)event.getValue();
 		
@@ -60,17 +68,22 @@ public class SearchContentController
 		final String[] searchTerms = searchQuery.getSearchTerms().split(" ");
 
 		final SearchResults searchResults = new SearchResults();
+		
+		Random rand = new Random();
 
 		//Build the result object for the match
 		final SearchResult searchResult = new SearchResult();
-		searchResult.setTitle("but muh title! toben");
-		searchResult.setSummary("lols. content. toben");
+		searchResult.setTitle("title123, search term: toben");
+		searchResult.setSummary("content123, search term: toben");
 		searchResult.getType().add("Portlet Content");
 		
 		//Add the result to the results and send the event
-		searchResults.getSearchResult().add(searchResult);
-		response.setEvent(SearchConstants.SEARCH_RESULTS_QNAME, searchResults);
-		
+		if(rand.nextInt(30) == 1)
+		{
+			searchResults.getSearchResult().add(searchResult);
+			response.setEvent(SearchConstants.SEARCH_RESULTS_QNAME, searchResults);
+			logger.info(searchResult);
+		}
 		//Stop processing
 		return;
 	}
