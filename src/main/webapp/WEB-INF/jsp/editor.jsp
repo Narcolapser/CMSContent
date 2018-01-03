@@ -91,7 +91,7 @@ $(document).ready(function(){
 		allowedContent: true
 	});
 	$('#${n}contentForm').ajaxForm(function() {
-		alert("Page updated.");
+		//alert("Page updated.");
 	});
 	var ret_button = document.getElementById("return_btn");
 	ret_button.href=document.referrer;
@@ -122,7 +122,6 @@ function OnChange()
 }
 function update_text(data, textStatus, jqXHR)
 {
-	alert("update_text");
 	setText(data.doc.content);
 	var doc_title = document.getElementById("doc_title");
 	var doc_id = document.getElementById("doc_id");
