@@ -4,6 +4,7 @@
 <script src="/CMSContent/js/chosen.jquery.js" type="text/javascript"></script>
 <link rel="stylesheet" href="/CMSContent/css/chosen.css">
 <c:set var="n"><portlet:namespace/></c:set>
+<c:set var="server">${hostname}.usd.edu</c:set>
 <portlet:actionURL var="getPages" name="getPages"></portlet:actionURL>
 
 <style type="text/css">
@@ -132,11 +133,11 @@ div.col_content{
 							<div name="${mode}_controls" class="form-inline">
 								<div class="form-group">
 									<div class="btn-group" role="group">
-										<button onclick="new_document('${mode}_doc_select')" class="btn btn-info">
+										<button onclick="new_document('${mode}_doc_select')" class="btn btn-info" title="Open new document on ${hostname}.usd.edu">
 											<i class="fa fa-plus-square-o"></i> New Doc</button>
-										<button onclick="new_form('${mode}')" class="btn btn-info">
+										<button onclick="new_form('${mode}')" class="btn btn-info" title="Open new form on ${hostname}.usd.edu">
 											<i class="fa fa-code-fork"></i> New Form</button>
-										<button onclick="edit_document('${mode}_doc_select')" class="btn btn-warning">
+										<button onclick="edit_document('${mode}_doc_select')" class="btn btn-warning" title="Open editor for selected doc on ${hostname}.usd.edu">
 											<i class="fa fa-edit"></i> Edit</button>
 										<button onclick="add_document('${mode}')" class="btn btn-primary">
 											<i class="fa fa-link"></i> Add to Layout</button>
@@ -243,7 +244,6 @@ div.col_content{
 <portlet:actionURL var="reorderDocs">
 	<portlet:param name="action" value="reorder" />
 </portlet:actionURL>
-<c:set var="server">${hostname}.usd.edu</c:set>
 <SCRIPT LANGUAGE="javascript">
 
 $(".chosen-select").chosen({width: "100%"});
