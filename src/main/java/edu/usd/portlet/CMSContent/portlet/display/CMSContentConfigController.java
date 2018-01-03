@@ -138,10 +138,11 @@ public class CMSContentConfigController
 		try
 		{
 			String hostname = InetAddress.getLocalHost().getHostName();
-			if (hostname.contains("usd-uportal"))
-				refData.put("hostname","my");
-			else
+			logger.debug("Host name is: " + hostname);
+			if (hostname.contains("dev-uportal"))
 				refData.put("hostname","dev-uportal");
+			else
+				refData.put("hostname","my");
 		}
 		catch (java.net.UnknownHostException e)
 		{
