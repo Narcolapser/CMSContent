@@ -20,6 +20,11 @@ package edu.usd.portlet.cmscontent.portlet.search;
 
 import java.util.Locale;
 import java.util.Random;
+import java.util.Enumeration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.portlet.Event;
 import javax.portlet.EventRequest;
@@ -44,6 +49,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 
+import org.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONArray;
+
+
+import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
+import edu.usd.portlet.cmscontent.dao.CMSDocument;
+import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
+import edu.usd.portlet.cmscontent.dao.CMSLayout;
+import edu.usd.portlet.cmscontent.dao.CMSSubscription;
+
 
 
 /**
@@ -57,10 +73,22 @@ import org.apache.commons.logging.LogFactory;
 public class SearchContentController
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
+	@Autowired
+	List<CMSDocumentDao> dataSources;
+
+	@Autowired
+	List<CMSLayout> layouts;
+
+	@Autowired
+	private CMSConfigDao conf = null;
+	public void setConf(CMSConfigDao conf)
+	{
+		this.conf = conf;
+	}
+
 	@EventMapping(SearchConstants.SEARCH_REQUEST_QNAME_STRING)
 	public void searchContent(EventRequest request, EventResponse response)
 	{
-		logger.info("======================================================================");
 		final Event event = request.getEvent();
 		final SearchRequest searchQuery = (SearchRequest)event.getValue();
 		
@@ -70,21 +98,91 @@ public class SearchContentController
 		final SearchResults searchResults = new SearchResults();
 		
 		Random rand = new Random();
-
-		//Build the result object for the match
-		final SearchResult searchResult = new SearchResult();
-		searchResult.setTitle("title123, search term: toben");
-		searchResult.setSummary("content123, search term: toben");
-		searchResult.getType().add("Portlet Content");
+		searchResults.setQueryId(searchQuery.getQueryId());
+		searchResults.setWindowId(request.getWindowID());
 		
-		//Add the result to the results and send the event
-		if(rand.nextInt(30) == 1)
-		{
-			searchResults.getSearchResult().add(searchResult);
-			response.setEvent(SearchConstants.SEARCH_RESULTS_QNAME, searchResults);
-			logger.info(searchResult);
-		}
-		//Stop processing
+		logger.debug("Number of datasources: " + dataSources.size());
+		for(CMSDocumentDao ds:dataSources)
+			logger.debug("Data source: " + ds.getDaoName());
+
+		//Creating the model object that will be passed to the view.
+		Map<String, Object> refData = new HashMap<String, Object>();
+
+		CMSLayout layout = this.conf.getLayout(request,"maximized");
+
+		//Preparing a the list of page content.
+		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
+		Map<String, Boolean> isForm = new HashMap<String, Boolean>();
+		Map<String, ArrayList<JSONObject>> formContent = new HashMap<String, ArrayList<JSONObject>>();
+		JSONArray obj;
+
+		for(CMSSubscription sub:layout.getSubscriptions())
+			for(CMSDocumentDao ds:dataSources)
+				if(ds.getDaoName().equals(sub.getDocSource()))
+				{
+					List<String> groups = sub.getSecurityGroups();
+					if (groups == null || groups.size() == 0 || groups.get(0).equals(""))
+					{
+						content.add(ds.getDocument(sub.getDocId()));
+						if(sub.getDocId().contains("form:"))
+						{
+							isForm.put(sub.getDocId(),true);
+							try{
+								obj = new JSONArray(ds.getDocument(sub.getDocId()).getContent());
+								ArrayList<JSONObject> jobj = new ArrayList<JSONObject>();
+								for(int i = 0; i < obj.length(); i++)
+									jobj.add(obj.getJSONObject(i));
+								formContent.put(sub.getDocId(),jobj);
+							}
+							catch(JSONException e)
+							{
+								logger.error("Error loading form data: " + e);
+							}
+						}
+						else
+							isForm.put(sub.getDocId(),false);
+					}
+					else
+					{
+						for(String role : sub.getSecurityGroups())
+							if(request.isUserInRole(role))
+							{
+								content.add(ds.getDocument(sub.getDocId()));
+								if(sub.getDocId().contains("form:"))
+								{
+									isForm.put(sub.getDocId(),true);
+									try{
+										obj = new JSONArray(ds.getDocument(sub.getDocId()).getContent());
+										ArrayList<JSONObject> jobj = new ArrayList<JSONObject>();
+										for(int i = 0; i < obj.length(); i++)
+											jobj.add(obj.getJSONObject(i));
+										formContent.put(sub.getDocId(),jobj);
+									}
+									catch(JSONException e)
+									{
+										logger.error("Error loading form data: " + e);
+									}
+								}
+								else
+									isForm.put(sub.getDocId(),false);
+							}
+					}
+				}
+
+		for (CMSDocument doc: content)
+			for (String term: searchTerms)
+				if(doc.getContent().contains(term))
+				{
+					final SearchResult searchResult = new SearchResult();
+					searchResult.setTitle(doc.getTitle());
+					searchResult.setSummary(doc.getContent());
+					searchResult.getType().add("Portlet Content");
+					searchResults.getSearchResult().add(searchResult);
+					break;
+				}
+		
+		response.setEvent(SearchConstants.SEARCH_RESULTS_QNAME, searchResults);
+
 		return;
 	}
 }
