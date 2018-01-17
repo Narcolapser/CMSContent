@@ -174,8 +174,8 @@ public class SearchContentController
 				if(doc.getContent().contains(term))
 				{
 					final SearchResult searchResult = new SearchResult();
-					searchResult.setTitle(doc.getTitle());
-					searchResult.setSummary(doc.getContent());
+					searchResult.setTitle(request.getPreferences().getValue("searchResultsTitle", "${portlet.title}"));
+					searchResult.setSummary(doc.getTitle());
 					searchResult.getType().add("Portlet Content");
 					searchResults.getSearchResult().add(searchResult);
 					break;
