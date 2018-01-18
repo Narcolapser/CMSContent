@@ -2,8 +2,7 @@
 <!--Single page view.-->
 <c:choose>
 	<c:when test="${content[0].docType eq 'form'}">
-		<cms:form content="${content[0]}" formContent="${content[0].content}" username="${username}"/>
-		
+		<cms:form content="${content[0]}" username="${username}"/>
 	</c:when>
 	<c:otherwise>
 		<div class="usdChannel">${content[0].content}</div>

@@ -1,11 +1,22 @@
 package edu.usd.portlet.cmscontent.dao;
 
+import java.util.ArrayList;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Column;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Type;
+
+import org.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONArray;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 /**
  * @author Toben Archer
@@ -16,6 +27,9 @@ import org.hibernate.annotations.Type;
 @Table(name = "CMSDocument")
 public class CMSDocument
 {
+	@Transient
+	protected final Log logger = LogFactory.getLog(this.getClass());
+
 	@Id
 	@Column(name = "id")
 	protected String Id;
@@ -80,13 +94,21 @@ public class CMSDocument
 	{
 		this.content = val;
 	}
-	public ArrayList<object> getContentJson()
+	public ArrayList<JSONObject> getContentJson()
 	{
-		JSONArray obj = new JSONArray(this.content);
-		ArrayList<JSONObject> jobj = new ArrayList<JSONObject>();
-		for(int i = 0; i < obj.length(); i++)
-			jobj.add(obj.getJSONObject());
-		return
+		try
+		{
+			JSONArray obj = new JSONArray(this.content);
+			ArrayList<JSONObject> jobj = new ArrayList<JSONObject>();
+			for(int i = 0; i < obj.length(); i++)
+				jobj.add(obj.getJSONObject(i));
+			return jobj;
+		}
+		catch(JSONException e)
+		{
+			logger.error("Error loading form data: " + e);
+			return null;
+		}
 	}
 	public String getDocType()
 	{
