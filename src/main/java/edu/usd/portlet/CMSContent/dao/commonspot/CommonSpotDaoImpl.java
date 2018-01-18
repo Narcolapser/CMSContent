@@ -58,12 +58,12 @@ public class CommonSpotDaoImpl implements CMSDocumentDao, DisposableBean
 				content += (String) resultSet.getString("cachedContent");
 				title = resultSet.getString("Title");
 			}
-			page = new CMSDocument(title,Id,"CommonSpot",content);
+			page = new CMSDocument(title,Id,"CommonSpot","html",content);
 		}
 		catch(Exception e)
 		{
 			logger.info(e);
-			page = new CMSDocument("There was a problem retrieving the requested content: " + e.getMessage(),"error");
+			page = new CMSDocument("error",Id,"CommonSpot","html","There was a problem retrieving the requested content: " + e.getMessage());
 		}
 		finally
 		{
@@ -129,6 +129,7 @@ public class CommonSpotDaoImpl implements CMSDocumentDao, DisposableBean
 				CMSDocument page = new CMSDocument();
 				page.setTitle((String)(resultSet.getString("Title")));
 				page.setId((String)(resultSet.getString("url")));
+				page.setDocType("html");
 				page.setSource("CommonSpot");
 				pages.add(page);
 			}

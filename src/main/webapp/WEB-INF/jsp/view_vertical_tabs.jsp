@@ -75,7 +75,7 @@ button.copy-btn{
 						<c:when test="${counter == active}">
 							<div id="${channelId}-${counter}" class="tab-pane active">
 								<c:choose>
-									<c:when test="${isForm[page.id]}">
+									<c:when test="${content[0].docType eq 'form'}">
 										<cms:form content="${page}" formContent="${formContent}" username="${username}"/>
 									</c:when>
 									<c:otherwise>
@@ -87,7 +87,7 @@ button.copy-btn{
 						<c:otherwise>
 							<div id="${channelId}-${counter}" class="tab-pane">
 								<c:choose>
-									<c:when test="${isForm[page.id]}">
+									<c:when test="${content[0].docType eq 'form'}">
 										<cms:form content="${page}" formContent="${formContent}" username="${username}" replyType="coming soon"/>
 									</c:when>
 									<c:otherwise>

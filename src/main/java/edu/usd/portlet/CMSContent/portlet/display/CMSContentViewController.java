@@ -149,9 +149,9 @@ public class CMSContentViewController {
 					}
 				}
 				
-		refData.put("formContent",formContent);
+		//refData.put("formContent",formContent);
 		refData.put("content",content);
-		refData.put("isForm",isForm);
+		//refData.put("isForm",isForm);
 
 		//Get channel ID
 		refData.put("channelId","CMS" + request.getWindowID());
