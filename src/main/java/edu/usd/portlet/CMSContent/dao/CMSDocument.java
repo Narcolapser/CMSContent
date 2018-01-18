@@ -26,16 +26,21 @@ public class CMSDocument
 	@Column(name = "source")
 	protected String source;
 	
+	@Column(name = "docType")
+	protected String docType;
+	//Current supported types: html, form
+
 	@Column(name = "content", columnDefinition="TEXT")
 	protected String content;
 
 	public CMSDocument(){}
 
-	public CMSDocument(String title, String Id, String source, String content)
+	public CMSDocument(String title, String Id, String source, String docType, String content)
 	{
 		this.title = title;
 		this.Id = Id;
 		this.source = source;
+		this.docType = docType;
 		this.content = content;
 	}
 	public CMSDocument(String title, String Id)
@@ -75,12 +80,30 @@ public class CMSDocument
 	{
 		this.content = val;
 	}
+	public ArrayList<object> getContentJson()
+	{
+		JSONArray obj = new JSONArray(this.content);
+		ArrayList<JSONObject> jobj = new ArrayList<JSONObject>();
+		for(int i = 0; i < obj.length(); i++)
+			jobj.add(obj.getJSONObject());
+		return
+	}
+	public String getDocType()
+	{
+		return this.docType;
+	}
+	
+	public void setDocType(String val)
+	{
+		this.docType = val;
+	}
 	
 	public String toString()
 	{
 		String ret = "Title: " + this.title;
 		ret += " Id: " + this.Id;
 		ret += " Source: " + this.source;
+		ret += " Type: " + this.docType;
 		if (this.content != null)
 			ret += " Content Hash: " + this.content.hashCode();
 		else

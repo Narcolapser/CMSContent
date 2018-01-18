@@ -75,7 +75,7 @@
 				</div>
 				<div class="section_body" id="${channelId}_${counter}_body" style="display: none;">
 					<c:choose>
-						<c:when test="${isForm[page.id]}">
+						<c:when test="${content[0].docType eq 'form'}">
 							<cms:form content="${page}" formContent="${formContent}" username="${username}" replyType="coming soon"/>
 						</c:when>
 						<c:otherwise>
