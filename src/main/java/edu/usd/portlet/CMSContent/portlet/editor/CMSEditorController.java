@@ -114,8 +114,9 @@ public class CMSEditorController {
 		logger.info("attempting to update page to1 : " + content);
 		logger.info("Title: " + title);
 		logger.info("Id: " + id);
+		logger.info("Doc Type: html");
 		logger.info("Source: " + source);
-		CMSDocument doc = new CMSDocument(title, id, source, content);
+		CMSDocument doc = new CMSDocument(title, id, source, "html", content);
 		CMSDocumentDao dbo = dataSources.get(0);
 		for(CMSDocumentDao ds:dataSources)
 			if (ds.getDaoName() == source)

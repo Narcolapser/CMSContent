@@ -1,8 +1,8 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 <!--Single page view.-->
 <c:choose>
-	<c:when test="${isForm[content[0].id]}">
-		<cms:form content="${content[0]}" formContent="${formContent}" username="${username}"/>
+	<c:when test="${content[0].docType eq 'form'}">
+		<cms:form content="${content[0]}" formContent="${content[0].content}" username="${username}"/>
 		
 	</c:when>
 	<c:otherwise>
