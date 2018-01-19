@@ -423,6 +423,20 @@ function viewChange(mode)
 	
 }
 
+function OnChange(sources_id,doc_selector_id)
+{
+	var sources = document.getElementById(sources_id);
+	var pages = document.getElementById(doc_selector_id);
+	var myindex = sources.selectedIndex;
+	var SelValue = sources.options[myindex].value;
+	pages.options.length=0;
+	pages.options[0] = new Option("Loading...","");
+	$.ajax({dataType:"json",
+		url:"/CMSContent/v1/api/getPagesWithIndex.json",
+		data:{"source":SelValue,"index":doc_selector_id},
+		success:populate_pages});
+}
+
 function populate_pages(data, textStatus, jqXHR)
 {
 	CID = data["index"]
@@ -437,19 +451,5 @@ function populate_pages(data, textStatus, jqXHR)
 			data["pages"][i]["id"]);
 	}
 	$("#"+CID).trigger("chosen:updated");
-}
-function OnChange(sources_id,doc_selector_id)
-{
-	var sources = document.getElementById(sources_id);
-	var pages = document.getElementById(doc_selector_id);
-	var myindex = sources.selectedIndex;
-	var SelValue = sources.options[myindex].value;
-
-	pages.options.length=0;
-	pages.options[0] = new Option("Loading...","");
-	$.ajax({dataType:"json",
-		url:"/CMSContent/v1/api/getPagesWithIndex.json",
-		data:{"source":SelValue,"index":doc_selector_id},
-		success:populate_pages});
 }
 </SCRIPT>

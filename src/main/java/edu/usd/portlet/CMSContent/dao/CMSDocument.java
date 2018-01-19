@@ -46,6 +46,8 @@ public class CMSDocument
 
 	@Column(name = "content", columnDefinition="TEXT")
 	protected String content;
+	
+	protected String contentJson;
 
 	public CMSDocument(){}
 
@@ -94,7 +96,7 @@ public class CMSDocument
 	{
 		this.content = val;
 	}
-	public ArrayList<JSONObject> getContentJson()
+	public ArrayList<JSONObject> json()
 	{
 		try
 		{
@@ -109,6 +111,10 @@ public class CMSDocument
 			logger.error("Error loading form data: " + e);
 			return null;
 		}
+	}
+	public void setContentJson()
+	{
+		//dumby method.
 	}
 	public String getDocType()
 	{
