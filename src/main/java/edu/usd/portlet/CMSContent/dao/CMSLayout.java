@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
-import javax.portlet.RenderRequest;
+import javax.portlet.PortletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -156,7 +156,7 @@ public class CMSLayout
 		return new CMSLayout(val);
 	}
 	
-	public ArrayList<CMSDocument> getContent(RenderRequest request, List<CMSDocumentDao> dataSources)
+	public ArrayList<CMSDocument> getContent(PortletRequest request, List<CMSDocumentDao> dataSources)
 	{
 		//Preparing a the list of page content.
 		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
