@@ -6,7 +6,7 @@
 <form id="${content.id.split(':')[1].replace('\\','-')}">
 	<div data-control="formInfo"><input data-control="formId" type="hidden" class="form-control" value="${content.id}"/></div>
 	<div data-control="formInfo"><input data-control="username" type="hidden" class="form-control" value="${username}"/></div>
-	<c:forEach var="control" items="${content.getContentJson()}">
+	<c:forEach var="control" items="${content.json()}">
 		<c:set var="val">${control.getString("type")}</c:set>
 		<c:choose>
 			<c:when test="${val eq 'text'}">

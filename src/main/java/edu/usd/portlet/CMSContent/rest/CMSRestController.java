@@ -57,11 +57,23 @@ public final class CMSRestController {
 	public List<CMSDocument> getPages(@RequestParam(value="source", defaultValue = "CommonSpot") String source)
 	{
 		logger.debug("Recieved request to get pages for: " + source);
-		List<CMSDocument> pages;
-		if(source.equals("Internal"))
-			pages = intdbo.getAllDocumentsContentless();
-		else
-			pages = csdbo.getAllDocumentsContentless();
+//		List<CMSDocument> pages;
+//		if(source.equals("Internal"))
+//			pages = intdbo.getAllDocumentsContentless();
+//		else
+//			pages = csdbo.getAllDocumentsContentless();
+//		return pages;
+
+		List<CMSDocument> pages = null;
+		for(CMSDocumentDao ds:dataSources)
+		{
+			if (ds.getDaoName().equals(source))
+			{
+				pages = ds.getAllDocumentsContentless();
+				logger.debug("Found datasource: " + ds.getDaoName());
+				logger.debug("Number of pages: " + pages.size());
+			}
+		}
 		return pages;
 	}
 
@@ -161,12 +173,22 @@ public final class CMSRestController {
 		PagesAndIndex ret;
 		try
 		{
-			List<CMSDocument> pages;
-			if(source.equals("Internal"))
-				pages = intdbo.getAllDocumentsContentless();
-			else if (source.equals("CommonSpot"))
-				pages = csdbo.getAllDocumentsContentless();
-			else
+			List<CMSDocument> pages = null;
+			for(CMSDocumentDao ds:dataSources)
+			{
+				if (ds.getDaoName().equals(source))
+				{
+					pages = ds.getAllDocumentsContentless();
+					logger.debug("Found datasource: " + ds.getDaoName());
+					logger.debug("Number of pages: " + pages.size());
+				}
+			}
+//			if(source.equals("Internal"))
+//				pages = intdbo.getAllDocumentsContentless();
+//			else if (source.equals("CommonSpot"))
+//				pages = csdbo.getAllDocumentsContentless();
+//			else
+			if (pages == null)
 			{
 				logger.debug("Request made to the empty data provider");
 				pages = new ArrayList<CMSDocument>();
