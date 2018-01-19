@@ -56,4 +56,11 @@ public class CMSSubscription
 	{
 		this.docTitle = val;
 	}
+	public CMSDocumentDao getDao(List<CMSDocumentDao> dataSources)
+	{
+		for(CMSDocumentDao ds:dataSources)
+			if(ds.getDaoName().equals(this.docSource))
+				return ds;
+		return null;
+	}
 }

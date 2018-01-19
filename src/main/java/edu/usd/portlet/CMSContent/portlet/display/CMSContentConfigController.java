@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.RenderRequest;
@@ -131,6 +133,21 @@ public class CMSContentConfigController
 			userRoleNames.add(roleName);
 		}
 		refData.put("securityRoles",userRoleNames);
+		
+		//get the base url of this server.
+		try
+		{
+			String hostname = InetAddress.getLocalHost().getHostName();
+			logger.debug("Host name is: " + hostname);
+			if (hostname.contains("dev-uportal"))
+				refData.put("hostname","dev-uportal");
+			else
+				refData.put("hostname","my");
+		}
+		catch (java.net.UnknownHostException e)
+		{
+			refData.put("hostname","unknown");
+		}
 
 		return new ModelAndView("config",refData);
 	}
