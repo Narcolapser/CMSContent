@@ -10,16 +10,6 @@ import javax.portlet.RenderRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.portlet.ModelAndView;
-
-import org.json.JSONObject;
-import org.json.JSONException;
-import org.json.JSONArray;
-
 import edu.usd.portlet.cmscontent.dao.CMSSubscription;
 import org.springframework.web.portlet.ModelAndView;
 
@@ -168,64 +158,34 @@ public class CMSLayout
 	
 	public ArrayList<CMSDocument> getContent(RenderRequest request, List<CMSDocumentDao> dataSources)
 	{
-	//Preparing a the list of page content.
+		//Preparing a the list of page content.
 		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
-		Map<String, Boolean> isForm = new HashMap<String, Boolean>();
-		Map<String, ArrayList<JSONObject>> formContent = new HashMap<String, ArrayList<JSONObject>>();
-		JSONArray obj;
 
-		for(CMSSubscription sub:this.getSubscriptions())
-			for(CMSDocumentDao ds:dataSources)
-				if(ds.getDaoName().equals(sub.getDocSource()))
-				{
-					List<String> groups = sub.getSecurityGroups();
-					if (groups == null || groups.size() == 0 || groups.get(0).equals(""))
-					{
+		//Get the content, contingent on it existing and the user having permission.
+		for(CMSSubscription sub:this.getSubscriptions()) //step through each subscription
+		{
+			//get the data source for the subscription.
+			CMSDocumentDao ds = sub.getDao(dataSources);
+			
+			//if the datasource is null, there is a problem, don't render this.
+			if (ds == null)
+				continue;
+				
+			//get the security groups for this subscription.
+			List<String> groups = sub.getSecurityGroups();
+			
+			// if the groups is empty in some way, then everyone has access.
+			if (groups == null || groups.size() == 0 || groups.get(0).equals(""))
+				content.add(ds.getDocument(sub.getDocId()));
+
+			else //iterate over each security group and see if the user is in one.
+				for(String role : sub.getSecurityGroups())
+					if(request.isUserInRole(role))
+					{// if the user is in one, then add the content and break the loop to avoid duplicates.
 						content.add(ds.getDocument(sub.getDocId()));
-						if(sub.getDocId().contains("form:"))
-						{
-							isForm.put(sub.getDocId(),true);
-							try{
-								obj = new JSONArray(ds.getDocument(sub.getDocId()).getContent());
-								ArrayList<JSONObject> jobj = new ArrayList<JSONObject>();
-								for(int i = 0; i < obj.length(); i++)
-									jobj.add(obj.getJSONObject(i));
-								formContent.put(sub.getDocId(),jobj);
-							}
-							catch(JSONException e)
-							{
-								logger.error("Error loading form data: " + e);
-							}
-						}
-						else
-							isForm.put(sub.getDocId(),false);
+						break;
 					}
-					else
-					{
-						for(String role : sub.getSecurityGroups())
-							if(request.isUserInRole(role))
-							{
-								content.add(ds.getDocument(sub.getDocId()));
-								if(sub.getDocId().contains("form:"))
-								{
-									isForm.put(sub.getDocId(),true);
-									try{
-										obj = new JSONArray(ds.getDocument(sub.getDocId()).getContent());
-										ArrayList<JSONObject> jobj = new ArrayList<JSONObject>();
-										for(int i = 0; i < obj.length(); i++)
-											jobj.add(obj.getJSONObject(i));
-										formContent.put(sub.getDocId(),jobj);
-									}
-									catch(JSONException e)
-									{
-										logger.error("Error loading form data: " + e);
-									}
-								}
-								else
-									isForm.put(sub.getDocId(),false);
-							}
-					}
-				}
+		}
 		return content;
 	}
 }
