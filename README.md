@@ -53,6 +53,7 @@ making a new portlet. This re-write seeks to solve those issues by:
 * portlet caching
 * Video play back
 * search integration - Check
+* common spot portal page
 
 ###Abandoned:
 * More layouts:
