@@ -90,68 +90,9 @@ public class CMSContentViewController {
 		refData.put("properties",layout.getProperties());
 		refData.put("layout",layout);
 
-		//Preparing a the list of page content.
-		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
-		Map<String, Boolean> isForm = new HashMap<String, Boolean>();
-		Map<String, ArrayList<JSONObject>> formContent = new HashMap<String, ArrayList<JSONObject>>();
-		JSONArray obj;
 
-		for(CMSSubscription sub:layout.getSubscriptions())
-			for(CMSDocumentDao ds:dataSources)
-				if(ds.getDaoName().equals(sub.getDocSource()))
-				{
-					List<String> groups = sub.getSecurityGroups();
-					if (groups == null || groups.size() == 0 || groups.get(0).equals(""))
-					{
-						content.add(ds.getDocument(sub.getDocId()));
-						if(sub.getDocId().contains("form:"))
-						{
-							isForm.put(sub.getDocId(),true);
-							try{
-								obj = new JSONArray(ds.getDocument(sub.getDocId()).getContent());
-								ArrayList<JSONObject> jobj = new ArrayList<JSONObject>();
-								for(int i = 0; i < obj.length(); i++)
-									jobj.add(obj.getJSONObject(i));
-								formContent.put(sub.getDocId(),jobj);
-							}
-							catch(JSONException e)
-							{
-								logger.error("Error loading form data: " + e);
-							}
-						}
-						else
-							isForm.put(sub.getDocId(),false);
-					}
-					else
-					{
-						for(String role : sub.getSecurityGroups())
-							if(request.isUserInRole(role))
-							{
-								content.add(ds.getDocument(sub.getDocId()));
-								if(sub.getDocId().contains("form:"))
-								{
-									isForm.put(sub.getDocId(),true);
-									try{
-										obj = new JSONArray(ds.getDocument(sub.getDocId()).getContent());
-										ArrayList<JSONObject> jobj = new ArrayList<JSONObject>();
-										for(int i = 0; i < obj.length(); i++)
-											jobj.add(obj.getJSONObject(i));
-										formContent.put(sub.getDocId(),jobj);
-									}
-									catch(JSONException e)
-									{
-										logger.error("Error loading form data: " + e);
-									}
-								}
-								else
-									isForm.put(sub.getDocId(),false);
-							}
-					}
-				}
-				
-		refData.put("formContent",formContent);
-		refData.put("content",content);
-		refData.put("isForm",isForm);
+		//Get content
+		refData.put("content",layout.getContent(request,dataSources));
 
 		//Get channel ID
 		refData.put("channelId","CMS" + request.getWindowID());

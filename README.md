@@ -51,6 +51,8 @@ making a new portlet. This re-write seeks to solve those issues by:
 
 * upload files
 * portlet caching
+* Video play back
+* search integration - Check
 
 ###Abandoned:
 * More layouts:
