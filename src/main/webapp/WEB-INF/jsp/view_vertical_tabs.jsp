@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 <!--vertical tabbed page view.-->
 
-<c:set var="tab_width" value="${276}"/>
+<c:set var="tab_width" value="${properties.get('Tab column width (in pixels)') - 124}"/>
 <c:if test="${properties.get('Link buttons (True/False)') == 'True'}">
 	<c:set var="tab_width" value="${238}"/>
 </c:if><!--Tab width: ${tab_width}-->
@@ -29,6 +29,7 @@ div.col_content{
 a.tab-btn{
 	width:${tab_width}px;
 	padding: 10px 0px;
+	text-align: left
 }
 button.copy-btn{
 	padding: 10px 12px;
@@ -75,8 +76,8 @@ button.copy-btn{
 						<c:when test="${counter == active}">
 							<div id="${channelId}-${counter}" class="tab-pane active">
 								<c:choose>
-									<c:when test="${isForm[page.id]}">
-										<cms:form content="${page}" formContent="${formContent}" username="${username}"/>
+									<c:when test="${page.docType eq 'form'}">
+										<cms:form content="${page}" username="${username}"/>
 									</c:when>
 									<c:otherwise>
 										<div class="usdChannel">${page.content}</div>
@@ -87,8 +88,8 @@ button.copy-btn{
 						<c:otherwise>
 							<div id="${channelId}-${counter}" class="tab-pane">
 								<c:choose>
-									<c:when test="${isForm[page.id]}">
-										<cms:form content="${page}" formContent="${formContent}" username="${username}" replyType="coming soon"/>
+									<c:when test="${page.docType eq 'form'}">
+										<cms:form content="${page}" username="${username}" replyType="coming soon"/>
 									</c:when>
 									<c:otherwise>
 										<div class="usdChannel">${page.content}</div>
