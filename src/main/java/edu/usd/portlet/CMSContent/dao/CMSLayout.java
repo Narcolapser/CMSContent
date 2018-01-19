@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
+import javax.portlet.PortletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -152,5 +154,38 @@ public class CMSLayout
 	{
 		logger.info("Layout Copying is copying");
 		return new CMSLayout(val);
+	}
+	
+	public ArrayList<CMSDocument> getContent(PortletRequest request, List<CMSDocumentDao> dataSources)
+	{
+		//Preparing a the list of page content.
+		ArrayList<CMSDocument> content = new ArrayList<CMSDocument>();
+
+		//Get the content, contingent on it existing and the user having permission.
+		for(CMSSubscription sub:this.getSubscriptions()) //step through each subscription
+		{
+			//get the data source for the subscription.
+			CMSDocumentDao ds = sub.getDao(dataSources);
+			
+			//if the datasource is null, there is a problem, don't render this.
+			if (ds == null)
+				continue;
+				
+			//get the security groups for this subscription.
+			List<String> groups = sub.getSecurityGroups();
+			
+			// if the groups is empty in some way, then everyone has access.
+			if (groups == null || groups.size() == 0 || groups.get(0).equals(""))
+				content.add(ds.getDocument(sub.getDocId()));
+
+			else //iterate over each security group and see if the user is in one.
+				for(String role : sub.getSecurityGroups())
+					if(request.isUserInRole(role))
+					{// if the user is in one, then add the content and break the loop to avoid duplicates.
+						content.add(ds.getDocument(sub.getDocId()));
+						break;
+					}
+		}
+		return content;
 	}
 }
