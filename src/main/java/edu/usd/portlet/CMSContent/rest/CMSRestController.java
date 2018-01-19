@@ -108,6 +108,7 @@ public final class CMSRestController {
 			doc.setTitle("" + obj.getJSONObject("doc").getString("name"));
 			doc.setId("form:" + obj.getJSONObject("doc").getString("id"));
 			doc.setSource("Internal");
+			doc.setDocType("form");
 			doc.setContent("" + obj.getJSONArray("form"));
 			logger.debug(doc);
 			CMSDocumentDao dbo = getDbo("Internal");
@@ -128,7 +129,7 @@ public final class CMSRestController {
 		@RequestParam(value = "doc_source", required = false) String source)
 	{
 		logger.debug("Recieved request to update doc: " + id);
-		CMSDocument doc = new CMSDocument(title, id, source, content);
+		CMSDocument doc = new CMSDocument(title, id, source,"html", content);
 		CMSDocumentDao dbo = getDbo(source);
 		dbo.saveDocument(doc);
 		return "{\"result\":\"success\"}";

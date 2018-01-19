@@ -10,6 +10,7 @@
 
 	<context:annotation-config/>
 	<context:component-scan base-package="edu.usd.portlet.cmscontent.portlet.display"/>
+	<context:component-scan base-package="edu.usd.portlet.cmscontent.portlet.search"/>
 	<bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
 
 

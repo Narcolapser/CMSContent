@@ -91,7 +91,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			
 			subscriptions.add(csub);
 		}
-		logger.info("Total subscriptions: " + subscriptions.size());
+		logger.debug("Total subscriptions: " + subscriptions.size());
 		
 		String[] props = prefs.getValues(mode+".properties",new String[0]);
 		//logger.debug("found props: " + props.length + " for " + mode + ".properties");

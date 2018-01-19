@@ -2,12 +2,11 @@
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet_2_0" %>
 <%@ tag dynamic-attributes="attributes" isELIgnored="false" %>
 <%@ attribute name="content"     required="true" type="edu.usd.portlet.cmscontent.dao.CMSDocument"%>
-<%@ attribute name="formContent" required="true" type="java.util.Map"%>
 <%@ attribute name="username"    required="true"%>
 <form id="${content.id.split(':')[1].replace('\\','-')}">
 	<div data-control="formInfo"><input data-control="formId" type="hidden" class="form-control" value="${content.id}"/></div>
 	<div data-control="formInfo"><input data-control="username" type="hidden" class="form-control" value="${username}"/></div>
-	<c:forEach var="control" items="${formContent[content.id]}">
+	<c:forEach var="control" items="${content.getContentJson()}">
 		<c:set var="val">${control.getString("type")}</c:set>
 		<c:choose>
 			<c:when test="${val eq 'text'}">
