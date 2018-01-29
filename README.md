@@ -52,8 +52,8 @@ making a new portlet. This re-write seeks to solve those issues by:
 * upload files
 * portlet caching
 * Video play back
-* search integration - Check
-* common spot portal page
+* search integration - partial
+* common spot portal page - Check
 
 ###Abandoned:
 * More layouts:
@@ -62,3 +62,7 @@ making a new portlet. This re-write seeks to solve those issues by:
   * Horizontal Tabs with left side Pane
   * Vertical tabs on right
 
+
+Query for copying prod table:
+insert into dbo.CMSDocument (Id,content,source,title)
+select Id,content,source,title from [USD-SQL05\SQL01].uPortal.dbo.CMSDocument

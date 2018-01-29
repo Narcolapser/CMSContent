@@ -44,10 +44,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.portlet.ModelAndView;
 
-import org.json.JSONObject;
-import org.json.JSONException;
-import org.json.JSONArray;
-
 /**
  * This class handles retrieves information and displays the view page.
  * 
