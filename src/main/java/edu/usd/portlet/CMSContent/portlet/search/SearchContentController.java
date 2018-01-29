@@ -121,6 +121,9 @@ public class SearchContentController
 					searchResult.setTitle(request.getPreferences().getValue("searchResultsTitle", "${portlet.title}"));
 					searchResult.setSummary(doc.getTitle());
 					searchResult.getType().add("Portlet Content");
+					//https://dev-uportal.usd.edu/uPortal/normal/render.uP?pCt=academic-career-planning-center.ctf8
+					//searchResult.setExternalUrl("https://" + server + ".usd.edu/uPortal/max/render.uP?pCt="+fname);
+					searchResult.setExternalUrl(searchResult.getExternalUrl().replace("normal","max"));
 					searchResults.getSearchResult().add(searchResult);
 					break;
 				}
