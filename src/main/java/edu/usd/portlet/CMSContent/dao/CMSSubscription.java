@@ -63,4 +63,8 @@ public class CMSSubscription
 				return ds;
 		return null;
 	}
+	public String toString()
+	{
+		return "Doc ID: " + this.docId + " Source: " + this.docSource + " Title: " + this.docTitle + " Number of security groups: " + this.securityGroups.size();
+	}
 }
