@@ -77,9 +77,7 @@ public class InternalDaoImpl implements InternalDao, DisposableBean
 		CMSDocument page;
 		try
 		{
-			//logger.debug("Fetching from interal CMS" + this.internalDocumentDao);
 			List<CMSDocument> docs = this.internalDocumentDao.getAllDocuments();
-			//logger.debug("Fetched from internal CMS");
 			page = this.internalDocumentDao.getDocumentById(Id);
 		}
 		catch (Exception e)
