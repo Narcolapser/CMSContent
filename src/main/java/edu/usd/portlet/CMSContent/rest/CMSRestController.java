@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMethod;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.json.JSONObject;
@@ -81,7 +82,7 @@ public final class CMSRestController {
 	{
 		CMSDocumentDao dbo = dataSources.get(0);
 		for(CMSDocumentDao ds:dataSources)
-			if (ds.getDaoName() == name)
+			if (ds.getDaoName().equals(name))
 				dbo = ds;
 		return dbo;
 	}
@@ -133,7 +134,7 @@ public final class CMSRestController {
 		return "{\"result\":\"success\"}";
 	}
 
-	@RequestMapping("saveDoc")
+	@RequestMapping(value = "saveDoc", method = RequestMethod.POST)
 	public String saveForm(
 		@RequestParam(value = "content", required = true) String content,
 		@RequestParam(value = "doc_id", required = true) String id,

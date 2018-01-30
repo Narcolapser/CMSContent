@@ -26,6 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import javax.portlet.Event;
 import javax.portlet.EventRequest;
 import javax.portlet.EventResponse;
@@ -37,8 +40,6 @@ import org.jasig.portal.search.SearchConstants;
 import org.jasig.portal.search.SearchRequest;
 import org.jasig.portal.search.SearchResult;
 import org.jasig.portal.search.SearchResults;
-//import org.jasig.portlet.cms.service.IStringCleaningService;
-//import org.jasig.portlet.cms.service.dao.IContentDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,11 +49,9 @@ import org.springframework.web.portlet.context.PortletConfigAware;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
 import org.json.JSONObject;
 import org.json.JSONException;
 import org.json.JSONArray;
-
 
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
@@ -101,9 +100,9 @@ public class SearchContentController
 		searchResults.setQueryId(searchQuery.getQueryId());
 		searchResults.setWindowId(request.getWindowID());
 		
-		logger.debug("Number of datasources: " + dataSources.size());
-		for(CMSDocumentDao ds:dataSources)
-			logger.debug("Data source: " + ds.getDaoName());
+//		logger.debug("Number of datasources: " + dataSources.size());
+//		for(CMSDocumentDao ds:dataSources)
+//			logger.debug("Data source: " + ds.getDaoName());
 
 		//Creating the model object that will be passed to the view.
 		Map<String, Object> refData = new HashMap<String, Object>();
@@ -114,6 +113,9 @@ public class SearchContentController
 		ArrayList<CMSDocument> content = layout.getContent(request,dataSources);
 
 		for (CMSDocument doc: content)
+		{
+			if(doc == null)
+				continue;
 			for (String term: searchTerms)
 				if(doc.getContent().contains(term))
 				{
@@ -122,11 +124,27 @@ public class SearchContentController
 					searchResult.setSummary(doc.getTitle());
 					searchResult.getType().add("Portlet Content");
 					//https://dev-uportal.usd.edu/uPortal/normal/render.uP?pCt=academic-career-planning-center.ctf8
-					//searchResult.setExternalUrl("https://" + server + ".usd.edu/uPortal/max/render.uP?pCt="+fname);
-					searchResult.setExternalUrl(searchResult.getExternalUrl().replace("normal","max"));
+					
+//					String server = "my";
+//					try
+//					{
+//						String hostname = InetAddress.getLocalHost().getHostName();
+//						logger.debug("Host name is: " + hostname);
+//						if (hostname.contains("dev-uportal"))
+//							server = "dev-uportal";
+//					}
+//					catch (java.net.UnknownHostException e)
+//					{
+//						refData.put("hostname","unknown");
+//					}
+					logger.info("======================================severname url: " + request.getServerName());
+					String fname = "derpy hooves";
+					searchResult.setExternalUrl("https://" + request.getServerName() + "/uPortal/max/render.uP?pCt="+fname);
+					//searchResult.setExternalUrl(searchResult.getExternalUrl().replace("normal","max"));
 					searchResults.getSearchResult().add(searchResult);
 					break;
 				}
+		}
 		
 		response.setEvent(SearchConstants.SEARCH_RESULTS_QNAME, searchResults);
 
