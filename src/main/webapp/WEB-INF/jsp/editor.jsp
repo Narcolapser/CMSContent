@@ -140,6 +140,7 @@ function update()
 	var doc_source_hidden = document.getElementById("doc_source_hidden");
 	
 	${n}.jQuery.ajax({dataType:"json",
+		type: "POST",
 		url:"/CMSContent/v1/api/saveDoc.json",
 		data:{"content":CKEDITOR.instances["${n}content"].getData(),
 			"doc_id":doc_id.value,
