@@ -34,6 +34,16 @@ import javax.portlet.EventRequest;
 import javax.portlet.EventResponse;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletRequest;
+import javax.portlet.PortletContext;
+
+import javax.portlet.PortletConfig;
+import javax.portlet.PortletRequest;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
 import org.jasig.portal.search.SearchConstants;
@@ -69,7 +79,7 @@ import edu.usd.portlet.cmscontent.dao.CMSSubscription;
  */
 @Controller
 @RequestMapping("VIEW")
-public class SearchContentController
+public class SearchContentController implements PortletConfigAware
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 	@Autowired
@@ -77,6 +87,13 @@ public class SearchContentController
 
 	@Autowired
 	List<CMSLayout> layouts;
+	
+	protected PortletConfig portletConfig;
+
+	public void setPortletConfig(PortletConfig portletConfig)
+	{
+		this.portletConfig = portletConfig;
+	}
 
 	@Autowired
 	private CMSConfigDao conf = null;
@@ -99,10 +116,6 @@ public class SearchContentController
 		Random rand = new Random();
 		searchResults.setQueryId(searchQuery.getQueryId());
 		searchResults.setWindowId(request.getWindowID());
-		
-//		logger.debug("Number of datasources: " + dataSources.size());
-//		for(CMSDocumentDao ds:dataSources)
-//			logger.debug("Data source: " + ds.getDaoName());
 
 		//Creating the model object that will be passed to the view.
 		Map<String, Object> refData = new HashMap<String, Object>();
@@ -120,26 +133,14 @@ public class SearchContentController
 				if(doc.getContent().contains(term))
 				{
 					final SearchResult searchResult = new SearchResult();
-					searchResult.setTitle(request.getPreferences().getValue("searchResultsTitle", "${portlet.title}"));
+					searchResult.setTitle(request.getPreferences().getValue("searchResultsTitle", "${portlet.title.replace('O','4'}"));
 					searchResult.setSummary(doc.getTitle());
-					searchResult.getType().add("Portlet Content");
+					searchResult.getType().add("CMS Content");
+
 					//https://dev-uportal.usd.edu/uPortal/normal/render.uP?pCt=academic-career-planning-center.ctf8
-					
-//					String server = "my";
-//					try
-//					{
-//						String hostname = InetAddress.getLocalHost().getHostName();
-//						logger.debug("Host name is: " + hostname);
-//						if (hostname.contains("dev-uportal"))
-//							server = "dev-uportal";
-//					}
-//					catch (java.net.UnknownHostException e)
-//					{
-//						refData.put("hostname","unknown");
-//					}
-					logger.info("======================================severname url: " + request.getServerName());
-					String fname = "derpy hooves";
-					searchResult.setExternalUrl("https://" + request.getServerName() + "/uPortal/max/render.uP?pCt="+fname);
+
+					String fname = "portletfname";
+					//searchResult.setExternalUrl("https://" + request.getServerName() + "/uPortal/max/render.uP?pCt="+fname);
 					//searchResult.setExternalUrl(searchResult.getExternalUrl().replace("normal","max"));
 					searchResults.getSearchResult().add(searchResult);
 					break;
@@ -150,5 +151,6 @@ public class SearchContentController
 
 		return;
 	}
+
 }
 
