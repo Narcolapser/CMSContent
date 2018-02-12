@@ -1,6 +1,7 @@
 package edu.usd.portlet.cmscontent.dao;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class CMSSubscription
 {
@@ -9,7 +10,12 @@ public class CMSSubscription
 	private String docTitle;
 	private List<String> securityGroups;
 	
-	public CMSSubscription(){}
+	public CMSSubscription()
+	{
+		this.docId = "";
+		this.docSource = "";
+		this.securityGroups = new ArrayList<String>();
+	}
 	
 	public CMSSubscription(String DocId, String DocSource, List<String> secGroups)
 	{
