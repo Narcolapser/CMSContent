@@ -35,6 +35,7 @@ import javax.portlet.EventResponse;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletContext;
+import javax.portlet.PortletPreferences;
 
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletRequest;
@@ -125,6 +126,11 @@ public class SearchContentController implements PortletConfigAware
 		//Preparing a the list of page content.
 		ArrayList<CMSDocument> content = layout.getContent(request,dataSources);
 
+		String fname = null;
+		PortletPreferences prefs = request.getPreferences();
+		if ((prefs.getValue("fname",null) != null))
+			fname = (prefs.getValue("fname",null));
+
 		for (CMSDocument doc: content)
 		{
 			if(doc == null)
@@ -139,9 +145,9 @@ public class SearchContentController implements PortletConfigAware
 
 					//https://dev-uportal.usd.edu/uPortal/normal/render.uP?pCt=academic-career-planning-center.ctf8
 
-					String fname = "portletfname";
-					//searchResult.setExternalUrl("https://" + request.getServerName() + "/uPortal/max/render.uP?pCt="+fname);
-					//searchResult.setExternalUrl(searchResult.getExternalUrl().replace("normal","max"));
+					if (fname != null)
+						searchResult.setExternalUrl("https://" + request.getServerName() + "/uPortal/max/render.uP?pCt="+fname);
+						//searchResult.setExternalUrl(searchResult.getExternalUrl().replace("normal","max"));
 					searchResults.getSearchResult().add(searchResult);
 					break;
 				}
