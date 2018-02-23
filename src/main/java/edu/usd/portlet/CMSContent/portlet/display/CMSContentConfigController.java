@@ -98,8 +98,16 @@ public class CMSContentConfigController
 		List<CMSSubscription> content = normal.getSubscriptions();
 		for(CMSSubscription sub : content)
 			for(CMSDocumentDao ds:dataSources)
-				if(ds.getDaoName().equals(sub.getDocSource()))
-					sub.setDocTitle(ds.getDocument(sub.getDocId()).getTitle());
+				try
+				{
+					if(ds.getDaoName().equals(sub.getDocSource()))
+						sub.setDocTitle(ds.getDocument(sub.getDocId()).getTitle());
+				}
+				catch (java.lang.NullPointerException e)
+				{
+					logger.warn("Could not fetch document \"" + sub.getDocId() + "\" because: " + e);
+				}
+
 		logger.info("active docs: " + content);
 		final Map<String, Object> contentMap = new HashMap<String, Object>();
 		contentMap.put("normal",content);
@@ -112,9 +120,16 @@ public class CMSContentConfigController
 		{
 			content = max.getSubscriptions();
 			for(CMSSubscription sub : content)
-			for(CMSDocumentDao ds:dataSources)
-				if(ds.getDaoName().equals(sub.getDocSource()))
-					sub.setDocTitle(ds.getDocument(sub.getDocId()).getTitle());
+				for(CMSDocumentDao ds:dataSources)
+					try
+					{
+						if(ds.getDaoName().equals(sub.getDocSource()))
+							sub.setDocTitle(ds.getDocument(sub.getDocId()).getTitle());
+					}
+					catch (java.lang.NullPointerException e)
+					{
+						logger.warn("Could not fetch document \"" + sub.getDocId() + "\" because: " + e);
+					}
 			contentMap.put("maximized",content);
 			String maxDisplayType = max.getView();
 			layoutMap.put("maximized",max);
