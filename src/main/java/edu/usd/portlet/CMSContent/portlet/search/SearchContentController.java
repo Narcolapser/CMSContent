@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -136,7 +137,7 @@ public class SearchContentController implements PortletConfigAware
 			if(doc == null)
 				continue;
 			for (String term: searchTerms)
-				if(doc.getContent().contains(term))
+				if(Pattern.compile(Pattern.quote(term), Pattern.CASE_INSENSITIVE).matcher(doc.getContent()).find())
 				{
 					final SearchResult searchResult = new SearchResult();
 					searchResult.setTitle(request.getPreferences().getValue("searchResultsTitle", "${portlet.title.replace('O','4'}"));
