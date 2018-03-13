@@ -452,4 +452,8 @@ function populate_pages(data, textStatus, jqXHR)
 	}
 	$("#"+CID).trigger("chosen:updated");
 }
+$(document).ready(function(){
+	OnChange("normal_source","normal_doc_select");
+	OnChange("maximized_source","maximized_doc_select");
+});
 </SCRIPT>

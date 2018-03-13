@@ -43,16 +43,15 @@ making a new portlet. This re-write seeks to solve those issues by:
 * Forms. - check
 * CMS Editor fixes:
   * make update/save work on first click. - check
-  * Add the ability to delete documents. - derp.
 * Fix issue where re-arranged documents or new documents loose security config dialog. - check
 * Add edit/new form button to config view - check
 
 ###0.8:
 
-* upload files
+* upload files - Check
 * portlet caching
 * Video play back
-* search integration - partial
+* search integration - Check
 * common spot portal page - Check
 
 ###Abandoned:
@@ -61,6 +60,7 @@ making a new portlet. This re-write seeks to solve those issues by:
   * Horizontal Tabs with right side pane
   * Horizontal Tabs with left side Pane
   * Vertical tabs on right
+* Add the ability to delete documents
 
 
 Query for copying prod table:
