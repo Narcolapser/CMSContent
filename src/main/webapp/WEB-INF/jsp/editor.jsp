@@ -4,8 +4,10 @@
 <script src="/CMSContent/js/chosen.jquery.js" type="text/javascript"></script>
 <script src="/CMSContent/js/ckeditor/ckeditor.js" type="text/javascript"></script>
 <script src="/CMSContent/js/jquery.form.min.js" type="text/javascript"></script>
-<link rel="stylesheet" href="/ResourceServingWebapp/rs/jqueryui/1.10.3/theme/smoothness/jquery-ui-1.10.3-smoothness.min.css">
-<link rel="stylesheet" href="/CMSContent/css/chosen.css">
+<script src="/CMSContent/js/jstree/jstree.min.js" type="text/javascript"></script>
+<link rel="stylesheet" href="/ResourceServingWebapp/rs/jqueryui/1.10.3/theme/smoothness/jquery-ui-1.10.3-smoothness.min.css" />
+<link rel="stylesheet" href="/CMSContent/css/chosen.css" />
+<link rel="stylesheet" href="/CMSContent/js/jstree/themes/default/style.min.css" />
 
 <c:set var="n"><portlet:namespace/></c:set>
 <c:set var="selected" value=""/>
@@ -18,58 +20,39 @@
 	.cke_source { color: #000000; }
 </style>
 
-<div>
-	<table style="width:100%;">
-		<tr>
-			<td style="width:50%;">
-				<div class="form-group">
-					<label for="doc_source">Source:</label>
-					<select id="doc_source" class="form-control" OnChange='onSourceChange();'>
-						<c:forEach var="source" items="${sources}">
-							<option class="form-control" id="doc_source_${source}" value="${source}" data-saveEnabled="${saveEnabled[source]}">${source}</option>
-						</c:forEach>
-					</select>
-				</div>
-			</td>
-			<td style="width:50%;">
-				<label for="docselector">Document:</label>
-				<select id="docselector" class="chosen-select" data-placeholder="Select document..." OnChange='OnChange();'>
-					<option value="new" selected>New page</option>
-					<c:forEach var="doc" items="${Internal}">
-						<c:choose>
-							<c:when test="${doc.id == selected}">
-								<option selected="selected" value="${doc.id}">${doc.title}</option>
-							</c:when>
-							<c:otherwise>
-								<option value="${doc.id}">${doc.title}</option>
-							</c:otherwise>
-						</c:choose>
-					</c:forEach>
-				</select>
-			</td>
-		</tr>
-	</table>
-	<div class="form-group">
-		<label for="doc_title">Title:</label>
-		<input type="text" class="form-control" id="doc_title" name="doc_title">
+<div style="width:100%;">
+	<div style="width:25%; float: left;">
+		<div class="form-group">
+			<label for="doc_source">Source:</label>
+			<select id="doc_source" class="form-control" OnChange='onSourceChange();'>
+				<c:forEach var="source" items="${sources}">
+					<option class="form-control" id="doc_source_${source}" value="${source}" data-saveEnabled="${saveEnabled[source]}">${source}</option>
+				</c:forEach>
+			</select>
+		</div>
+
+		<label for="docselector">Document:</label>
+		<div id="doc_tree"></div>
+
+		<div class="form-group">
+			<label for="doc_title">Title:</label>
+			<input type="text" class="form-control" id="doc_title" name="doc_title">
+		</div>
+		<input type="hidden" id="doc_source_hidden" name="doc_source" value="Internal">
+		<p>
+			<button id="save_btn" onclick="update();return false" class="btn btn-success" title="save document" disabled="disabled">Save</button>
+			<button id="delete_btn" onclick="delete_doc();return false" class="btn btn-danger" title="delete document">Delete</button>
+			<a id="return_btn" href="https://dev-uportal.usd.edu/uPortal/p/cmseditor" class="btn btn-primary">Return</a>
+		</p>
 	</div>
-	<div class="form-group">
-		<label for="doc_title">ID:</label>
-		<input type="text" class="form-control" id="doc_id" name="doc_id">
+	<div style="75%; margin-left: 25%;">
+		<textarea id="${n}content" name="content">put content here.</textarea>
 	</div>
-	<input type="hidden" id="doc_source_hidden" name="doc_source" value="Internal">
-	<textarea id="${n}content" name="content">put content here.</textarea>
-	<p>
-		<button id="save_btn" onclick="update();return false" class="btn btn-success" title="save document" disabled="disabled">Save</button>
-		<button id="delete_btn" onclick="delete_doc();return false" class="btn btn-danger" title="delete document">Delete</button>
-		<a id="return_btn" href="https://dev-uportal.usd.edu/uPortal/p/cmseditor" class="btn btn-primary">Return</a>
-	</p>
 </div>
 
 
 <SCRIPT LANGUAGE="javascript">
-$(".chosen-select").chosen();
-$(".chosen-select").chosen({width: "100%"});
+//$(".chosen-select").chosen();
 
 var ${n} = ${n} || {};
 <c:choose>
@@ -110,11 +93,12 @@ $(document).ready(function(){
 	var ret_button = document.getElementById("return_btn");
 	ret_button.href=document.referrer;
 	
-	var doc_selector = document.getElementById("docselector_chosen");
-	doc_selector.style.width = "100%";
+	//Setup docTree
+	$('doc_tree').jstree();
 	
 	//make sure everything lines up.
 	onSourceChange()
+	
 	});
 });
 
@@ -197,13 +181,11 @@ function onSourceChange()
 	var source_id = source_selector.options[myindex].value;
 	console.log("Changing source to: " + source_id + " can save: " + source_selector.options[myindex].getAttribute("data-saveEnabled"));
 
-	var documents = document.getElementById("docselector")
-	documents.options.length=0;
-	documents.options[0] = new Option("Loading...","");
+	var index = "doc_tree";
 	${n}.jQuery("#doc_source").trigger("chosen:updated");
 	${n}.jQuery.ajax({dataType:"json",
 		url:"/CMSContent/v1/api/getPagesWithIndex.json",
-		data:{"source":source_id,"index":"docselector"},
+		data:{"source":source_id,"index":index},
 		success:populate_documents});
 	
 	if(source_selector.options[myindex].getAttribute("data-saveEnabled") == 'true')
@@ -223,17 +205,56 @@ function onSourceChange()
 function populate_documents(data, textStatus, jqXHR)
 {
 	CID = data["index"]
-	var pages = document.getElementById(CID);
-
-	pages.options.length=0;
-	for (i = 0; i < data["pages"].length; i++)
+	${n}.jQuery('#'+CID).jstree("destroy").empty();
+	var doc_tree = document.getElementById(CID);
+	var nodes = [];
+	var paths = [];
+	for( i = 0; i < data["pages"].length; i++ )
 	{
-		pages.options[i] = new Option(
-			"Title: " + data["pages"][i]["title"] + 
-			", Full Id: " + data["pages"][i]["id"],
-			data["pages"][i]["id"]);
+		var val = data["pages"][i]['id'];
+		if(val.charAt(0) == '/')
+			val = val.substring(1);
+		paths.push(val);
 	}
-	${n}.jQuery("#"+CID).trigger("chosen:updated");
+	
+	var source_selector = document.getElementById("doc_source");
+	var myindex = source_selector.selectedIndex;
+	nodes = getNodes(paths,source_selector.options[myindex].value)
+//	var root = [{"text":source_selector.options[myindex].value,"children":nodes}];
+	${n}.jQuery('#'+CID).jstree({'core' : { 'data' : nodes}});
+
+}
+function getNodes(val,name)
+{
+	var keys = {}
+	var nodes = []
+	for(i = 0; i < val.length; i++)
+	{
+		var parts = val[i].split('/');
+		if (parts.length > 1)
+		{
+			if (parts[0] in keys)
+			{
+				keys[parts[0]].push(val[i].substring(val[i].indexOf('/')+1));
+			}
+			else
+			{
+				console.log("New key: " + parts[0]);
+				keys[parts[0]] = [val[i].substring(val[i].indexOf('/')+1)];
+			}
+		}
+		else
+		{
+			nodes.push({"text":val[i],"icon":"fa fa-file-alt"});
+		}
+	}
+	for(key in keys)
+	{
+		console.log("Getting nodes for: " + key);
+		nodes.push(getNodes(keys[key],key));
+	}
+	console.log({"text":name,"children":nodes});
+	return {"text":name,"children":nodes};
 }
 <c:if test="${not empty parameters.get('doc')[0]}">
 CKEDITOR.on("instanceReady", function(event)
