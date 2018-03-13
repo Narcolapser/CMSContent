@@ -108,4 +108,8 @@ public class InternalDaoImpl implements InternalDao, DisposableBean
 
 	public void destroy() throws Exception {
 	}
+	
+	public boolean saveEnabled(){return true;}
+	
+	public boolean deleteEnabled(){return false;}
 }
