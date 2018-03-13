@@ -93,9 +93,14 @@ public class CMSEditorController {
 			refData.put(ds.getDaoName(),ds.getAllDocumentsContentless());
 
 		List<String> sources = new ArrayList<String>();
+		Map<String,Boolean> saveEnabled = new HashMap<String,Boolean>();
 		for(CMSDocumentDao ds:dataSources)
+		{
 			sources.add(ds.getDaoName());
+			saveEnabled.put(ds.getDaoName(),ds.saveEnabled());
+		}
 		refData.put("sources",sources.toArray());
+		refData.put("saveEnabled",saveEnabled);
 		
 		//get any paramaters that were passed.
 		refData.put("parameters",request.getParameterMap());

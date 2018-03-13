@@ -13,7 +13,7 @@
 	<packaging>war</packaging>
 	
 	<name>CMS Content</name>
-	<version>0.8.3</version>
+	<version>0.8.5</version>
 	<description>USD's portlet for displaying external CMS content.</description>
 	<url>https://bitbucket.org/usd/cms-content/</url>
 
@@ -245,7 +245,7 @@
 			<dependency>
 				<groupId>org.jasig.portal</groupId>
 				<artifactId>uportal-search-api</artifactId>
-				<version>4.0.10</version>
+				<version>4.3.2-USD</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -357,6 +357,13 @@
 				<artifactId>commons-dbcp</artifactId>
 				<version>1.4</version>
 			</dependency>
+			<!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
+			<dependency>
+				<groupId>org.jsoup</groupId>
+				<artifactId>jsoup</artifactId>
+				<version>1.8.1</version>
+			</dependency>
+
 		</dependencies>
 	</dependencyManagement>
 	
@@ -576,6 +583,12 @@
 			<artifactId>activation</artifactId>
 			<version>1.1.1</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<profiles>
