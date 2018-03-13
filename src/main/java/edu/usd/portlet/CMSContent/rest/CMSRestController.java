@@ -31,12 +31,12 @@ public final class CMSRestController {
 	
 	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
 	
-	@Autowired 
-	private InternalDao intdbo = null;
-	public void setInternalDao(InternalDao intdbo)
-	{
-		this.intdbo = intdbo;
-	}
+//	@Autowired 
+//	private InternalDao intdbo = null;
+//	public void setInternalDao(InternalDao intdbo)
+//	{
+//		this.intdbo = intdbo;
+//	}
 	
 	@Autowired
 	List<CMSDocumentDao> dataSources;
@@ -184,11 +184,6 @@ public final class CMSRestController {
 					logger.debug("Number of pages: " + pages.size());
 				}
 			}
-//			if(source.equals("Internal"))
-//				pages = intdbo.getAllDocumentsContentless();
-//			else if (source.equals("CommonSpot"))
-//				pages = csdbo.getAllDocumentsContentless();
-//			else
 			if (pages == null)
 			{
 				logger.debug("Request made to the empty data provider");
@@ -215,14 +210,16 @@ public final class CMSRestController {
 		DocWrapper ret = new DocWrapper();
 		try
 		{
-			if(source.equals("Internal"))
-				ret.setDoc(intdbo.getDocument(id));
-			else if (source.equals("CommonSpot"))
-				ret.setDoc(csdbo.getDocument(id));
-			else
-			{
-				logger.debug("Request made to the empty data provider");
-			}
+			CMSDocumentDao dbo = getDbo(source);
+			ret.setDoc(dbo.getDocument(id));
+//			if(source.equals("Internal"))
+//				ret.setDoc(intdbo.getDocument(id));
+//			else if (source.equals("CommonSpot"))
+//				ret.setDoc(csdbo.getDocument(id));
+//			else
+//			{
+//				logger.debug("Request made to the empty data provider");
+//			}
 			logger.debug("Returning result");
 		}
 		catch(Exception e)

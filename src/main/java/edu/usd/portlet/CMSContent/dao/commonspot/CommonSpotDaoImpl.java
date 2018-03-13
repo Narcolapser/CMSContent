@@ -157,4 +157,8 @@ public class CommonSpotDaoImpl implements CMSDocumentDao, DisposableBean
 
 	public boolean deleteDocument(String Id){return false;}
 
+	public boolean saveEnabled(){return false;}
+	
+	public boolean deleteEnabled(){return false;}
+
 }
