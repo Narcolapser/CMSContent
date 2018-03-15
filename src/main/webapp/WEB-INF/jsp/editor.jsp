@@ -21,7 +21,7 @@
 </style>
 
 <div style="width:100%;">
-	<div style="width:25%; float: left;">
+	<div style="width:400px; float: left;">
 		<div class="form-group">
 			<label for="doc_source">Source:</label>
 			<select id="doc_source" class="form-control" OnChange='onSourceChange();'>
@@ -31,21 +31,34 @@
 			</select>
 		</div>
 
-		<label for="docselector">Document:</label>
-		<div id="doc_tree"></div>
-
 		<div class="form-group">
 			<label for="doc_title">Title:</label>
 			<input type="text" class="form-control" id="doc_title" name="doc_title">
 		</div>
-		<input type="hidden" id="doc_source_hidden" name="doc_source" value="Internal">
+
+		<label for="docselector">Document:</label>
+		<input type="search" id="doc_tree_search" class="form-control" placeholder="Search..."/>
+		<div id="doc_tree" style="height: 250px;overflow: hidden;overflow-y: scroll;"></div>
+		<div class="form-group" style="display: none;">
+			<label for="doc_loc">Selected Path:</label>
+			<input id="doc_loc" type="text" class="form-control" name="doc_loc" disabled="disabled">
+		</div>
+		<div class="form-group">
+			<label for="doc_id">Document Name/ID:</label>
+			<input id="doc_id" type="text" class="form-control" name="doc_id">
+		</div>
+<!--		<input type="hidden" id="doc_source_hidden" name="doc_source" value="Internal">-->
 		<p>
-			<button id="save_btn" onclick="update();return false" class="btn btn-success" title="save document" disabled="disabled">Save</button>
-			<button id="delete_btn" onclick="delete_doc();return false" class="btn btn-danger" title="delete document">Delete</button>
-			<a id="return_btn" href="https://dev-uportal.usd.edu/uPortal/p/cmseditor" class="btn btn-primary">Return</a>
+			<div class="btn-group" role="group" aria-label="Editor actions">
+				<button id="load_btn" onclick="load();return false" class="btn btn-default" title="Load Selected Document">Load</button>
+				<button id="save_btn" onclick="update();return false" class="btn btn-success" title="save document" disabled="disabled">Save</button>
+				<button id="delete_btn" onclick="delete_doc();return false" class="btn btn-danger" title="delete document">Delete</button>
+				<button id="new_btn"  class="btn btn-info" title="New Folder">New Folder</button>
+				<a id="return_btn" href="https://dev-uportal.usd.edu/uPortal/p/cmseditor" class="btn btn-primary">Return</a>
+			</div>
 		</p>
 	</div>
-	<div style="75%; margin-left: 25%;">
+	<div style="margin-left: 25%;">
 		<textarea id="${n}content" name="content">put content here.</textarea>
 	</div>
 </div>
@@ -94,7 +107,16 @@ $(document).ready(function(){
 	ret_button.href=document.referrer;
 	
 	//Setup docTree
-	$('doc_tree').jstree();
+	$('#doc_tree').on('changed.jstree', function (e, data)
+	{
+		console.log("jstree selected");
+		var i, j, r = [];
+		for(i = 0, j = data.selected.length; i < j; i++)
+		{
+			r.push(data.instance.get_node(data.selected[i]).text);
+		}
+		console.log(r.join(','));
+	}).jstree();
 	
 	//make sure everything lines up.
 	onSourceChange()
@@ -113,10 +135,18 @@ function setText(val)
 }
 function OnChange()
 {
-	var selector = document.getElementById("docselector");
-	var myindex = selector.selectedIndex;
-	var doc_id = selector.options[myindex].value;
-
+	load();
+}
+function load()
+{
+	//var selector = document.getElementById("docselector");
+	//var myindex = selector.selectedIndex;
+	//var doc_id = selector.options[myindex].value;
+	
+	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
+	console.log(node);
+	var doc_id = getNodePath(node) + "/" + node.text;
+	console.log(doc_id);
 	setText("<p>Loading...</p>");
 	
 	var source_selector = document.getElementById("doc_source");
@@ -205,7 +235,7 @@ function onSourceChange()
 function populate_documents(data, textStatus, jqXHR)
 {
 	CID = data["index"]
-	${n}.jQuery('#'+CID).jstree("destroy").empty();
+	${n}.jQuery('#doc_tree').jstree("destroy").empty();
 	var doc_tree = document.getElementById(CID);
 	var nodes = [];
 	var paths = [];
@@ -220,8 +250,33 @@ function populate_documents(data, textStatus, jqXHR)
 	var source_selector = document.getElementById("doc_source");
 	var myindex = source_selector.selectedIndex;
 	nodes = getNodes(paths,source_selector.options[myindex].value)
+	nodes['state'] = 'opened';
 //	var root = [{"text":source_selector.options[myindex].value,"children":nodes}];
-	${n}.jQuery('#'+CID).jstree({'core' : { 'data' : nodes}});
+	${n}.jQuery('#doc_tree').jstree({'core' : { 'multiple': false, 'data' : nodes},"plugins":["search"]});
+	${n}.jQuery('#doc_tree').on('changed.jstree', function (e, data)
+	{
+		var i, j, r = [];
+		for(i = 0, j = data.selected.length; i < j; i++)
+		{
+			
+			r.push(getNodePath(data.instance.get_node(data.selected[i])));
+		}
+		var doc_loc = document.getElementById("doc_loc");
+		doc_loc.value = r[0];
+		
+		var doc_id = document.getElementById("doc_id");
+		if(data.instance.get_node(data.selected[0]).data=='document')
+			doc_id.value = data.instance.get_node(data.selected[0]).text;
+	})
+	var to = false;
+	${n}.jQuery('#doc_tree_search').keyup(function () {
+		console.log("Key stroke up");
+		if(to) { clearTimeout(to); }
+		to = setTimeout(function () {
+			var v = ${n}.jQuery('#doc_tree_search').val();
+			${n}.jQuery('#doc_tree').jstree(true).search(v);
+		}, 250);
+	});
 
 }
 function getNodes(val,name)
@@ -239,22 +294,36 @@ function getNodes(val,name)
 			}
 			else
 			{
-				console.log("New key: " + parts[0]);
 				keys[parts[0]] = [val[i].substring(val[i].indexOf('/')+1)];
 			}
 		}
 		else
 		{
-			nodes.push({"text":val[i],"icon":"fa fa-file-alt"});
+			//strip .cfm from files:
+			var filename = val[i];
+			if (filename.substring(filename.length-4) == '.cfm')
+				filename = filename.substring(0,filename.length-4);
+			nodes.push({"text":filename,"icon":"fa fa-file","data":"document"});
 		}
 	}
 	for(key in keys)
 	{
-		console.log("Getting nodes for: " + key);
 		nodes.push(getNodes(keys[key],key));
 	}
-	console.log({"text":name,"children":nodes});
-	return {"text":name,"children":nodes};
+	return {"text":name,"children":nodes,"data":"folder"};
+}
+function getNodePath(node)
+{
+	//var parents = data.instance.get_node(data.selected[i]).parents;
+	var parents = node.parents;
+	var pathArray = [];
+	var n;
+	for(n = 2; n < parents.length; n++)
+	{
+			pathArray.push(${n}.jQuery('#doc_tree').jstree(true).get_node(parents[(parents.length - 1 ) - n]).text);
+	}
+	//pathArray.push(data.instance.get_node(data.selected[i]).text);
+	return pathArray.join('/');
 }
 <c:if test="${not empty parameters.get('doc')[0]}">
 CKEDITOR.on("instanceReady", function(event)
