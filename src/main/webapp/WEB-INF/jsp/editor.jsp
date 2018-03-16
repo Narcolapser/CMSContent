@@ -4,7 +4,7 @@
 <script src="/CMSContent/js/chosen.jquery.js" type="text/javascript"></script>
 <script src="/CMSContent/js/ckeditor/ckeditor.js" type="text/javascript"></script>
 <script src="/CMSContent/js/jquery.form.min.js" type="text/javascript"></script>
-<script src="/CMSContent/js/jstree/jstree.min.js" type="text/javascript"></script>
+<script src="/CMSContent/js/jstree/jstree.js" type="text/javascript"></script>
 <link rel="stylesheet" href="/ResourceServingWebapp/rs/jqueryui/1.10.3/theme/smoothness/jquery-ui-1.10.3-smoothness.min.css" />
 <link rel="stylesheet" href="/CMSContent/css/chosen.css" />
 <link rel="stylesheet" href="/CMSContent/js/jstree/themes/default/style.min.css" />
@@ -22,21 +22,20 @@
 
 <div style="width:100%;">
 	<div style="width:400px; float: left;">
-		<div class="form-group">
-			<label for="doc_source">Source:</label>
-			<select id="doc_source" class="form-control" OnChange='onSourceChange();'>
-				<c:forEach var="source" items="${sources}">
-					<option class="form-control" id="doc_source_${source}" value="${source}" data-saveEnabled="${saveEnabled[source]}">${source}</option>
-				</c:forEach>
-			</select>
-		</div>
 
 		<div class="form-group">
 			<label for="doc_title">Title:</label>
 			<input type="text" class="form-control" id="doc_title" name="doc_title">
 		</div>
 
-		<label for="docselector">Document:</label>
+		<div class="form-group">
+			<label for="doc_source">Document:</label>
+			<select id="doc_source" class="form-control" OnChange='onSourceChange();' title="CMS Source">
+				<c:forEach var="source" items="${sources}">
+					<option class="form-control" id="doc_source_${source}" value="${source}" data-saveEnabled="${saveEnabled[source]}">${source}</option>
+				</c:forEach>
+			</select>
+		</div>
 		<input type="search" id="doc_tree_search" class="form-control" placeholder="Search..."/>
 		<div id="doc_tree" style="height: 250px;overflow: hidden;overflow-y: scroll;"></div>
 		<div class="form-group" style="display: none;">
@@ -51,9 +50,9 @@
 		<p>
 			<div class="btn-group" role="group" aria-label="Editor actions">
 				<button id="load_btn" onclick="load();return false" class="btn btn-default" title="Load Selected Document">Load</button>
-				<button id="save_btn" onclick="update();return false" class="btn btn-success" title="save document" disabled="disabled">Save</button>
+				<button id="save_btn" onclick="save();return false" class="btn btn-success" title="save document" disabled="disabled">Save</button>
 				<button id="delete_btn" onclick="delete_doc();return false" class="btn btn-danger" title="delete document">Delete</button>
-				<button id="new_btn"  class="btn btn-info" title="New Folder">New Folder</button>
+				<button id="new_btn" onclick="newFolder();return false" class="btn btn-info" title="New Folder">New Folder</button>
 				<a id="return_btn" href="https://dev-uportal.usd.edu/uPortal/p/cmseditor" class="btn btn-primary">Return</a>
 			</div>
 		</p>
@@ -121,6 +120,8 @@ $(document).ready(function(){
 	//make sure everything lines up.
 	onSourceChange()
 	
+	
+	
 	});
 });
 
@@ -144,8 +145,11 @@ function load()
 	//var doc_id = selector.options[myindex].value;
 	
 	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
-	console.log(node);
-	var doc_id = getNodePath(node) + "/" + node.text;
+	var doc_id = getNodePath(node);
+	if(doc_id.length == 0)
+		doc_id = node.text;
+	else
+		doc_id += "/" + node.text;
 	console.log(doc_id);
 	setText("<p>Loading...</p>");
 	
@@ -164,26 +168,44 @@ function update_text(data, textStatus, jqXHR)
 	var doc_title = document.getElementById("doc_title");
 	var doc_id = document.getElementById("doc_id");
 	var doc_source = document.getElementById("doc_source");
-	var doc_source_hidden = document.getElementById("doc_source_hidden");
 	doc_title.value=data.doc.title;
-	doc_id.value=data.doc.id;
+	var idsplit = data.doc.id.split('/');
+	var filename = idsplit[idsplit.length-1];
+	if (filename.substring(filename.length-4) == '.cfm')
+		filename = filename.substring(0,filename.length-4);
+	doc_id.value=filename;
 	doc_source.value=data.doc.source;
-	doc_source_hidden.value=data.doc.source;
 }
 function update()
 {
-	var doc_title = document.getElementById("doc_title");
-	var doc_id = document.getElementById("doc_id");
-	var doc_source = document.getElementById("doc_source");
-	var doc_source_hidden = document.getElementById("doc_source_hidden");
+	save();
+}
+function save()
+{
+	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
+	var doc_title = document.getElementById("doc_title").value;
+	var doc_source = document.getElementById("doc_source").value;
+	var doc_id = getNodePath(node);
+	if(node.data == "folder")
+		if(doc_id.length == 0)
+			doc_id = node.text;
+		else
+			doc_id += "/" + node.text;
+
+	if(doc_id.length == 0)
+		doc_id = document.getElementById("doc_id").value;
+	else
+		doc_id += "/" + document.getElementById("doc_id").value;
+	console.log(doc_id);
+	
 	
 	${n}.jQuery.ajax({dataType:"json",
 		type: "POST",
 		url:"/CMSContent/v1/api/saveDoc.json",
 		data:{"content":CKEDITOR.instances["${n}content"].getData(),
-			"doc_id":doc_id.value,
-			"doc_title":doc_title.value,
-			"doc_source":doc_source.value},
+			"doc_id":doc_id,
+			"doc_title":doc_title,
+			"doc_source":doc_source},
 		success:doc_saved});
 }
 function doc_saved(data, textStatus, jqXHR)
@@ -252,7 +274,7 @@ function populate_documents(data, textStatus, jqXHR)
 	nodes = getNodes(paths,source_selector.options[myindex].value)
 	nodes['state'] = 'opened';
 //	var root = [{"text":source_selector.options[myindex].value,"children":nodes}];
-	${n}.jQuery('#doc_tree').jstree({'core' : { 'multiple': false, 'data' : nodes},"plugins":["search"]});
+	${n}.jQuery('#doc_tree').jstree({'core' : {'check_callback' : true, 'multiple': false, 'data' : nodes},"plugins":["search"]});
 	${n}.jQuery('#doc_tree').on('changed.jstree', function (e, data)
 	{
 		var i, j, r = [];
@@ -283,6 +305,7 @@ function getNodes(val,name)
 {
 	var keys = {}
 	var nodes = []
+	var files = []
 	for(i = 0; i < val.length; i++)
 	{
 		var parts = val[i].split('/');
@@ -303,12 +326,16 @@ function getNodes(val,name)
 			var filename = val[i];
 			if (filename.substring(filename.length-4) == '.cfm')
 				filename = filename.substring(0,filename.length-4);
-			nodes.push({"text":filename,"icon":"fa fa-file","data":"document"});
+			files.push({"text":filename,"icon":"fa fa-file","data":"document"});
 		}
 	}
 	for(key in keys)
 	{
 		nodes.push(getNodes(keys[key],key));
+	}
+	for(file in files)
+	{
+		nodes.push(files[file]);
 	}
 	return {"text":name,"children":nodes,"data":"folder"};
 }
@@ -325,10 +352,48 @@ function getNodePath(node)
 	//pathArray.push(data.instance.get_node(data.selected[i]).text);
 	return pathArray.join('/');
 }
+function newFolder()
+{
+	var fname = window.prompt("Enter new folder name:","New Folder");
+	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
+	if (node.data == 'document')
+		var parent = node.parent;
+	else
+		var parent = ${n}.jQuery("#doc_tree").jstree('get_selected')[0];
+	console.log(parent);
+	var position = 'inside';
+	var newNode = {"text":fname,"data":"folder"}
+	${n}.jQuery("#doc_tree").jstree().create_node('#'+parent, newNode, position, false, false);
+}
 <c:if test="${not empty parameters.get('doc')[0]}">
 CKEDITOR.on("instanceReady", function(event)
 {
-	OnChange();
+	//OnChange();
+	var interval_id = setInterval(function(){
+
+		// $("li#"+id).length will be zero until the node is loaded
+		var div = ${n}.jQuery(".jstree")
+		console.log(div);
+		if(div.length != 0)
+		{
+			// "exit" the interval loop with clearInterval command
+			clearInterval(interval_id)
+			console.log("${parameters.get('doc')[0]} ${parameters.get('source')[0]}");
+			var source = document.getElementById("doc_source");
+			for(op in source.options)
+				if (source.options[op].text == "${parameters.get('source')[0]}")
+					console.log(op);
+			for(op in source.options)
+				if (source.options[op].text == "${parameters.get('source')[0]}")
+					source.selectedIndex = op;
+			// since the node is loaded, now we can open it without an error
+			//${n}.jQuery("#doc_tree").jstree("open_node", $("li#"+id));
+			var tree = ${n}.jQuery("#doc_tree").jstree(true);
+			console.log(tree);
+			//load();
+		}
+	}, 5);
+	
 });
 </c:if>
 </script>
