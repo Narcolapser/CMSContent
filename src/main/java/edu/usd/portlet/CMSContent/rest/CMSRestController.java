@@ -202,24 +202,18 @@ public final class CMSRestController {
 
 	@RequestMapping("getDocument")
 	public DocWrapper getDocument(
-		@RequestParam(value="source", defaultValue = "CommonSpot") String source,
+		@RequestParam(value="source", defaultValue = "Internal") String source,
 		@RequestParam(value="id", defaultValue = "1") String id
 		)
 	{
+		if (source.equals("CommonSpot") || source.equals("CSPortalPage"))
+			id = "/" + id + ".cfm";
 		logger.debug("Recieved request to get a document from: " + source + " with path: " + id);
 		DocWrapper ret = new DocWrapper();
 		try
 		{
 			CMSDocumentDao dbo = getDbo(source);
 			ret.setDoc(dbo.getDocument(id));
-//			if(source.equals("Internal"))
-//				ret.setDoc(intdbo.getDocument(id));
-//			else if (source.equals("CommonSpot"))
-//				ret.setDoc(csdbo.getDocument(id));
-//			else
-//			{
-//				logger.debug("Request made to the empty data provider");
-//			}
 			logger.debug("Returning result");
 		}
 		catch(Exception e)

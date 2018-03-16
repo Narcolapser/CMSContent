@@ -137,7 +137,7 @@ div.col_content{
 											<i class="fa fa-plus-square-o"></i> New Doc</button>
 										<button onclick="new_form('${mode}')" class="btn btn-info" title="Open new form on ${hostname}.usd.edu">
 											<i class="fa fa-code-fork"></i> New Form</button>
-										<button onclick="edit_document('${mode}_doc_select')" class="btn btn-warning" title="Open editor for selected doc on ${hostname}.usd.edu">
+										<button onclick="edit_document('${mode}')" class="btn btn-warning" title="Open editor for selected doc on ${hostname}.usd.edu">
 											<i class="fa fa-edit"></i> Edit</button>
 										<button onclick="add_document('${mode}')" class="btn btn-primary">
 											<i class="fa fa-link"></i> Add to Layout</button>
@@ -277,14 +277,16 @@ function getSelectValues(select) {
 
 function edit_document(val)
 {
-	var e = document.getElementById(val);
+	var e = document.getElementById(val+"_doc_select");
 	var selected = e.options[e.selectedIndex].value;
+	var source_selector = document.getElementById(val+"_source");
+	var source = source_selector.options[source_selector.selectedIndex].value;
 	if (selected.includes("form:"))
 	{
 		window.location.href = "https://${server}/uPortal/p/CMSForm.ctf2/max/render.uP?doc="+selected.substring(5,selected.length);
 	}
 	else
-		window.location.href = "https://${server}/uPortal/p/cmseditor.ctf4/max/render.uP?doc="+selected;
+		window.location.href = "https://${server}/uPortal/p/cmseditor.ctf4/max/render.uP?doc="+selected+"&source="+source;
 }
 
 function new_document(val)
