@@ -11,8 +11,20 @@
 
 <c:set var="n"><portlet:namespace/></c:set>
 <c:set var="selected" value=""/>
+<c:set var="search" value=""/>
+<c:set var="path" value="notset"/>
 <c:if test="${not empty parameters.get('doc')[0]}">
 	<c:set var="selected" value="${parameters.get('doc')[0]}"/>
+	<c:set var="search" value="${parameters.get('doc')[0]}"/>
+	<c:if test="${fn:contains(search,'.cfm')}">
+		<c:set var="path" value="${fn:split(search,'/')}" />
+		<c:set var="size" value="${fn:length(path)}"/>
+		<c:set var="search" value="${path[size]-1}"/>
+		<c:set var="end" value="${fn:length(search)-4}" />
+		<c:set var="search" value="${fn:substring(search,0,end)}"/>
+
+		<!--${fn:length(path)} ${size}-->
+	</c:if>
 </c:if>
 
 <style type="text/css">
@@ -32,11 +44,18 @@
 			<label for="doc_source">Document:</label>
 			<select id="doc_source" class="form-control" OnChange='onSourceChange();' title="CMS Source">
 				<c:forEach var="source" items="${sources}">
-					<option class="form-control" id="doc_source_${source}" value="${source}" data-saveEnabled="${saveEnabled[source]}">${source}</option>
+					<c:choose>
+						<c:when test="${parameters.get('source')[0] == source}">
+							<option class="form-control" id="doc_source_${source}" value="${source}" data-saveEnabled="${saveEnabled[source]}" selected="selected">${source}</option>
+						</c:when>
+						<c:otherwise>
+							<option class="form-control" id="doc_source_${source}" value="${source}" data-saveEnabled="${saveEnabled[source]}" >${source}</option>
+						</c:otherwise>
+					</c:choose>
 				</c:forEach>
 			</select>
 		</div>
-		<input type="search" id="doc_tree_search" class="form-control" placeholder="Search..."/>
+		<input type="search" id="doc_tree_search" class="form-control" value="${search}" placeholder="Search..."></input>
 		<div id="doc_tree" style="height: 250px;overflow: hidden;overflow-y: scroll;"></div>
 		<div class="form-group" style="display: none;">
 			<label for="doc_loc">Selected Path:</label>
@@ -175,6 +194,15 @@ function update_text(data, textStatus, jqXHR)
 		filename = filename.substring(0,filename.length-4);
 	doc_id.value=filename;
 	doc_source.value=data.doc.source;
+	
+	<c:if test="${not empty parameters.get('doc')[0]}">
+	var path = "${parameters.get('doc')[0]}".split('/');
+	var filename = path[path.length-1];
+	if (filename.substring(filename.length-4) == '.cfm')
+		filename = filename.substring(0,filename.length-4);
+	var nodes = ${n}.jQuery("a.jstree-anchor:contains('"+filename+"')").parent();
+	console.log(nodes);
+	</c:if>
 }
 function update()
 {
@@ -365,43 +393,14 @@ function newFolder()
 	var newNode = {"text":fname,"data":"folder"}
 	${n}.jQuery("#doc_tree").jstree().create_node('#'+parent, newNode, position, false, false);
 }
+<!-- empty check: ${not empty parameters.get('doc')[0]} -->
 <c:if test="${not empty parameters.get('doc')[0]}">
 CKEDITOR.on("instanceReady", function(event)
 {
-	//OnChange();
-	var interval_id = setInterval(function(){
-
-		// $("li#"+id).length will be zero until the node is loaded
-		var div = ${n}.jQuery(".jstree")
-		console.log(div);
-		if(div.length != 0)
-		{
-			// "exit" the interval loop with clearInterval command
-			clearInterval(interval_id)
-			console.log("${parameters.get('doc')[0]} ${parameters.get('source')[0]}");
-			var source = document.getElementById("doc_source");
-			for(op in source.options)
-				if (source.options[op].text == "${parameters.get('source')[0]}")
-					console.log(op);
-			for(op in source.options)
-				if (source.options[op].text == "${parameters.get('source')[0]}")
-					source.selectedIndex = op;
-			// since the node is loaded, now we can open it without an error
-			//${n}.jQuery("#doc_tree").jstree("open_node", $("li#"+id));
-			var tree = ${n}.jQuery("#doc_tree").jstree(true);
-			console.log(tree);
-			//load();
-		}
-	}, 5);
-	
+	${n}.jQuery.ajax({dataType:"json",
+		url:"/CMSContent/v1/api/getDocument.json",
+		data:{"source":"${parameters.get('source')[0]}","id":"${parameters.get('doc')[0]}"},
+		success:update_text});
 });
 </c:if>
 </script>
-
-<!--${CommonSpot}-->
-<!--${availablePages}-->
-<!--${None}-->
-<!--${pageUris}-->
-<!--${sources}-->
-<!--${displayType}-->
-<!--${displayTypes}-->
