@@ -137,7 +137,7 @@ public class SearchContentController implements PortletConfigAware
 				continue;
 			for (String term: searchTerms)
 			{
-				int rank = getRank(doc.getContent(),searchQuery.getSearchTerms());
+				int rank = getRank(doc.getContent(),searchQuery.getSearchTerms(),doc.getKeyTerms());
 				//logger.info("Rank of " + doc.getTitle() + ": " + rank + " for term: " + term);
 
 				if(rank > 0)
@@ -167,9 +167,10 @@ public class SearchContentController implements PortletConfigAware
 		return;
 	}
 	
-	private int getRank(String content, String query)
+	private int getRank(String content, String query, String keyTerms)
 	{
 		int ret = 0;
+		keyTerms.toLowerCase();
 		try
 		{
 			if (content != null)
@@ -195,6 +196,8 @@ public class SearchContentController implements PortletConfigAware
 				//alternative here just in case.
 				//if (content.contains(term))
 				//	ret += 1;
+				if (keyTerms.contains(term.toLowerCase()))
+					ret += 100;
 			}
 		}
 		catch(Exception e)
