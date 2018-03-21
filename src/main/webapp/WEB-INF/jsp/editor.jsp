@@ -65,7 +65,10 @@
 			<label for="doc_id">Document Name/ID:</label>
 			<input id="doc_id" type="text" class="form-control" name="doc_id">
 		</div>
-<!--		<input type="hidden" id="doc_source_hidden" name="doc_source" value="Internal">-->
+		<div class="form-group">
+			<label for="doc_search">Search Terms:</label>
+			<input id="doc_search" type="text" class="form-control" name="doc_search">
+		</div>
 		<p>
 			<div class="btn-group" role="group" aria-label="Editor actions">
 				<button id="load_btn" onclick="load();return false" class="btn btn-default" title="Load Selected Document">Load</button>
@@ -76,7 +79,7 @@
 			</div>
 		</p>
 	</div>
-	<div style="margin-left: 25%;">
+	<div style="margin-left: 410px;">
 		<textarea id="${n}content" name="content">put content here.</textarea>
 	</div>
 </div>
@@ -187,6 +190,7 @@ function update_text(data, textStatus, jqXHR)
 	var doc_title = document.getElementById("doc_title");
 	var doc_id = document.getElementById("doc_id");
 	var doc_source = document.getElementById("doc_source");
+	var doc_search = document.getElementById("doc_search");
 	doc_title.value=data.doc.title;
 	var idsplit = data.doc.id.split('/');
 	var filename = idsplit[idsplit.length-1];
@@ -194,15 +198,7 @@ function update_text(data, textStatus, jqXHR)
 		filename = filename.substring(0,filename.length-4);
 	doc_id.value=filename;
 	doc_source.value=data.doc.source;
-	
-	<c:if test="${not empty parameters.get('doc')[0]}">
-	var path = "${parameters.get('doc')[0]}".split('/');
-	var filename = path[path.length-1];
-	if (filename.substring(filename.length-4) == '.cfm')
-		filename = filename.substring(0,filename.length-4);
-	var nodes = ${n}.jQuery("a.jstree-anchor:contains('"+filename+"')").parent();
-	console.log(nodes);
-	</c:if>
+	doc_search.value=data.doc.keyTerms;
 }
 function update()
 {
@@ -213,8 +209,9 @@ function save()
 	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
 	var doc_title = document.getElementById("doc_title").value;
 	var doc_source = document.getElementById("doc_source").value;
+	var doc_search = document.getElementById("doc_search").value;
 	var doc_id = getNodePath(node);
-	if(node.data == "folder")
+	if(node.data['type'] == "folder")
 		if(doc_id.length == 0)
 			doc_id = node.text;
 		else
@@ -233,7 +230,8 @@ function save()
 		data:{"content":CKEDITOR.instances["${n}content"].getData(),
 			"doc_id":doc_id,
 			"doc_title":doc_title,
-			"doc_source":doc_source},
+			"doc_source":doc_source,
+			"doc_search":doc_search},
 		success:doc_saved});
 }
 function doc_saved(data, textStatus, jqXHR)
@@ -299,9 +297,8 @@ function populate_documents(data, textStatus, jqXHR)
 	
 	var source_selector = document.getElementById("doc_source");
 	var myindex = source_selector.selectedIndex;
-	nodes = getNodes(paths,source_selector.options[myindex].value)
+	nodes = getNodes(paths,source_selector.options[myindex].value,"");
 	nodes['state'] = 'opened';
-//	var root = [{"text":source_selector.options[myindex].value,"children":nodes}];
 	${n}.jQuery('#doc_tree').jstree({'core' : {'check_callback' : true, 'multiple': false, 'data' : nodes},"plugins":["search"]});
 	${n}.jQuery('#doc_tree').on('changed.jstree', function (e, data)
 	{
@@ -315,7 +312,7 @@ function populate_documents(data, textStatus, jqXHR)
 		doc_loc.value = r[0];
 		
 		var doc_id = document.getElementById("doc_id");
-		if(data.instance.get_node(data.selected[0]).data=='document')
+		if(data.instance.get_node(data.selected[0]).data['type']=='document')
 			doc_id.value = data.instance.get_node(data.selected[0]).text;
 	})
 	var to = false;
@@ -329,7 +326,7 @@ function populate_documents(data, textStatus, jqXHR)
 	});
 
 }
-function getNodes(val,name)
+function getNodes(val,name,parent)
 {
 	var keys = {}
 	var nodes = []
@@ -354,18 +351,21 @@ function getNodes(val,name)
 			var filename = val[i];
 			if (filename.substring(filename.length-4) == '.cfm')
 				filename = filename.substring(0,filename.length-4);
-			files.push({"text":filename,"icon":"fa fa-file","data":"document"});
+			files.push({"text":filename,"icon":"fa fa-file","data":{"type":"document","path":parent+'/'+val[i]},"id":parent+val[i]});
 		}
 	}
 	for(key in keys)
 	{
-		nodes.push(getNodes(keys[key],key));
+		if (parent.length == 0)
+			nodes.push(getNodes(keys[key],key,key));
+		else
+			nodes.push(getNodes(keys[key],key,parent+key));
 	}
 	for(file in files)
 	{
 		nodes.push(files[file]);
 	}
-	return {"text":name,"children":nodes,"data":"folder"};
+	return {"text":name,"children":nodes,"data":{"type":"folder"}};
 }
 function getNodePath(node)
 {
@@ -384,7 +384,7 @@ function newFolder()
 {
 	var fname = window.prompt("Enter new folder name:","New Folder");
 	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
-	if (node.data == 'document')
+	if (node.data['type'] == 'document')
 		var parent = node.parent;
 	else
 		var parent = ${n}.jQuery("#doc_tree").jstree('get_selected')[0];
