@@ -47,10 +47,22 @@ public class CMSDocument
 	@Column(name = "content", columnDefinition="TEXT")
 	protected String content;
 	
+	@Column(name = "keyTerms")
+	protected String keyTerms;
+	
 	protected String contentJson;
 
 	public CMSDocument(){}
 
+	public CMSDocument(String title, String Id, String source, String docType, String content, String keyTerms)
+	{
+		this.title = title;
+		this.Id = Id;
+		this.source = source;
+		this.docType = docType;
+		this.content = content;
+		this.keyTerms = keyTerms;
+	}
 	public CMSDocument(String title, String Id, String source, String docType, String content)
 	{
 		this.title = title;
@@ -58,6 +70,7 @@ public class CMSDocument
 		this.source = source;
 		this.docType = docType;
 		this.content = content;
+		this.keyTerms = "";
 	}
 	public CMSDocument(String title, String Id)
 	{
@@ -124,6 +137,16 @@ public class CMSDocument
 	public void setDocType(String val)
 	{
 		this.docType = val;
+	}
+	
+	public String getKeyTerms()
+	{
+		return this.keyTerms;
+	}
+	
+	public void setKeyTerms(String val)
+	{
+		this.keyTerms = val;
 	}
 	
 	public String toString()

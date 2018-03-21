@@ -139,10 +139,11 @@ public final class CMSRestController {
 		@RequestParam(value = "content", required = true) String content,
 		@RequestParam(value = "doc_id", required = true) String id,
 		@RequestParam(value = "doc_title", required = true) String title,
-		@RequestParam(value = "doc_source", required = false) String source)
+		@RequestParam(value = "doc_source", required = false) String source,
+		@RequestParam(value = "doc_search", required = false) String keyTerms)
 	{
 		logger.debug("Recieved request to update doc: " + id);
-		CMSDocument doc = new CMSDocument(title, id, source,"html", content);
+		CMSDocument doc = new CMSDocument(title, id, source, "html", content, keyTerms);
 		CMSDocumentDao dbo = getDbo(source);
 		dbo.saveDocument(doc);
 		return "{\"result\":\"success\"}";
