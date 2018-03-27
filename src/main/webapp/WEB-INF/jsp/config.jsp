@@ -156,7 +156,7 @@ div.col_content{
 											<c:if test="${fn:contains(doc.id,'form:')}">
 												<c:set var="title">Form Title: </c:set>
 											</c:if>
-											<option value="${doc.id}" data-title="${doc.title}">${title} ${doc.title}, Id: ${doc.id}</option>
+											<option value="${doc.id}" data-title="${doc.title}" data-type="${doc.docType}">${title} ${doc.title}, Id: ${doc.id}</option>
 										</c:forEach>
 									</select>
 								</div>
@@ -196,7 +196,6 @@ div.col_content{
 																<c:if test="${irole eq role}">
 																	<c:set var="contains" value="true"/>
 																</c:if>
-																<!-- role: ${role} irole: ${irole} contains: ${contains}-->
 															</c:forEach>
 															<c:choose>
 																<c:when test="${contains}">
@@ -265,7 +264,7 @@ function getSelectValues(select) {
 	var options = select && select.options;
 	var opt;
 
-	for (var i=0, iLen=options.length; i<iLen; i++) {
+	for (var i=0, i=options.length; i<i; i++) {
 		opt = options[i];
 
 		if (opt.selected) {
@@ -280,11 +279,11 @@ function edit_document(val)
 	var e = document.getElementById(val+"_doc_select");
 	var selected = e.options[e.selectedIndex].value;
 	var source_selector = document.getElementById(val+"_source");
+	var selected_type = e.options[e.selectedIndex].getAttribute("data-type");
 	var source = source_selector.options[source_selector.selectedIndex].value;
-	if (selected.includes("form:"))
-	{
-		window.location.href = "https://${server}/uPortal/p/CMSForm.ctf2/max/render.uP?doc="+selected.substring(5,selected.length);
-	}
+	console.log("Selected type: " + selected_type);
+	if (selected_type.includes("form"))
+		window.location.href = "https://${server}/uPortal/p/CMSForm.ctf2/max/render.uP?doc="+selected;
 	else
 		window.location.href = "https://${server}/uPortal/p/cmseditor.ctf4/max/render.uP?doc="+selected+"&source="+source;
 }
@@ -451,6 +450,7 @@ function populate_pages(data, textStatus, jqXHR)
 			"Title: " + data["pages"][i]["title"] + 
 			", Full Id: " + data["pages"][i]["id"],
 			data["pages"][i]["id"]);
+		pages.options[i].setAttribute("data-type",data["pages"][i]["docType"]);
 	}
 	$("#"+CID).trigger("chosen:updated");
 }
