@@ -58,7 +58,7 @@
 			</c:otherwise>
 		</c:choose>
 	</c:forEach>
-	<a data-control="submit" class="btn" onclick="submit('${content.id.split(':')[1].replace('\\','-')}');false">Submit</a>
+	<a data-control="submit" id="submit_btn" class="btn" onclick="submit('${content.id.split(':')[1].replace('\\','-')}');false">Submit</a>
 </form>
 <script src="/ResourceServingWebapp/rs/jquery/1.10.2/jquery-1.10.2.min.js" type="text/javascript"> </script>
 <script src="/ResourceServingWebapp/rs/jqueryui/1.10.3/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
@@ -140,9 +140,13 @@ function submit(formId)
 		url:"/CMSContent/v1/api/formResponse.json",
 		data:{"form":JSON.stringify(data),"replyType":"${replyType}"},
 		success:formReponseRecieved});
+	var sub = document.getElementById("submit_btn");
+	sub.setAttribute("disabled","disabled");
 }
 function formReponseRecieved(data, textStatus, jqXHR)
 {
-	alert("Response recieved");
+	var sub = document.getElementById("submit_btn");
+	sub.removeAttribute("disabled");
+	alert("Response recieved" + data);
 }
 </script>

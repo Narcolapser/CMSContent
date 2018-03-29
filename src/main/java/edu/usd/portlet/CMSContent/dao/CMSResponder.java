@@ -20,6 +20,9 @@ public interface CMSResponder
 	//get the name of the responder.
 	public String getName();
 	
+	//if the responder uses options, describe what they are briefly.
+	public String getOptionInfo();
+	
 	//respond to the form returned to the system.
-	public boolean respond(String json);
+	public boolean respond(String json, String options);
 }

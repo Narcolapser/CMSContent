@@ -24,13 +24,16 @@ public class Email implements CMSResponder
 	//get the name of the responder.
 	public String getName(){return "Email";}
 	
+	public String getOptionInfo(){return "Sending addres, Receiving address:";}
+
 	//respond to the form returned to the system.
-	public boolean respond(String json)
+	public boolean respond(String json, String options)
 	{
 		logger.debug("Processing response: " + json);
 		
-		String to="toben.archer@usd.edu";
-		String from="toben.archer@usd.edu";
+		
+		String to=options.split(",")[1];
+		String from=options.split(",")[0];
 		String host = "exchange.usd.edu";
 		Properties properties = System.getProperties();
 		properties.setProperty("mail.smtp.host",host);
@@ -48,6 +51,7 @@ public class Email implements CMSResponder
 		catch (MessagingException mex)
 		{
 			logger.debug("Error sending message: " + mex);
+			return false;
 		}
 		return true;
 	}
