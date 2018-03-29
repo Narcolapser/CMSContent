@@ -31,39 +31,16 @@ public final class CMSRestController {
 	
 	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
 	
-//	@Autowired 
-//	private InternalDao intdbo = null;
-//	public void setInternalDao(InternalDao intdbo)
-//	{
-//		this.intdbo = intdbo;
-//	}
-	
 	@Autowired
 	List<CMSDocumentDao> dataSources;
 	
 	@Autowired
 	List<CMSResponder> responders;
 
-
-//	@RequestMapping("test")
-//	public Message test(@RequestParam(value="name", defaultValue = "Me") String name)
-//	{
-//		logger.debug("Recieved request for name:" + name);
-//		Message msg = new Message();
-//		msg.setText("testing " + name);
-//		return msg;
-//	}
-
 	@RequestMapping("getPages")
 	public List<CMSDocument> getPages(@RequestParam(value="source", defaultValue = "CommonSpot") String source)
 	{
 		logger.debug("Recieved request to get pages for: " + source);
-//		List<CMSDocument> pages;
-//		if(source.equals("Internal"))
-//			pages = intdbo.getAllDocumentsContentless();
-//		else
-//			pages = csdbo.getAllDocumentsContentless();
-//		return pages;
 
 		List<CMSDocument> pages = null;
 		for(CMSDocumentDao ds:dataSources)
@@ -119,7 +96,7 @@ public final class CMSRestController {
 			JSONObject obj = new JSONObject(form);
 			CMSDocument doc = new CMSDocument();
 			doc.setTitle("" + obj.getJSONObject("doc").getString("name"));
-			doc.setId("form:" + obj.getJSONObject("doc").getString("id"));
+			doc.setId("" + obj.getJSONObject("doc").getString("id"));
 			doc.setSource("Internal");
 			doc.setDocType("form");
 			doc.setContent("" + obj.getJSONArray("form"));
@@ -157,10 +134,29 @@ public final class CMSRestController {
 		@RequestParam(value="replyType", defaultValue = "") String replyType
 		)
 	{
-		logger.debug("Recieved form response: " + form + " which will be sent to: " + replyType);
-		for(CMSResponder re:responders)
-			if (replyType.equals(re.getName()))
-				re.respond(form);
+		try
+		{
+			logger.debug("Recieved form response: " + form + " which will be sent to: " + replyType);
+			CMSDocumentDao dbo = getDbo("Internal");
+			JSONObject obj = new JSONObject(form);
+			logger.debug(obj.getString("formId"));
+			CMSDocument doc = dbo.getDocument(obj.getString("formId"));
+			ArrayList<JSONObject> jform = doc.json();
+			String options = "";
+			for(JSONObject entry: jform)
+				if(entry.getString("type").equals("respType"))
+					options = entry.getString("options");
+			logger.debug("Responder options: " + options);
+			for(CMSResponder re:responders)
+				if (replyType.equals(re.getName()))
+					if(!re.respond(form,options))
+						return "{\"result\":\"failure\"}";
+		}
+		catch(JSONException e)
+		{
+			logger.error("Failure to decode json: " + form + " error: " + e);
+			return "{\"result\":\"failure\"}";
+		}
 		return "{\"result\":\"success\"}";
 	}
 
@@ -222,6 +218,29 @@ public final class CMSRestController {
 			logger.info("Failed to retrieve information" + e.toString());
 		}
 		return ret;
+	}
+	
+	@RequestMapping("getResponder")
+	public ResponderWrapper getResponder(@RequestParam(value="name") String name)
+	{
+		for (CMSResponder resp:responders)
+			if(resp.getName().equals(name))
+				return new ResponderWrapper(resp);
+		return new ResponderWrapper();
+	}
+
+	@XmlRootElement
+	public final static class ResponderWrapper
+	{
+		@XmlElement
+		CMSResponder responder;
+		
+		public ResponderWrapper(){}
+		public ResponderWrapper(CMSResponder resp){this.responder = resp;}
+		
+		public CMSResponder getResponder() {return responder;}
+		
+		public void setResponder(CMSResponder resp) {this.responder = resp;}
 	}
 
 	@XmlRootElement

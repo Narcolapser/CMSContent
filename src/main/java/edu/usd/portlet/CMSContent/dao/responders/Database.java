@@ -20,8 +20,10 @@ public class Database implements CMSResponder
 	//get the name of the responder.
 	public String getName(){return "Database";}
 	
+	public String getOptionInfo(){return "Connection String:";}
+	
 	//respond to the form returned to the system.
-	public boolean respond(String json)
+	public boolean respond(String json, String options)
 	{
 		logger.debug("Processing response: " + json);
 		return true;

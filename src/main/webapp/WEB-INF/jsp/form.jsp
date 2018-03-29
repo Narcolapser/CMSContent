@@ -17,7 +17,7 @@
 			<td>
 				<select id="formSelector" class="chosen-select" OnChange='OnChange();' data-placeholder="Select document...">
 					<c:forEach var="form" items="${Internal}">
-						<c:if test="${form.id.contains('form:')}">
+						<c:if test="${form.docType eq 'form'}">
 							<c:choose>
 								<c:when test="${form.id == selected}">
 									<option selected="selected" value="${form.id}">${form.title}</option>
@@ -31,16 +31,24 @@
 				</select>
 			</td>
 			<td>Form Name:</td>
-			<td><input id="formName" type="text"></input></td>
+			<td><input id="formName" type="text" class="form-control"></input></td>
 			<td>Form Path:</td>
-			<td><input id="formPath" type="text"></input></td>
+			<td><input id="formPath" type="text" class="form-control"></input></td>
+		</tr>
+		<tr>
 			<td>Form Response Type:</td>
 			<td>
-				<select id="formResp">
+				<select id="formResp" OnChange="responder_change()" class="form-control">
 					<c:forEach var="res" items="${responders}">
 						<option value="${res}">${res}</option>
 					</c:forEach>
 				</select>
+			</td>
+			<td id="formRespOptionLabel">
+				Responder Option:
+			</td>
+			<td colspan="3">
+				<input id="formRespOption" class="form-control"/>
 			</td>
 		</tr>
 	</tbody>
@@ -80,11 +88,11 @@
 			</div>
 		</td>
 		<td>
-			<span>Label: </span><input name="label" type="text"></input>
+			<span>Label: </span><input name="label" type="text" class="form-control"></input>
 		</td>
 		<td>
 			<span>Type: </span>
-			<select name="type" >
+			<select name="type" class="form-control">
 				<option value="text">Text</option>
 				<option value="select">Drop Down</option>
 				<option value="bool">True/False</option>
@@ -95,7 +103,7 @@
 			</select>
 		</td>
 		<td>
-			<span>Options: </span><input name="options" type="text"></input>
+			<span>Options: </span><input name="options" type="text" class="form-control"></input>
 		</td>
 		<td><button class="btn btn-danger" onclick="remove_control(this);return false;">Remove</button></td>
 	</tr>
@@ -153,7 +161,7 @@ function update_content(data, textStatus, jqXHR)
 	var form_id = document.getElementById("formPath");
 	var form_resp = document.getElementById("formResp");
 	form_title.value=data.doc.title;
-	form_id.value=data.doc.id.split(":")[1];
+	form_id.value=data.doc.id;
 	var form = JSON.parse(data.doc.content);
 	//alert("Form: " + form);
 	var new_tbody = document.createElement('tbody')
@@ -211,8 +219,9 @@ function update()
 	doc_info['name'] = doc_table.rows[0].cells[3].children[0].value;
 	doc_info['id'] = doc_table.rows[0].cells[5].children[0].value;
 	var resp = {};
-	resp['label'] = doc_table.rows[0].cells[7].children[0].value;
+	resp['label'] = doc_table.rows[1].cells[1].children[0].value;
 	resp['type'] = "respType";
+	resp['options'] = doc_table.rows[1].cells[3].children[0].value;
 	form_json.push(resp);
 	$.ajax({dataType:"json",
 		url:"/CMSContent/v1/api/saveForm.json",
@@ -236,6 +245,23 @@ function delete_form()
 function form_deleted(data,textStatus, jqXHR)
 {
 	alert("form Deleted");
+}
+
+function responder_change()
+{
+	console.log("resp changed");
+	var resp_selector = document.getElementById("formResp");
+	var resp_name = resp_selector.options[resp_selector.selectedIndex].value;
+	console.log(resp_name);
+	$.ajax({dataType:"json",
+		url:"/CMSContent/v1/api/getResponder.json",
+		data:{"name":resp_name},
+		success:responder_update});
+}
+function responder_update(data, textStatus, jqXHR)
+{
+	var resp_option = document.getElementById("formRespOptionLabel");
+	resp_option.innerHTML = data['responder']['optionInfo'];
 }
 
 $(document).ready(function(){
