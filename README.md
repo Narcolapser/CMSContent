@@ -55,7 +55,7 @@ making a new portlet. This re-write seeks to solve those issues by:
 	* per-document search terms - Check
 * common spot portal page - Check
 * "delete" documents (actually just flagging them as deleted, never delete anything)
-* Configurable responders for forms.
+* Configurable responders for forms. - Check
 
 ###Abandoned:
 * More layouts:
