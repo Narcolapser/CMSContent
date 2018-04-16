@@ -1,9 +1,11 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
-<script src="/ResourceServingWebapp/rs/jquery/1.10.2/jquery-1.10.2.min.js" type="text/javascript"> </script>
-<script src="/ResourceServingWebapp/rs/jqueryui/1.10.3/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
-<script src="/CMSContent/js/jquery.form.min.js" type="text/javascript"></script>
-<script src="/CMSContent/js/chosen.jquery.js" type="text/javascript"></script>
-<link rel="stylesheet" href="/CMSContent/css/chosen.css">
+<script src="<c:url value='/webjars/jquery/3.3.1-1/jquery.min.js'/>" type="text/javascript"></script>
+<script src="<c:url value='/webjars/jquery-ui/1.12.1/jquery-ui.min.js'/>" type="text/javascript"></script>
+<script src="<c:url value='/webjars/jquery-form/4.2.1/jquery.form.min.js'/>" type="text/javascript"></script>
+
+<script src="<c:url value='/webjars/chosen/1.8.2/chosen.jquery.js'/>" type="text/javascript"></script>
+<link rel="stylesheet" href="<c:url value='/webjars/chosen/1.8.2/chosen.min.css'/>" />
+
 <c:set var="n"><portlet:namespace/></c:set>
 <c:set var="selected" value=""/>
 <c:if test="${not empty parameters.get('doc')[0]}">

@@ -140,7 +140,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			}
 			for(String pk : prefkeys)
 				prefs.reset(pk);
-
+			logger.debug("Setting " + mode + " to " + layout.getView());
 			prefs.setValue(mode,layout.getView());
 			
 			ArrayList<String> subs = new ArrayList<String>();
