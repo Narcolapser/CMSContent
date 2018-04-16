@@ -100,6 +100,8 @@ public class CMSEditorController {
 			saveEnabled.put(ds.getDaoName(),ds.saveEnabled());
 		}
 		refData.put("sources",sources.toArray());
+		logger.debug("Sources: ");
+		logger.debug(sources);
 		refData.put("saveEnabled",saveEnabled);
 		
 		//get any paramaters that were passed.

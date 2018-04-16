@@ -50,7 +50,9 @@ public class CMSLayout
 	
 	public void setView(String val)
 	{
+		logger.debug("Setting my view to: " + val);
 		this.view = val;
+		logger.debug("My view is now: " + this.view);
 	}
 	
 	public String getName()

@@ -56,6 +56,9 @@ making a new portlet. This re-write seeks to solve those issues by:
 * common spot portal page - Check
 * "delete" documents (actually just flagging them as deleted, never delete anything)
 * Configurable responders for forms. - Check
+* CMSEditor tree updates when new document saved.
+* Move JS libraries to webjars.
+* setup with Lucene search library.
 
 ###Abandoned:
 * More layouts:
