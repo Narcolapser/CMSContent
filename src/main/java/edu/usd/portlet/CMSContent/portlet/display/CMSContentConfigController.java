@@ -201,6 +201,7 @@ public class CMSContentConfigController
 		logger.debug("setting view to " + disp_type + " for mode " + mode);
 		CMSLayout layout = this.conf.getLayout(request,mode);
 		layout.setView(disp_type);
+		logger.debug("layout now has " + layout.getView() + " as it's view");
 		this.conf.setLayout(request,mode,layout);
 	}
 	
