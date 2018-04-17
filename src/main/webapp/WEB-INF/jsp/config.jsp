@@ -6,6 +6,8 @@
 <script src="<c:url value='/webjars/chosen/1.8.2/chosen.jquery.js'/>" type="text/javascript"></script>
 <link rel="stylesheet" href="<c:url value='/webjars/chosen/1.8.2/chosen.min.css'/>" />
 
+<script src="<c:url value='/webjars/sprintf.js/1.0.0/sprintf.min.js'/>" type="text/javascript"></script>
+
 <c:set var="n"><portlet:namespace/></c:set>
 <c:set var="server">${hostname}.usd.edu</c:set>
 <portlet:actionURL var="getPages" name="getPages"></portlet:actionURL>
@@ -154,13 +156,6 @@ div.col_content{
 								</div>
 								<div id="${mode}_doc_selector">
 									<select id="${mode}_doc_select" class="chosen-select">
-										<c:forEach var="doc" items="${Internal}">
-											<c:set var="title">Doc Title: </c:set>
-											<c:if test="${fn:contains(doc.id,'form:')}">
-												<c:set var="title">Form Title: </c:set>
-											</c:if>
-											<option value="${doc.id}" data-title="${doc.title}" data-type="${doc.docType}">${title} ${doc.title}, Id: ${doc.id}</option>
-										</c:forEach>
 									</select>
 								</div>
 							</div>
@@ -246,6 +241,26 @@ div.col_content{
 <portlet:actionURL var="reorderDocs">
 	<portlet:param name="action" value="reorder" />
 </portlet:actionURL>
+
+<c:set var="doc_row">
+	<td>
+		<div class="btn-group" role="group">
+			<button onclick="up_document('%1$s',this);return false" class="btn btn-default"><i class="fa fa-arrow-up"></i></button>
+			<button onclick="down_document('%1$s',this);return false" class="btn btn-default"><i class="fa fa-arrow-down"></i></button>
+		</div>
+	</td>
+	<td>%3$s</td>
+	<td>%2$s</td>
+	<td>
+		<select id="security_select_%1$s_%2$s" class="chosen-select-multi" multiple="" data-placeholder="Everyone" OnChange="sec_change('security_select_%1$s_%2$s','%1$s','%2$s');">
+			<c:forEach var="role" items="${securityRoles}">
+				<option value="${role}" data-title="${role}">${role}</option>
+			</c:forEach>
+		</select>
+	</td>
+	<td><button class="btn btn-danger" onclick="remove_document('%1$s',this);return false;">Remove</button></td>
+</c:set>
+
 <SCRIPT LANGUAGE="javascript">
 
 $(".chosen-select").chosen({width: "100%"});
@@ -323,15 +338,14 @@ function add_document(val)
 		table.insertBefore(row,last_row.nextSibling);
 	else
 		table.appendChild(row);
+	$(".chosen-select-multi").chosen({width: "100%",no_results_text:"Security role not found."});
 }
 function new_doc_row(title,id,mode)
 {
 	var new_row = document.createElement("TR");
-	var content =	'<td><div class="btn-group" role="group"><button onclick="up_document(\''+mode+'\',this);return false" class="btn btn-default">';
-	content += '<i class="fa fa-arrow-up"></i></button><button onclick="down_document(\''+mode+'\',this);return false" class="btn btn-default">';
-	content += '<i class="fa fa-arrow-down"></i></button></div></td><td>'+title+'</td><td>'+id+'</td>';
-	content += '<td><button class="btn btn-danger" onclick="remove_document(\''+mode+'\',this);return false;">Remove</button></td>';
-	new_row.innerHTML = content
+	var content = `${doc_row}`;
+	new_row.innerHTML = sprintf(content,mode,id,title);
+	console.log(sprintf("This is a test. Mode: %1$s Title: %2$s ID: %3$s Mode: %1$s",mode,title,id));
 	return new_row;
 }
 
@@ -382,7 +396,7 @@ function down_document(mode,button)
 		url:"${reorderDocs}",
 		data:{"index":index,
 			"direction":"down",
-			"mode":mode}});
+			"mode":mode},});
 }
 
 function update_view(mode)
@@ -392,7 +406,13 @@ function update_view(mode)
 	$.ajax({dataType:"json",
 		url:"${updateView}",
 		data:{"view_type":selected,
-			"mode":mode}});
+			"mode":mode},
+		success:new_properties});
+}
+
+function new_properties(data, textStatus, jqXHR)
+{
+	//Todo: Make it so that when you update a layout, it fetches the new properties.
 }
 
 function update_property(prop)
@@ -454,6 +474,7 @@ function populate_pages(data, textStatus, jqXHR)
 			", Full Id: " + data["pages"][i]["id"],
 			data["pages"][i]["id"]);
 		pages.options[i].setAttribute("data-type",data["pages"][i]["docType"]);
+		pages.options[i].setAttribute("data-title",data["pages"][i]["title"]);
 	}
 	$("#"+CID).trigger("chosen:updated");
 }
