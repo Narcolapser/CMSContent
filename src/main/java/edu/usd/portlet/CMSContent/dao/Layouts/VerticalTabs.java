@@ -30,10 +30,9 @@ public class VerticalTabs extends CMSLayout
 
 	public CMSLayout copy(CMSLayout val)
 	{
-		CMSLayout l = new VerticalTabs();
+		CMSLayout l = new CMSLayout();
 		l.view = "view_vertical_tabs";
 		l.name = "Vertical Tabs";
-		//logger.info("mid-copy: layout: " + l.getName() + ";" + l.getView());
 		l.properties = new HashMap<String,String>();
 		return l;
 	}

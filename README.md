@@ -49,15 +49,17 @@ making a new portlet. This re-write seeks to solve those issues by:
 ###0.8:
 
 * upload files - Check
-* portlet caching
-* Video play back
 * search integration - Check
 	* per-document search terms - Check
 * common spot portal page - Check
-* "delete" documents (actually just flagging them as deleted, never delete anything)
 * Configurable responders for forms. - Check
+* Move JS libraries to webjars. - Check
+
+###0.9:
+* portlet caching
+* Video play back
+* "delete" documents (actually just flagging them as deleted, never delete anything)
 * CMSEditor tree updates when new document saved.
-* Move JS libraries to webjars.
 * setup with Lucene search library.
 
 ###Abandoned:
@@ -66,8 +68,6 @@ making a new portlet. This re-write seeks to solve those issues by:
   * Horizontal Tabs with right side pane
   * Horizontal Tabs with left side Pane
   * Vertical tabs on right
-* Add the ability to delete documents
-
 
 Query for copying prod table:
 insert into dbo.CMSDocument (Id,content,source,title)
