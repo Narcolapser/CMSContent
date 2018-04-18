@@ -169,7 +169,11 @@ public class SearchContentController implements PortletConfigAware
 	private int getRank(String content, String query, String keyTerms)
 	{
 		int ret = 0;
-		keyTerms.toLowerCase();
+		if (keyTerms == null)
+			keyTerms = "";
+
+		keyTerms = keyTerms.toLowerCase();
+
 		try
 		{
 			if (content != null)
