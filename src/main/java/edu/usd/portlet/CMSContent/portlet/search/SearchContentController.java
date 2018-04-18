@@ -147,14 +147,13 @@ public class SearchContentController implements PortletConfigAware
 					searchResult.setTitle(request.getPreferences().getValue("searchResultsTitle", "${portlet.title.replace('O','4'}"));
 					//searchResult.setSummary(doc.getTitle());
 					searchResult.setSummary(this.getSummary(doc.getContent(),searchTerms));
-					
+
 					searchResult.getType().add("CMS Content");
 
-					//https://dev-uportal.usd.edu/uPortal/normal/render.uP?pCt=academic-career-planning-center.ctf8
+					String fname = request.getPreferences().getValue("fname",null);
+					if(fname != null)
+						searchResult.setExternalUrl("https://" + request.getServerName() + "/uPortal/max/render.uP?pCt="+fname);
 
-					String fname = "portletfname";
-					//searchResult.setExternalUrl("https://" + request.getServerName() + "/uPortal/max/render.uP?pCt="+fname);
-					//searchResult.setExternalUrl(searchResult.getExternalUrl().replace("normal","max"));
 					searchResults.getSearchResult().add(searchResult);
 					searchResult.setRank(rank);
 					break;
