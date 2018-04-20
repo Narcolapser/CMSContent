@@ -42,6 +42,11 @@
 			<label for="doc_title">Title:</label>
 			<input type="text" class="form-control" id="doc_title" name="doc_title">
 		</div>
+<!--${sources}
+<c:forEach var="source" items="${sources}">
+	${source}
+</c:forEach>
+-->
 
 		<div class="form-group">
 			<label for="doc_source">Document:</label>
@@ -49,10 +54,10 @@
 				<c:forEach var="source" items="${sources}">
 					<c:choose>
 						<c:when test="${parameters.get('source')[0] == source}">
-							<option class="form-control" id="doc_source_${source}" value="${source}" data-saveEnabled="${saveEnabled[source]}" selected="selected">${source}</option>
+							<option class="form-control" id="doc_source_${source}" value="${source}" data-saveEnabled="${saveEnabled[source]}" data-deleteEnabled="${deleteEnabled[source]}" selected="selected">${source}</option>
 						</c:when>
 						<c:otherwise>
-							<option class="form-control" id="doc_source_${source}" value="${source}" data-saveEnabled="${saveEnabled[source]}" >${source}</option>
+							<option class="form-control" id="doc_source_${source}" value="${source}" data-saveEnabled="${saveEnabled[source]}" data-deleteEnabled="${deleteEnabled[source]}">${source}</option>
 						</c:otherwise>
 					</c:choose>
 				</c:forEach>
@@ -244,17 +249,34 @@ function doc_saved(data, textStatus, jqXHR)
 
 function delete_doc()
 {
-	alert("Coming soon...");
-//	var doc_table = document.getElementById("doc_table");
-//	${n}.jQuery.ajax({dataType:"json",
-//		url:"/CMSContent/v1/api/delete.json",
-//		data:{"sanitybit":31415,"id":doc_table.rows[0].cells[5].children[0].value},
-//		success:doc_deleted});
+	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
+	var doc_id = getNodePath(node);
+	if(node.data['type'] == "folder")
+		if(doc_id.length == 0)
+			doc_id = node.text;
+		else
+			doc_id += "/" + node.text;
+
+	if(doc_id.length == 0)
+		doc_id = document.getElementById("doc_id").value;
+	else
+		doc_id += "/" + document.getElementById("doc_id").value;
+	console.log(doc_id);
+	
+	${n}.jQuery.ajax({dataType:"json",
+		url:"/CMSContent/v1/api/delete.json",
+		data:{"sanitybit":31415,"id":doc_id},
+		success:doc_deleted});
+
+
 }
 function doc_deleted(data,textStatus, jqXHR)
 {
-	alert("form Deleted");
+	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
+	document.getElementById(node.id).style.display = 'none';
+	console.log("Deleted node");
 }
+
 function onSourceChange()
 {
 	var source_selector = document.getElementById("doc_source");
@@ -279,6 +301,19 @@ function onSourceChange()
 	{
 		console.log("in capable of saving. deactivating the save button");
 		var save_btn = document.getElementById("save_btn");
+		save_btn.setAttribute("disabled","disabled");
+	}
+
+	if(source_selector.options[myindex].getAttribute("data-deleteEnabled") == 'true')
+	{
+		console.log("Capable of deleting. activating delete button");
+		var save_btn = document.getElementById("delete_btn");
+		save_btn.removeAttribute("disabled");
+	}
+	else
+	{
+		console.log("in capable of deleting. deactivating the delete button");
+		var save_btn = document.getElementById("delete_btn");
 		save_btn.setAttribute("disabled","disabled");
 	}
 }

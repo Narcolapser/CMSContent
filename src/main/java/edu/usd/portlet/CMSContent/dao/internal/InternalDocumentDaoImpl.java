@@ -36,7 +36,7 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 	public List<CMSDocument> getAllDocuments()
 	{
 		Session session = sessionFactory.openSession();
-		String hql = "FROM CMSDocument";
+		String hql = "FROM CMSDocument WHERE removed = 0";
 		Query query = session.createQuery(hql);
 		List<CMSDocument> docList = query.list();
 		return docList;
@@ -46,7 +46,7 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 	public CMSDocument getDocumentById(String id)
 	{
 		Session session = sessionFactory.openSession();
-		String hql = "FROM CMSDocument WHERE id = '" + id + "'";
+		String hql = "FROM CMSDocument WHERE id = '" + id + "' and removed = 0";
 		Query query = session.createQuery(hql);
 		return (CMSDocument)query.uniqueResult();
 	}
@@ -62,14 +62,10 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 	@Transactional(readOnly = false)
 	public void deleteDocument(String id)
 	{
-		logger.debug("Deleting form!");
 		Session session = this.sessionFactory.getCurrentSession();
-		logger.debug("Session got");
 		CMSDocument ret = (CMSDocument) session.load(CMSDocument.class, id);
-		logger.debug("fetched content.");
-		session.delete(ret);
-		logger.debug("deleted content.");
+		ret.setRemoved(true);
+		session.saveOrUpdate(ret);
 		session.flush();
-		logger.debug("Form Deleted!");
 	}
 }

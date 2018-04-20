@@ -58,7 +58,7 @@ making a new portlet. This re-write seeks to solve those issues by:
 ###0.9:
 * portlet caching
 * Video play back
-* "delete" documents (actually just flagging them as deleted, never delete anything)
+* "delete" documents (actually just flagging them as deleted, never delete anything) - check
 * CMSEditor tree updates when new document saved.
 * setup with Lucene search library.
 
