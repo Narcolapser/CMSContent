@@ -75,7 +75,8 @@ public final class CMSRestController {
 		{
 			CMSDocumentDao dbo = getDbo("Internal");
 			logger.debug("Deleting from DBO: " + dbo.getDaoName());
-			dbo.deleteDocument(id);
+			if (dbo.deleteEnabled())
+				dbo.deleteDocument(id);
 		}
 		else
 		{
@@ -120,7 +121,7 @@ public final class CMSRestController {
 		@RequestParam(value = "doc_search", required = false) String keyTerms)
 	{
 		logger.debug("Recieved request to update doc: " + id);
-		CMSDocument doc = new CMSDocument(title, id, source, "html", content, keyTerms);
+		CMSDocument doc = new CMSDocument(title, id, source, "html", content, keyTerms, false);
 		CMSDocumentDao dbo = getDbo(source);
 		dbo.saveDocument(doc);
 		return "{\"result\":\"success\"}";
@@ -210,8 +211,8 @@ public final class CMSRestController {
 		try
 		{
 			CMSDocumentDao dbo = getDbo(source);
-			ret.setDoc(dbo.getDocument(id));
-			logger.debug("Returning result");
+			CMSDocument val = dbo.getDocument(id);
+			ret.setDoc(val);
 		}
 		catch(Exception e)
 		{

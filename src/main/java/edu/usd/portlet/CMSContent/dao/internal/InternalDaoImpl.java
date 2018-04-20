@@ -42,9 +42,7 @@ public class InternalDaoImpl implements InternalDao, DisposableBean
 		List<String> ret = new ArrayList<String>();
 		try
 		{
-			//logger.debug("Fetching from interal CMS" + this.internalDocumentDao);
 			List<CMSDocument> docs = this.internalDocumentDao.getAllDocuments();
-			//logger.debug("Fetched from internal CMS");
 			for(CMSDocument doc:docs)
 				ret.add(doc.getTitle());
 			return ret;
@@ -60,9 +58,7 @@ public class InternalDaoImpl implements InternalDao, DisposableBean
 	{
 		try
 		{
-			//logger.debug("Fetching from interal CMS" + this.internalDocumentDao);
 			List<CMSDocument> docs = this.internalDocumentDao.getAllDocuments();
-			//logger.debug("Fetched from internal CMS");
 			return docs;
 		}
 		catch (Exception e)
@@ -100,9 +96,8 @@ public class InternalDaoImpl implements InternalDao, DisposableBean
 	
 	public boolean deleteDocument(String Id)
 	{
-		logger.debug("Preparing to delete: " + Id);
+		logger.info("Preparing to delete: " + Id);
 		this.internalDocumentDao.deleteDocument(Id);
-		logger.debug("Home star runner really great!");
 		return true;
 	}
 
@@ -111,5 +106,5 @@ public class InternalDaoImpl implements InternalDao, DisposableBean
 	
 	public boolean saveEnabled(){return true;}
 	
-	public boolean deleteEnabled(){return false;}
+	public boolean deleteEnabled(){return true;}
 }
