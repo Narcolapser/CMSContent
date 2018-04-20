@@ -50,11 +50,14 @@ public class CMSDocument
 	@Column(name = "keyTerms")
 	protected String keyTerms;
 	
+	@Column(name = "removed")
+	protected boolean removed;
+	
 	protected String contentJson;
 
 	public CMSDocument(){}
 
-	public CMSDocument(String title, String Id, String source, String docType, String content, String keyTerms)
+	public CMSDocument(String title, String Id, String source, String docType, String content, String keyTerms, boolean removed)
 	{
 		this.title = title;
 		this.Id = Id;
@@ -62,6 +65,7 @@ public class CMSDocument
 		this.docType = docType;
 		this.content = content;
 		this.keyTerms = keyTerms;
+		this.removed = removed;
 	}
 	public CMSDocument(String title, String Id, String source, String docType, String content)
 	{
@@ -71,6 +75,7 @@ public class CMSDocument
 		this.docType = docType;
 		this.content = content;
 		this.keyTerms = "";
+		this.removed = false;
 	}
 	public CMSDocument(String title, String Id)
 	{
@@ -147,6 +152,15 @@ public class CMSDocument
 	public void setKeyTerms(String val)
 	{
 		this.keyTerms = val;
+	}
+	public boolean getRemoved()
+	{
+		return this.removed;
+	}
+	
+	public void setRemoved(boolean val)
+	{
+		this.removed = val;
 	}
 	
 	public String toString()

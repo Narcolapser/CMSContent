@@ -94,15 +94,18 @@ public class CMSEditorController {
 
 		List<String> sources = new ArrayList<String>();
 		Map<String,Boolean> saveEnabled = new HashMap<String,Boolean>();
+		Map<String,Boolean> deleteEnabled = new HashMap<String,Boolean>();
 		for(CMSDocumentDao ds:dataSources)
 		{
 			sources.add(ds.getDaoName());
 			saveEnabled.put(ds.getDaoName(),ds.saveEnabled());
+			deleteEnabled.put(ds.getDaoName(),ds.deleteEnabled());
 		}
 		refData.put("sources",sources.toArray());
 		logger.debug("Sources: ");
 		logger.debug(sources);
 		refData.put("saveEnabled",saveEnabled);
+		refData.put("deleteEnabled",deleteEnabled);
 		
 		//get any paramaters that were passed.
 		refData.put("parameters",request.getParameterMap());
