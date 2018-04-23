@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -35,6 +36,7 @@ import javax.portlet.EventResponse;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletContext;
+import javax.portlet.PortletPreferences;
 
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletRequest;
@@ -130,6 +132,11 @@ public class SearchContentController implements PortletConfigAware
 
 		//Preparing a the list of page content.
 		ArrayList<CMSDocument> content = layout.getContent(request,dataSources);
+
+		String fname = null;
+		PortletPreferences prefs = request.getPreferences();
+		if ((prefs.getValue("fname",null) != null))
+			fname = (prefs.getValue("fname",null));
 
 		for (CMSDocument doc: content)
 		{
