@@ -46,7 +46,6 @@ public class CSPortalPage implements CMSDocumentDao, DisposableBean
 		{
 			connection = UsdSql.getPoolConnection();
 			content = "";
-			logger.debug("fetching uri: " + pageUri);
 			selectStatement = connection.prepareStatement("SELECT [Title],[TextBlock] FROM [uPortalUSD].[search].[vwPortalpageTextblocks] WHERE SubSiteURL + FileName = ?");
 			selectStatement.setString(1, pageUri);
 

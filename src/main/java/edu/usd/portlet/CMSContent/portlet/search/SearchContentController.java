@@ -75,6 +75,7 @@ import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSLayout;
 import edu.usd.portlet.cmscontent.dao.CMSSubscription;
+import edu.usd.portlet.cmscontent.service.CMSSearchIndex;
 
 
 
@@ -95,6 +96,9 @@ public class SearchContentController implements PortletConfigAware
 
 	@Autowired
 	List<CMSLayout> layouts;
+	
+	@Autowired
+	CMSSearchIndex index;
 	
 	protected PortletConfig portletConfig;
 
@@ -133,38 +137,35 @@ public class SearchContentController implements PortletConfigAware
 		//Preparing a the list of page content.
 		ArrayList<CMSDocument> content = layout.getContent(request,dataSources);
 
-		String fname = null;
-		PortletPreferences prefs = request.getPreferences();
-		if ((prefs.getValue("fname",null) != null))
-			fname = (prefs.getValue("fname",null));
-
 		for (CMSDocument doc: content)
 		{
 			if(doc == null)
 				continue;
-			for (String term: searchTerms)
+
+			List<CMSDocument> hits = index.search(searchQuery.getSearchTerms());
+			boolean hit = false;
+			for(CMSDocument sdoc:hits)
 			{
-				int rank = getRank(doc.getContent(),searchQuery.getSearchTerms(),doc.getKeyTerms());
-				//logger.info("Rank of " + doc.getTitle() + ": " + rank + " for term: " + term);
+				logger.debug(sdoc.getId() + " " + doc.getId());
+				if(sdoc.getId() == doc.getId())
+					hit |= true;
+			}
+			if(hit)
+			{
+				final SearchResult searchResult = new SearchResult();
+				searchResult.setTitle(request.getPreferences().getValue("searchResultsTitle", "${portlet.title.replace('O','4'}"));
+				//searchResult.setSummary(doc.getTitle());
+				searchResult.setSummary(this.getSummary(doc.getContent(),searchTerms));
 
-				if(rank > 0)
-				//if(doc.getContent().contains(term))
-				{
-					final SearchResult searchResult = new SearchResult();
-					searchResult.setTitle(request.getPreferences().getValue("searchResultsTitle", "${portlet.title.replace('O','4'}"));
-					//searchResult.setSummary(doc.getTitle());
-					searchResult.setSummary(this.getSummary(doc.getContent(),searchTerms));
+				searchResult.getType().add("CMS Content");
 
-					searchResult.getType().add("CMS Content");
+				String fname = request.getPreferences().getValue("fname",null);
+				if(fname != null)
+					searchResult.setExternalUrl("https://" + request.getServerName() + "/uPortal/max/render.uP?pCt="+fname);
 
-					String fname = request.getPreferences().getValue("fname",null);
-					if(fname != null)
-						searchResult.setExternalUrl("https://" + request.getServerName() + "/uPortal/max/render.uP?pCt="+fname);
-
-					searchResults.getSearchResult().add(searchResult);
-					searchResult.setRank(rank);
-					break;
-				}
+				//searchResults.getSearchResult().add(searchResult);
+				searchResult.setRank(1);
+				break;
 			}
 		}
 		
@@ -172,51 +173,7 @@ public class SearchContentController implements PortletConfigAware
 
 		return;
 	}
-	
-	private int getRank(String content, String query, String keyTerms)
-	{
-		int ret = 0;
-		if (keyTerms == null)
-			keyTerms = "";
 
-		keyTerms = keyTerms.toLowerCase();
-
-		try
-		{
-			if (content != null)
-				content = content.toLowerCase();
-			else
-				content = "";
-			if (query != null)
-				query = query.toLowerCase();
-			else
-				query = "";
-			final String[] searchTerms = query.split(" ");
-			for(String term:searchTerms)
-			{
-				int index = content.indexOf(term);
-				int lastIndex = -1;
-				while (index > lastIndex)
-				{
-					ret += 1;
-					lastIndex = index;
-					index = content.indexOf(term,index) + 1;
-				}
-				//the above method had been a little flaky, so I'm leaving this
-				//alternative here just in case.
-				//if (content.contains(term))
-				//	ret += 1;
-				if (keyTerms.contains(term.toLowerCase()))
-					ret += 100;
-			}
-		}
-		catch(Exception e)
-		{
-			logger.info("Error getting rank: " + e);
-		}
-		return ret;
-	}
-	
 	private String getSummary(String content, String[] terms)
 	{
 		String ret = "Error fetching preview";
