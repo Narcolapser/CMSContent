@@ -133,10 +133,10 @@ public class SearchContentController implements PortletConfigAware
 		//Preparing a the list of page content.
 		ArrayList<CMSDocument> content = layout.getContent(request,dataSources);
 
-		String fname = null;
-		PortletPreferences prefs = request.getPreferences();
-		if ((prefs.getValue("fname",null) != null))
-			fname = (prefs.getValue("fname",null));
+//		String fname = null;
+//		PortletPreferences prefs = request.getPreferences();
+//		if ((prefs.getValue("fname",null) != null))
+//			fname = (prefs.getValue("fname",null));
 
 		for (CMSDocument doc: content)
 		{

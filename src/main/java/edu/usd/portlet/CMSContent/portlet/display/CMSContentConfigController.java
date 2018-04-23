@@ -231,7 +231,7 @@ public class CMSContentConfigController
 	{
 		String groups = json.substring(1,json.length()-1).replace("\"","");
 //		logger.debug("updating security 3");
-//		logger.debug("updating the security groups of " + doc + " to " + groups);
+		logger.debug("updating the security groups of " + doc + " to " + groups);
 		String[] gval = groups.split(",");
 		List<String> sgroups = Arrays.asList(gval);
 		CMSLayout layout = this.conf.getLayout(request,mode);
