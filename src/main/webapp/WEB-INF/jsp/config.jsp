@@ -187,7 +187,7 @@ div.col_content{
 												<td>${doc.docTitle}</td>
 												<td>${doc.docId}</td>
 												<td>
-													<select id="security_select_${mode}_${doc.docId}" class="chosen-select-multi" multiple="" data-placeholder="Everyone" OnChange="sec_change('security_select_${mode}_${doc.docId}','${mode}','${doc.docId}');">
+													<select id="security_select_${mode}_${fn:replace(doc.docId,'/','-')}" class="chosen-select-multi" multiple="" data-placeholder="Everyone" OnChange="sec_change('security_select_${mode}_${fn:replace(doc.docId,'/','-')}','${mode}','${doc.docId}');">
 														<c:forEach var="role" items="${securityRoles}">
 															<c:set var="contains" value="false"/>
 															<c:forEach var="irole" items="${doc.securityGroups}">
@@ -282,7 +282,7 @@ function getSelectValues(select) {
 	var options = select && select.options;
 	var opt;
 
-	for (var i=0, i=options.length; i<i; i++) {
+	for (var i=0; i<options.length; i++) {
 		opt = options[i];
 
 		if (opt.selected) {
