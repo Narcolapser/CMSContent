@@ -22,9 +22,11 @@
 						<li class="active">
 							<div class="btn-group" role="group">
 								<a href="#${channelId}-${counter}" data-toggle="tab" class="btn btn-default">${page.title}</a>
-								<button class="copy-btn btn btn-default" id="copy-btn-${counter}">
-									<i class="fa fa-link"></i>
-								</button>
+								<c:if test="${properties.get('Link buttons (True/False)') == 'True'}">
+									<button class="copy-btn btn btn-default" id="copy-btn-${counter}">
+										<i class="fa fa-link"></i>
+									</button>
+								</c:if>
 							</div>
 						</li>
 					</c:when>
@@ -32,9 +34,11 @@
 						<li>
 							<div class="btn-group" role="group">
 								<a href="#${channelId}-${counter}" data-toggle="tab" class="btn btn-default">${page.title}</a>
-								<button class="copy-btn btn btn-default" id="copy-btn-${counter}">
-									<i class="fa fa-link"></i>
-								</button>
+								<c:if test="${properties.get('Link buttons (True/False)') == 'True'}">
+									<button class="copy-btn btn btn-default" id="copy-btn-${counter}">
+										<i class="fa fa-link"></i>
+									</button>
+								</c:if>
 							</div>
 						</li>
 					</c:otherwise>
