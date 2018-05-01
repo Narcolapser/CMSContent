@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 import java.util.Random;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 
 //import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
@@ -109,6 +112,21 @@ public class CMSEditorController {
 		
 		//get any paramaters that were passed.
 		refData.put("parameters",request.getParameterMap());
+
+		//get the base url of this server.
+		try
+		{
+			String hostname = InetAddress.getLocalHost().getHostName();
+			logger.debug("Host name is: " + hostname);
+			if (hostname.contains("dev-uportal"))
+				refData.put("hostname","dev-uportal");
+			else
+				refData.put("hostname","my");
+		}
+		catch (java.net.UnknownHostException e)
+		{
+			refData.put("hostname","unknown");
+		}
 
 		return new ModelAndView("editor",refData);
 	}
