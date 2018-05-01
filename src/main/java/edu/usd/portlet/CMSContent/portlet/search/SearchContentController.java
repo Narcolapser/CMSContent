@@ -125,12 +125,8 @@ public class SearchContentController implements PortletConfigAware
 
 		final SearchResults searchResults = new SearchResults();
 		
-		Random rand = new Random();
 		searchResults.setQueryId(searchQuery.getQueryId());
 		searchResults.setWindowId(request.getWindowID());
-
-		//Creating the model object that will be passed to the view.
-		Map<String, Object> refData = new HashMap<String, Object>();
 
 		CMSLayout layout = this.conf.getLayout(request,"maximized");
 
