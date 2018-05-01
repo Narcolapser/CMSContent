@@ -33,7 +33,7 @@ public class VerticalTabs extends CMSLayout
 		CMSLayout l = new CMSLayout();
 		l.view = "view_vertical_tabs";
 		l.name = "Vertical Tabs";
-		l.properties = new HashMap<String,String>();
+		l.properties = getDefaultProperties();
 		return l;
 	}
 	
