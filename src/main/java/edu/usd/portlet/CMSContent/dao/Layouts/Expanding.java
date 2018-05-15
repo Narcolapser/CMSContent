@@ -21,7 +21,7 @@ public class Expanding extends CMSLayout
 
 	public Expanding(){}
 	public String getName(){return "Expanding";}
-	public String getView(){return "view_expanding";}
+	public String getView(){return "layouts/expanding";}
 	public String getDescription()
 	{
 		return "An acordian style layout. Features headers that the user can click on to expand and show the content within. ";
@@ -31,7 +31,7 @@ public class Expanding extends CMSLayout
 	{
 		logger.info("Expanding is copying");
 		CMSLayout l = new CMSLayout(val);
-		l.view = "view_expanding";
+		l.view = "layouts/expanding";
 		l.name = "Expanding";
 		//logger.info("mid-copy: layout: " + l.getName() + ";" + l.getView());
 		return l;

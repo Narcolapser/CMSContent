@@ -22,7 +22,7 @@ public class TabbedOld extends CMSLayout
 
 	public TabbedOld(){}
 	public String getName(){return "TabbedOld";}
-	public String getView(){return "view_tabbed_old";}
+	public String getView(){return "layouts/tabbed_old";}
 	public String getDescription()
 	{
 		return "A simple Tabbed layout, themed identical to the previous code base.";
@@ -32,7 +32,7 @@ public class TabbedOld extends CMSLayout
 	{
 		logger.info("TabbedOld is copying");
 		CMSLayout l = new CMSLayout(val);
-		l.view = "view_Tabbed_old";
+		l.view = "layouts/Tabbed_old";
 		l.name = "TabbedOld";
 		//logger.info("mid-copy: layout: " + l.getName() + ";" + l.getView());
 		return l;

@@ -36,21 +36,18 @@ public class FormDaoImpl implements CMSDocumentDao, DisposableBean
 
 	public CMSDocument getDocument(String Id)
 	{
-		logger.debug("Getting document: 1");
 		try
 		{
-			logger.debug("Getting document: 2");
-			Map<String,Object> model = new HashMap<String,Object>();logger.debug("Getting document: 3");
-			model.put("content","and this is content!");
-			String content = jspRenderer.render("test",model);logger.debug("Getting document: 4");
-			CMSDocument val = new CMSDocument("title","Id","Internal Forms","html",content);logger.debug("Getting document: 5");
+			String form = "[{\"options\":\"\",\"label\":\"Insert info\",\"type\":\"text\"},{\"options\":\"a,b,c\",\"label\":\"Drop down options\",\"type\":\"select\"},{\"options\":\"\",\"label\":\"true?\",\"type\":\"bool\"},{\"options\":\"1,2,3,17\",\"label\":\"checka boxes!\",\"type\":\"checkbox\"},{\"options\":\"fast,cheap,good\",\"label\":\"only one!\",\"type\":\"radiobutton\"},{\"options\":\"\",\"label\":\"\",\"type\":\"hr\"},{\"options\":\"\",\"label\":\"Label example\",\"type\":\"label\"},{\"options\":\"toben.archer@usd.edu;toben.archer@usd.edu\",\"label\":\"Email\",\"type\":\"respType\"}]";
+
+			FormDoc val =  new FormDoc(new CMSDocument("title","Id","Internal Forms","html",form));
+			val.setJspRenderer(jspRenderer);
 			return val;
 		}
 		catch(Exception e)
 		{
 			logger.debug(e);
-			logger.debug("Getting document: 6");
-			CMSDocument val = new CMSDocument("title","Id","Internal Forms","html","content");logger.debug("Getting document: 7");
+			CMSDocument val = new CMSDocument("title","Id","Internal Forms","html","content");
 			return val;
 		}
 	}
