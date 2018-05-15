@@ -142,16 +142,16 @@ public final class CMSRestController {
 			JSONObject obj = new JSONObject(form);
 			logger.debug(obj.getString("formId"));
 			CMSDocument doc = dbo.getDocument(obj.getString("formId"));
-			ArrayList<JSONObject> jform = doc.json();
-			String options = "";
-			for(JSONObject entry: jform)
-				if(entry.getString("type").equals("respType"))
-					options = entry.getString("options");
-			logger.debug("Responder options: " + options);
-			for(CMSResponder re:responders)
-				if (replyType.equals(re.getName()))
-					if(!re.respond(form,options))
-						return "{\"result\":\"failure\"}";
+//			ArrayList<JSONObject> jform = doc.json();
+//			String options = "";
+//			for(JSONObject entry: jform)
+//				if(entry.getString("type").equals("respType"))
+//					options = entry.getString("options");
+//			logger.debug("Responder options: " + options);
+//			for(CMSResponder re:responders)
+//				if (replyType.equals(re.getName()))
+//					if(!re.respond(form,options))
+//						return "{\"result\":\"failure\"}";
 		}
 		catch(JSONException e)
 		{

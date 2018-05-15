@@ -1,6 +1,7 @@
 package edu.usd.portlet.cmscontent.dao;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -114,26 +115,6 @@ public class CMSDocument
 	{
 		this.content = val;
 	}
-	public ArrayList<JSONObject> json()
-	{
-		try
-		{
-			JSONArray obj = new JSONArray(this.content);
-			ArrayList<JSONObject> jobj = new ArrayList<JSONObject>();
-			for(int i = 0; i < obj.length(); i++)
-				jobj.add(obj.getJSONObject(i));
-			return jobj;
-		}
-		catch(JSONException e)
-		{
-			logger.error("Error loading form data: " + e);
-			return null;
-		}
-	}
-	public void setContentJson()
-	{
-		//dumby method.
-	}
 	public String getDocType()
 	{
 		return this.docType;
@@ -174,5 +155,15 @@ public class CMSDocument
 		else
 			ret += " Content Hash: empty";
 		return ret;
+	}
+	public void personalize(Map<String,Object> attributes)
+	{
+		logger.debug("personalizing in cmsdocument");
+		//this method to be extended by downstream objects for when personalization is needed.
+		//Currently the only expected attribute is UID.
+	}
+	public String render()
+	{
+		return this.content;
 	}
 }

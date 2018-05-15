@@ -150,6 +150,11 @@ public class CMSLayout
 	
 	public ModelAndView display(Map<String, Object> model)
 	{
+		logger.debug(model.get("content"));
+		for(CMSDocument doc:(List<CMSDocument>)model.get("content"))
+		{
+			doc.personalize(model);
+		}
 		return new ModelAndView(this.view,model);
 	}
 	public CMSLayout copy(CMSLayout val)
