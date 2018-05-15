@@ -72,3 +72,5 @@ making a new portlet. This re-write seeks to solve those issues by:
 Query for copying prod table:
 insert into dbo.CMSDocument (Id,content,source,title)
 select Id,content,source,title from [USD-SQL05\SQL01].uPortal.dbo.CMSDocument
+
+For reference tomorrow: http://valotas.com/get-output-of-jsp-or-servlet-response/
