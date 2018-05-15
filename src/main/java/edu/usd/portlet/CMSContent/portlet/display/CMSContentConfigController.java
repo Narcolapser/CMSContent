@@ -164,7 +164,7 @@ public class CMSContentConfigController
 			refData.put("hostname","unknown");
 		}
 
-		return new ModelAndView("config",refData);
+		return new ModelAndView("editors/layout",refData);
 	}
 
 

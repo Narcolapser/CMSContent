@@ -128,7 +128,7 @@ public class CMSEditorController {
 			refData.put("hostname","unknown");
 		}
 
-		return new ModelAndView("editor",refData);
+		return new ModelAndView("editors/document",refData);
 	}
 	
 	

@@ -22,7 +22,7 @@ public class VerticalTabs extends CMSLayout
 
 	public VerticalTabs(){}
 	public String getName(){return "Vertical Tabs";}
-	public String getView(){return "view_vertical_tabs";}
+	public String getView(){return "layouts/vertical_tabs";}
 	public String getDescription()
 	{
 		return "Tabs, but vertically along the left side. Also included on the tabs is a button to copy a direct link to that portlet fullscreened with that tab open. \n\nThere is one property: Tab Width. This specifies how wide the column of tabs should be. Useful for documents with really long titles.";
@@ -31,7 +31,7 @@ public class VerticalTabs extends CMSLayout
 	public CMSLayout copy(CMSLayout val)
 	{
 		CMSLayout l = new CMSLayout();
-		l.view = "view_vertical_tabs";
+		l.view = "layouts/vertical_tabs";
 		l.name = "Vertical Tabs";
 		l.properties = getDefaultProperties();
 		return l;

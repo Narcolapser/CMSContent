@@ -57,7 +57,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 		
 		CMSLayout ret = new CMSLayout();
 		
-		String view = prefs.getValue(mode,"view_single");
+		String view = prefs.getValue(mode,"layouts/single");
 		for(CMSLayout layout:layouts)
 		{
 			if (layout.getView().equals(view))
@@ -213,7 +213,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 		
 		CMSLayout layout = new CMSLayout();
 		
-		layout.setView("view_single");
+		layout.setView("layouts/single");
 		layout.setSubscriptions(ret);
 		
 		return layout;
