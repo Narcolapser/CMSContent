@@ -1,4 +1,4 @@
-<p>This is a test</p>
+<p>This is a test ${content}</p>
 
 <!--${CommonSpot}-->
 <!--${availablePages}-->
