@@ -22,7 +22,7 @@ public class Tabbed extends CMSLayout
 
 	public Tabbed(){}
 	public String getName(){return "Tabbed";}
-	public String getView(){return "view_tabbed";}
+	public String getView(){return "layouts/tabbed";}
 	public String getDescription()
 	{
 		return "A tabbed layout in a newer bootstraps style with optional link buttons.";
@@ -32,7 +32,7 @@ public class Tabbed extends CMSLayout
 	{
 		logger.info("Tabbed is copying");
 		CMSLayout l = new CMSLayout(val);
-		l.view = "view_tabbed";
+		l.view = "layouts/tabbed";
 		l.name = "Tabbed";
 		l.properties = getDefaultProperties();
 		//logger.info("mid-copy: layout: " + l.getName() + ";" + l.getView());

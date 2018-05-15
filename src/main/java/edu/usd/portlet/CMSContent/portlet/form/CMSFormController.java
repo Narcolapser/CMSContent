@@ -104,6 +104,6 @@ public class CMSFormController {
 			res.add(re.getName());
 		refData.put("responders",res);
 
-		return new ModelAndView("form",refData);
+		return new ModelAndView("editors/form",refData);
 	}
 }

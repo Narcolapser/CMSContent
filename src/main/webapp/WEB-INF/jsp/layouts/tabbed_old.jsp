@@ -4,15 +4,15 @@
 	<div id="${channelId}" class="tabbed-channel-content">
 		<ul>
 			<c:set var="counter" value="${0}"/>
-			<c:forEach var="page" items="${content}">
-				<li><a href="#${channelId}-${counter}">${page.title}</a></li>
+			<c:forEach var="document" items="${content}">
+				<li><a href="#${channelId}-${counter}">${document.title}</a></li>
 				<c:set var="counter" value="${counter + 1}"/>
 			</c:forEach>
 		</ul>
 		<c:set var="counter" value="${0}"/>
-		<c:forEach var="page" items="${content}">
+		<c:forEach var="document" items="${content}">
 			<div id="${channelId}-${counter}">
-				${page.content}
+				${document.render()}
 				<c:set var="counter" value="${counter + 1}"/>
 			</div>
 		</c:forEach>
