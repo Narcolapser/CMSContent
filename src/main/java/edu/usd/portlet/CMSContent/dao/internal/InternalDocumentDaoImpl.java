@@ -28,7 +28,6 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 	}
 
 	public void setSessionFactory(SessionFactory sessionFactory) {
-		logger.info("Setting session factory");
 		this.sessionFactory = sessionFactory;
 	}
 	
