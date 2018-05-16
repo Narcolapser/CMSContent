@@ -32,6 +32,9 @@ public class FormDaoImpl implements CMSDocumentDao, DisposableBean
 	@Autowired
 	private SwallowingJspRenderer jspRenderer;
 
+	@Autowired
+	private InternalDocumentDao internalDocumentDao;
+
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	public CMSDocument getDocument(String Id)
