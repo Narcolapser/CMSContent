@@ -68,13 +68,6 @@ import javax.naming.InitialContext;
 public class CMSEditorController {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	@Autowired 
-	private InternalDao intdbo = null;
-	public void setInternalDao(InternalDao intdbo)
-	{
-		this.intdbo = intdbo;
-	}
-
 	@Autowired
 	List<CMSDocumentDao> dataSources;
 
