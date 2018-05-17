@@ -29,8 +29,6 @@ public final class CMSRestController {
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
 	
-	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
-	
 	@Autowired
 	List<CMSDocumentDao> dataSources;
 	
