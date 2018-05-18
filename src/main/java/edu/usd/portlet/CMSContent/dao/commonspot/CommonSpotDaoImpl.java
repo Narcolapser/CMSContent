@@ -160,5 +160,7 @@ public class CommonSpotDaoImpl implements CMSDocumentDao, DisposableBean
 	public boolean saveEnabled(){return false;}
 	
 	public boolean deleteEnabled(){return false;}
+	
+	public String getSourceType(){return "html";}
 
 }
