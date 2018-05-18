@@ -150,7 +150,7 @@ $(document).ready(function(){
 	}).jstree();
 	
 	//make sure everything lines up.
-	onSourceChange()
+	onSourceChange();
 	
 	
 	

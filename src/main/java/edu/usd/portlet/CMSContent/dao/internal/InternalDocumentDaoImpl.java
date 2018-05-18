@@ -42,12 +42,31 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 		return docList;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public List<CMSDocument> getAllDocumentsContentLess()
+	{
+		return getAllContentLess("html");
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<CMSDocument> getAllForms()
+	{
+		Session session = sessionFactory.openSession();
+		String hql = "FROM CMSDocument WHERE removed = 0 and docType = 'form'";
+		Query query = session.createQuery(hql);
+		List<CMSDocument> docList = query.list();
+		return docList;
+	}
+	public List<CMSDocument> getAllFormsContentLess()
+	{
+		return getAllContentLess("form");
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<CMSDocument> getAllContentLess(String docType)
 	{
 		logger.debug("Getting documents with out content");
 		Session session = sessionFactory.openSession();
-		String hql = "SELECT id, title, keyTerms FROM CMSDocument WHERE removed = 0 and docType = 'html'";
+		String hql = "SELECT id, title, keyTerms FROM CMSDocument WHERE removed = 0 and docType = '"+docType+"'";
 		Query query = session.createQuery(hql);
 		
 		List<CMSDocument> docList = new ArrayList<CMSDocument>();
