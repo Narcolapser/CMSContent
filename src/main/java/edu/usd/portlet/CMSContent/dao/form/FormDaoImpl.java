@@ -39,42 +39,49 @@ public class FormDaoImpl implements CMSDocumentDao, DisposableBean
 
 	public CMSDocument getDocument(String Id)
 	{
+		logger.debug("Fetching document with ID of: " + Id);
+		FormDoc doc;
 		try
 		{
-			String form = "[{\"options\":\"\",\"label\":\"Insert info\",\"type\":\"text\"},{\"options\":\"a,b,c\",\"label\":\"Drop down options\",\"type\":\"select\"},{\"options\":\"\",\"label\":\"true?\",\"type\":\"bool\"},{\"options\":\"1,2,3,17\",\"label\":\"checka boxes!\",\"type\":\"checkbox\"},{\"options\":\"fast,cheap,good\",\"label\":\"only one!\",\"type\":\"radiobutton\"},{\"options\":\"\",\"label\":\"\",\"type\":\"hr\"},{\"options\":\"\",\"label\":\"Label example\",\"type\":\"label\"},{\"options\":\"toben.archer@usd.edu;toben.archer@usd.edu\",\"label\":\"Email\",\"type\":\"respType\"}]";
-
-			FormDoc val =  new FormDoc(new CMSDocument("title","Id","Internal Forms","html",form));
-			val.setJspRenderer(jspRenderer);
-			return val;
+			doc = new FormDoc(this.internalDocumentDao.getDocumentById(Id));
+			doc.setJspRenderer(jspRenderer);
 		}
-		catch(Exception e)
+		catch (Exception e)
 		{
-			logger.debug(e);
-			CMSDocument val = new CMSDocument("title","Id","Internal Forms","html","content");
-			return val;
+			logger.debug("Error in fetching docs: " + e);
+			return null;
 		}
+		return (CMSDocument)doc;
 	}
 
 	public List<String> getAvailableDocuments()
 	{
-		ArrayList<String> pages = new ArrayList<String>();
-		pages.add("title");
-		return pages;
+		List<String> ret = new ArrayList<String>();
+		try
+		{
+			List<CMSDocument> docs = this.internalDocumentDao.getAllForms();
+			for(CMSDocument doc:docs)
+				ret.add(doc.getTitle());
+			return ret;
+		}
+		catch (Exception e)
+		{
+			logger.debug("Error in fetching docs: " + e);
+			return null;
+		}
 	}
 
 	public List<CMSDocument> getAllDocumentsContentless()
 	{
-		ArrayList<CMSDocument> pages = new ArrayList<CMSDocument>();
-		CMSDocument val = new CMSDocument("title","Id","Internal Forms","html","content");
-		pages.add(val);
-		return pages;
+		List<CMSDocument> docs = this.internalDocumentDao.getAllFormsContentLess();
+		return docs;
 	}
 	
 	public void saveDocument(CMSDocument val){}
 	
 	public String getDaoName()
 	{
-		return "Internal Forms";
+		return "InternalForms";
 	}
 
 	public void destroy() throws Exception {
@@ -85,4 +92,6 @@ public class FormDaoImpl implements CMSDocumentDao, DisposableBean
 	public boolean saveEnabled(){return false;}
 	
 	public boolean deleteEnabled(){return false;}
+	
+	public String getSourceType(){return "form";}
 }

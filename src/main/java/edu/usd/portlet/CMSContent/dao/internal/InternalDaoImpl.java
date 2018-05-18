@@ -106,4 +106,6 @@ public class InternalDaoImpl implements CMSDocumentDao, DisposableBean
 	public boolean saveEnabled(){return true;}
 	
 	public boolean deleteEnabled(){return true;}
+	
+	public String getSourceType(){return "html";}
 }
