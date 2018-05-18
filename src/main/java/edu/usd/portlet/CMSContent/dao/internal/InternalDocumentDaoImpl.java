@@ -1,6 +1,7 @@
 package edu.usd.portlet.cmscontent.dao;
 
 import java.util.List;
+import java.util.ArrayList;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Query;
@@ -35,9 +36,35 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 	public List<CMSDocument> getAllDocuments()
 	{
 		Session session = sessionFactory.openSession();
-		String hql = "FROM CMSDocument WHERE removed = 0";
+		String hql = "FROM CMSDocument WHERE removed = 0 and docType = 'html'";
 		Query query = session.createQuery(hql);
 		List<CMSDocument> docList = query.list();
+		return docList;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<CMSDocument> getAllDocumentsContentLess()
+	{
+		logger.debug("Getting documents with out content");
+		Session session = sessionFactory.openSession();
+		String hql = "SELECT id, title, keyTerms FROM CMSDocument WHERE removed = 0 and docType = 'html'";
+		Query query = session.createQuery(hql);
+		
+		List<CMSDocument> docList = new ArrayList<CMSDocument>();
+		List<Object[]> list = query.list();
+		for(Object[] obj: list)
+		{
+			CMSDocument doc = new CMSDocument();
+			doc.setId((String)obj[0]);
+			doc.setTitle((String)obj[1]);
+			doc.setKeyTerms((String)obj[2]);
+			
+			doc.setSource("Internal");
+			doc.setDocType("html");
+			doc.setRemoved(false);
+			doc.setContent("");
+			docList.add(doc);
+		}
 		return docList;
 	}
 	
