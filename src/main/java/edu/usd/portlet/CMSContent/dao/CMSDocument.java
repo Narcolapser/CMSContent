@@ -132,7 +132,10 @@ public class CMSDocument
 	
 	public void setKeyTerms(String val)
 	{
-		this.keyTerms = val;
+		if(val == null)
+			this.keyTerms = "";
+		else
+			this.keyTerms = val;
 	}
 	public boolean getRemoved()
 	{
