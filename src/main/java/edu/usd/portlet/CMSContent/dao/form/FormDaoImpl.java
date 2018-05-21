@@ -9,6 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletPreferences;
 
+import org.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONArray;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
@@ -94,4 +98,21 @@ public class FormDaoImpl implements CMSDocumentDao, DisposableBean
 	public boolean deleteEnabled(){return false;}
 	
 	public String getSourceType(){return "form";}
+	
+	public ArrayList<JSONObject> getDocJson(CMSDocument doc)
+	{
+		try
+		{
+			JSONArray obj = new JSONArray(doc.getContent());
+			ArrayList<JSONObject> jobj = new ArrayList<JSONObject>();
+			for(int i = 0; i < obj.length(); i++)
+				jobj.add(obj.getJSONObject(i));
+			return jobj;
+		}
+		catch(JSONException e)
+		{
+			logger.error("Error loading form data: " + e);
+			return null;
+		}
+	}
 }

@@ -17,7 +17,7 @@ import org.json.JSONObject;
 import org.json.JSONException;
 import org.json.JSONArray;
 
-import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
+import edu.usd.portlet.cmscontent.dao.FormDaoImpl;
 import edu.usd.portlet.cmscontent.dao.InternalDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
@@ -136,20 +136,20 @@ public final class CMSRestController {
 		try
 		{
 			logger.debug("Recieved form response: " + form + " which will be sent to: " + replyType);
-			CMSDocumentDao dbo = getDbo("Internal");
+			FormDaoImpl dbo = (FormDaoImpl)getDbo("InternalForms");
 			JSONObject obj = new JSONObject(form);
 			logger.debug(obj.getString("formId"));
 			CMSDocument doc = dbo.getDocument(obj.getString("formId"));
-//			ArrayList<JSONObject> jform = doc.json();
-//			String options = "";
-//			for(JSONObject entry: jform)
-//				if(entry.getString("type").equals("respType"))
-//					options = entry.getString("options");
-//			logger.debug("Responder options: " + options);
-//			for(CMSResponder re:responders)
-//				if (replyType.equals(re.getName()))
-//					if(!re.respond(form,options))
-//						return "{\"result\":\"failure\"}";
+			ArrayList<JSONObject> jform = dbo.getDocJson(doc);
+			String options = "";
+			for(JSONObject entry: jform)
+				if(entry.getString("type").equals("respType"))
+					options = entry.getString("options");
+			logger.debug("Responder options: " + options);
+			for(CMSResponder re:responders)
+				if (replyType.equals(re.getName()))
+					if(!re.respond(form,options))
+						return "{\"result\":\"failure\"}";
 		}
 		catch(JSONException e)
 		{
