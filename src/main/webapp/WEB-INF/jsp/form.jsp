@@ -1,7 +1,7 @@
 <%-- Author: Toben Archer | Version $Id$ --%>
 <%@ page contentType="text/html" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<form id="${id.split(':')[1].replace('\\','-')}">
+<form id="${id}">
 	<div data-control="formInfo"><input data-control="formId" type="hidden" class="form-control" value="${id}"/></div>
 	<div data-control="formInfo"><input data-control="username" type="hidden" class="form-control" value="${username}"/></div>
 	<c:forEach var="control" items="${json}">
@@ -56,7 +56,7 @@
 			</c:otherwise>
 		</c:choose>
 	</c:forEach>
-	<a data-control="submit" id="submit_btn" class="btn" onclick="submit('${id.split(':')[1].replace('\\','-')}');false">Submit</a>
+	<a data-control="submit" id="submit_btn" class="btn btn-default" onclick="submit('${id}');false">Submit</a>
 </form>
 <script src="/ResourceServingWebapp/rs/jquery/1.10.2/jquery-1.10.2.min.js" type="text/javascript"> </script>
 <script src="/ResourceServingWebapp/rs/jqueryui/1.10.3/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
@@ -145,6 +145,10 @@ function formReponseRecieved(data, textStatus, jqXHR)
 {
 	var sub = document.getElementById("submit_btn");
 	sub.removeAttribute("disabled");
-	alert("Response recieved" + data);
+	//alert("Response recieved" + JSON.stringify(data));
+	if(data["result"] == "failure")
+		alert("Error submitting your response. Please try again later");
+	else
+		alert("Your response has been submitted");
 }
 </script>
