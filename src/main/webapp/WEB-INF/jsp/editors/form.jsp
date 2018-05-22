@@ -235,11 +235,19 @@ function load()
 function update_content(data, textStatus, jqXHR)
 {
 	var form_title = document.getElementById("formTitle");
-	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
-	var form_id = getNodePath(node);
+	var form_id = document.getElementById("doc_id");
+	var form_search = document.getElementById("doc_search");
 	var form_resp = document.getElementById("formResp");
+
 	form_title.value=data.doc.title;
-	form_id.value=data.doc.id;
+	var idsplit = data.doc.id.split('/');
+	var filename = idsplit[idsplit.length-1];
+	if (filename.substring(filename.length-4) == '.cfm')
+		filename = filename.substring(0,filename.length-4);
+	form_id.value=filename;
+
+	form_search.value=data.doc.keyTerms;
+	
 	var form = JSON.parse(data.doc.content);
 	//alert("Form: " + form);
 	var new_tbody = document.createElement('tbody')
@@ -279,6 +287,7 @@ function add_control()
 function save()
 {
 	var table = document.getElementById("control_table");
+	var form_title = document.getElementById("formTitle");
 	var form_json = [];
 	for (var i=1,row; row = table.rows[i];i++)
 	{
@@ -311,6 +320,7 @@ function save()
 		doc_id += "/" + document.getElementById("doc_id").value;
 	console.log(doc_id);
 	doc_info['id'] = doc_id;
+	doc_info['title'] = form_title.value;
 	
 	var resp = {};
 	resp['label'] = doc_table.rows[0].cells[1].children[0].value;
@@ -518,7 +528,10 @@ $(document).ready(function(){
 	var ret_button = document.getElementById("return_btn");
 	ret_button.href=document.referrer;
 	<c:if test="${not empty parameters.get('doc')[0]}">
-	OnChange();
+	${n}.jQuery.ajax({dataType:"json",
+		url:"/CMSContent/v1/api/getDocument.json",
+		data:{"source":"InternalForms","id":"${parameters.get('doc')[0]}"},
+		success:update_content});
 	</c:if>
 });
 </script>
