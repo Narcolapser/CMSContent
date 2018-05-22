@@ -140,11 +140,13 @@ public class SearchContentController implements PortletConfigAware
 
 			List<CMSDocument> hits = index.search(searchQuery.getSearchTerms());
 			boolean hit = false;
+			logger.debug("Searched, now to see if we have any matches.");
 			for(CMSDocument sdoc:hits)
 			{
-				logger.debug(sdoc.getId() + " " + doc.getId());
 				if(sdoc.getId() == doc.getId())
 					hit |= true;
+				logger.debug(sdoc.getId() + " " + doc.getId());
+				logger.debug(hit);
 			}
 			if(hit)
 			{
