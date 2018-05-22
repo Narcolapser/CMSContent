@@ -50,9 +50,8 @@ public class CMSLayout
 	
 	public void setView(String val)
 	{
-		logger.debug("Setting my view to: " + val + " I currently am " + this.view);
+		//logger.debug("Setting my view to: " + val + " I currently am " + this.view);
 		this.view = val;
-		logger.debug("My view is now: " + this.view);
 	}
 	
 	public String getName()
@@ -77,7 +76,6 @@ public class CMSLayout
 
 	public Map<String,String> getProperties()
 	{
-		logger.debug("Layout properties!");
 		if(this.properties == null)
 			this.properties = new HashMap<String,String>();
 		return this.properties;
@@ -154,7 +152,7 @@ public class CMSLayout
 	}
 	public CMSLayout copy(CMSLayout val)
 	{
-		logger.info("Layout Copying is copying");
+		logger.debug("Layout Copying is copying");
 		return new CMSLayout(val);
 	}
 	

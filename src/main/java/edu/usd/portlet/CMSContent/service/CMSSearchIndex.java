@@ -3,6 +3,8 @@ package edu.usd.portlet.cmscontent.service;
 import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,12 +18,19 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BooleanQuery.Builder;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.RegexpQuery;
+import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 
@@ -38,6 +47,14 @@ import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 @Service
 public class CMSSearchIndex
 {
+
+	public static final String[] ENGLISH_STOP_WORDS = {
+	"a", "an", "and", "are", "as", "at", "be", "but", "by",
+	"for", "if", "in", "into", "is", "it",
+	"no", "not", "of", "on", "or", "such",
+	"that", "the", "their", "then", "there", "these",
+	"they", "this", "to", "was", "will", "with"
+	};
 	protected final Log logger = LogFactory.getLog(this.getClass());
 	private StandardAnalyzer analyzer;
 	private Directory index;
@@ -52,7 +69,9 @@ public class CMSSearchIndex
 	{
 		try
 		{
-			analyzer = new StandardAnalyzer();
+		//CharArraySet((Collection)Arrays.asList(this.ENGLISH_STOP_WORDS),true));
+			//CharArraySet stopers = new CharArraySet();
+			analyzer = new StandardAnalyzer(new CharArraySet(Arrays.asList(this.ENGLISH_STOP_WORDS),true));
 			index = new RAMDirectory();
 			config = new IndexWriterConfig(analyzer);
 			writer = new IndexWriter(index,config);
@@ -80,8 +99,19 @@ public class CMSSearchIndex
 		List<CMSDocument> ret = new ArrayList<CMSDocument>();
 		try
 		{
-			Query q = new QueryParser("content",analyzer).parse(query);
-			
+			//Query q = new QueryParser("content",analyzer).parse(query);
+			//BooleanQuery q = new BooleanQuery();
+			Builder bq = new Builder();
+			for(String term:query.split(" "))
+			{
+				if(term.length() == 1)
+					continue;				
+				bq.add(new TermQuery(new Term("content",""+term+"")),BooleanClause.Occur.SHOULD);
+				//bq.add(new RegexpQuery(new Term("content","[^a-zA-Z\\d\\s:]"+term+"")));
+			}
+			BooleanQuery q = bq.build();
+			logger.debug("Query: ");
+			logger.debug(q);
 			int hitsPerPage = 1;
 			IndexReader reader = DirectoryReader.open(index);
 			IndexSearcher searcher = new IndexSearcher(reader);
@@ -114,7 +144,7 @@ public class CMSSearchIndex
 		Document doc = new Document();
 		doc.add(new TextField("title", cmsdoc.getTitle(), Field.Store.YES));
 
-		doc.add(new TextField("content", cmsdoc.getContent(), Field.Store.YES));
+		doc.add(new TextField("content", cmsdoc.getContent(), Field.Store.NO));
 		doc.add(new StringField("id",cmsdoc.getId(), Field.Store.YES));
 		doc.add(new StringField("source",cmsdoc.getSource(), Field.Store.YES));
 		writer.addDocument(doc);
