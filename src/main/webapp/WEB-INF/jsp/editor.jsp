@@ -23,7 +23,7 @@
 	<c:if test="${fn:contains(search,'.cfm')}">
 		<c:set var="path" value="${fn:split(search,'/')}" />
 		<c:set var="size" value="${fn:length(path)}"/>
-		<c:set var="search" value="${path[size]-1}"/>
+		<c:set var="search" value="${path[size-1]}"/>
 		<c:set var="end" value="${fn:length(search)-4}" />
 		<c:set var="search" value="${fn:substring(search,0,end)}"/>
 
@@ -43,12 +43,6 @@
 			<label for="doc_title">Title:</label>
 			<input type="text" class="form-control" id="doc_title" name="doc_title">
 		</div>
-<!--${sources}
-<c:forEach var="source" items="${sources}">
-	${source}
-</c:forEach>
--->
-
 		<div class="form-group">
 			<label for="doc_source">Document:</label>
 			<select id="doc_source" class="form-control" OnChange='onSourceChange();' title="CMS Source">
