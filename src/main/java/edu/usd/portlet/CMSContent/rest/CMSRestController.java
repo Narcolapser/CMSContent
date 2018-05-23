@@ -201,9 +201,11 @@ public final class CMSRestController {
 	@RequestMapping("getDocument")
 	public DocWrapper getDocument(
 		@RequestParam(value="source", defaultValue = "Internal") String source,
-		@RequestParam(value="id", defaultValue = "1") String id
+		@RequestParam(value="id", defaultValue = "") String id
 		)
 	{
+		while (id.charAt(0) == '/')
+			id = id.substring(1);
 		if (source.equals("CommonSpot") || source.equals("CSPortalPage"))
 			id = "/" + id + ".cfm";
 		logger.debug("Recieved request to get a document from: " + source + " with path: " + id);
