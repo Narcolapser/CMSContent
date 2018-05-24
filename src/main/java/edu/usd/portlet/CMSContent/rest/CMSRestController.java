@@ -205,10 +205,12 @@ public final class CMSRestController {
 		)
 	{
 		if (source.equals("CommonSpot") || source.equals("CSPortalPage"))
+		{
 			if (id.charAt(0) != '/')
 				id = "/" + id;
 			if (!(id.substring(id.length()-4).equals(".cfm")))
 				id = id + ".cfm";
+		}
 		logger.debug("Recieved request to get a document from: " + source + " with path: " + id);
 		DocWrapper ret = new DocWrapper();
 		try
