@@ -221,6 +221,10 @@ function save()
 		else
 			doc_id += "/" + node.text;
 
+	if (doc_id == doc_source)
+		doc_id = "";
+
+	var path = doc_id;
 	if(doc_id.length == 0)
 		doc_id = document.getElementById("doc_id").value;
 	else
@@ -237,6 +241,14 @@ function save()
 			"doc_source":doc_source,
 			"doc_search":doc_search},
 		success:doc_saved});
+	
+	doc_id = document.getElementById("doc_id").value;
+	if (node.data['type'] != 'document')
+	{
+		var parent = ${n}.jQuery("#doc_tree").jstree('get_selected')[0];
+		var newNode = {"text":doc_id,"icon":"fa fa-file","data":{"type":"document","path":path,"id":doc_id}}
+		${n}.jQuery("#doc_tree").jstree().create_node('#'+parent, newNode, 'inside', false, false);
+	}
 }
 function doc_saved(data, textStatus, jqXHR)
 {
@@ -333,7 +345,7 @@ function populate_documents(data, textStatus, jqXHR)
 	var myindex = source_selector.selectedIndex;
 	nodes = getNodes(paths,source_selector.options[myindex].value,"");
 	nodes['state'] = 'opened';
-	${n}.jQuery('#doc_tree').jstree({'core' : {'check_callback' : true, 'multiple': false, 'data' : nodes},"plugins":["search"]});
+	${n}.jQuery('#doc_tree').jstree({'core' : {'check_callback' : true, 'multiple': false, 'data' : nodes},"search":{'case_insensitive':true,'show_only_matches':true},"plugins":["search"]});
 	${n}.jQuery('#doc_tree').on('changed.jstree', function (e, data)
 	{
 		var i, j, r = [];
@@ -424,7 +436,7 @@ function newFolder()
 		var parent = ${n}.jQuery("#doc_tree").jstree('get_selected')[0];
 	console.log(parent);
 	var position = 'inside';
-	var newNode = {"text":fname,"data":"folder"}
+	var newNode = {"text":fname,"data":{"type":"folder"}}
 	${n}.jQuery("#doc_tree").jstree().create_node('#'+parent, newNode, position, false, false);
 }
 <!-- empty check: ${not empty parameters.get('doc')[0]} -->
