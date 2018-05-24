@@ -82,7 +82,7 @@ public class CSPortalPage implements CMSDocumentDao, DisposableBean
 		try
 		{
 			connection = UsdSql.getPoolConnection();
-			selectStatement = connection.prepareStatement("SELECT [Title],[SubSiteURL]+[FileName] as PagePath FROM [uPortalUSD].[search].[vwPortalpageTextblocks]");
+			selectStatement = connection.prepareStatement("SELECT Title,[SubSiteURL]+[FileName] as PagePath,* FROM [uPortalUSD].[search].[vwPortalpageTextblocks] as docs Inner Join (SELECT ID, max(DateApproved) as MaxDate FROM [uPortalUSD].[search].[vwPortalpageTextblocks] group by ID) udocs ON udocs.ID = docs.ID AND udocs.MaxDate = docs.DateApproved");
 
 			resultSet = selectStatement.executeQuery();
 			while(resultSet.next())
@@ -114,7 +114,7 @@ public class CSPortalPage implements CMSDocumentDao, DisposableBean
 		try
 		{
 			connection = UsdSql.getPoolConnection();
-			selectStatement = connection.prepareStatement("SELECT [Title],[SubSiteURL]+[FileName] as url FROM [uPortalUSD].[search].[vwPortalpageTextblocks]");
+			selectStatement = connection.prepareStatement("SELECT Title,[SubSiteURL]+[FileName] as PagePath,* FROM [uPortalUSD].[search].[vwPortalpageTextblocks] as docs Inner Join (SELECT ID, max(DateApproved) as MaxDate FROM [uPortalUSD].[search].[vwPortalpageTextblocks] group by ID) udocs ON udocs.ID = docs.ID AND udocs.MaxDate = docs.DateApproved");
 
 			resultSet = selectStatement.executeQuery();
 			String title;
@@ -123,7 +123,7 @@ public class CSPortalPage implements CMSDocumentDao, DisposableBean
 			{
 				CMSDocument page = new CMSDocument();
 				page.setTitle((String)(resultSet.getString("Title")));
-				page.setId((String)(resultSet.getString("url")));
+				page.setId((String)(resultSet.getString("PagePath")));
 				page.setDocType("html");
 				page.setSource("CSPortalPage");
 				pages.add(page);
