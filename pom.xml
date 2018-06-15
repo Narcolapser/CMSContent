@@ -13,7 +13,7 @@
 	<packaging>war</packaging>
 	
 	<name>CMS Content</name>
-	<version>0.9.11</version>
+	<version>0.9.13</version>
 	<description>USD's portlet for displaying external CMS content.</description>
 	<url>https://bitbucket.org/usd/cms-content/</url>
 
@@ -32,7 +32,6 @@
 		<hsqldb.version>2.3.2</hsqldb.version>
 		<hibernate.version>4.3.8.Final</hibernate.version>
 		<jackson.version>2.7.3</jackson.version>
-		<lucene.version>7.3.0</lucene.version>
 	</properties>
 	<build>
 		<finalName>CMSContent</finalName>
@@ -408,16 +407,6 @@
 				<artifactId>sprintf.js</artifactId>
 				<version>1.0.0</version>
 			</dependency>
-			<dependency>
-				<groupId>org.apache.lucene</groupId>
-				<artifactId>lucene-core</artifactId>
-				<version>${lucene.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.lucene</groupId>
-				<artifactId>lucene-queryparser</artifactId>
-				<version>${lucene.version}</version>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	
@@ -677,14 +666,6 @@
 			<groupId>org.webjars</groupId>
 			<artifactId>sprintf.js</artifactId>
 			<version>1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-queryparser</artifactId>
 		</dependency>
 	</dependencies>
 
