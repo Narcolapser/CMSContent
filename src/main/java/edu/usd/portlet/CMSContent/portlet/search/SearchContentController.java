@@ -138,18 +138,11 @@ public class SearchContentController implements PortletConfigAware
 			if(doc == null)
 				continue;
 
-			List<CMSDocument> hits = index.search(searchQuery.getSearchTerms());
-			boolean hit = false;
+			int rank = index.search(searchQuery.getSearchTerms(),doc.getSource(),doc.getId());
 			logger.debug("Searched, now to see if we have any matches.");
-			for(CMSDocument sdoc:hits)
+			if(rank > 0)
 			{
-				if(sdoc.getId() == doc.getId())
-					hit |= true;
-				logger.debug(sdoc.getId() + " " + doc.getId());
-				logger.debug(hit);
-			}
-			if(hit)
-			{
+				logger.debug("Got a hit with a rank of " + rank + " on " + doc.getId());
 				final SearchResult searchResult = new SearchResult();
 				searchResult.setTitle(request.getPreferences().getValue("searchResultsTitle", "${portlet.title.replace('O','4'}"));
 				//searchResult.setSummary(doc.getTitle());
@@ -162,7 +155,7 @@ public class SearchContentController implements PortletConfigAware
 					searchResult.setExternalUrl("https://" + request.getServerName() + "/uPortal/max/render.uP?pCt="+fname);
 
 				//searchResults.getSearchResult().add(searchResult);
-				searchResult.setRank(1);
+				searchResult.setRank(rank);
 				break;
 			}
 		}
