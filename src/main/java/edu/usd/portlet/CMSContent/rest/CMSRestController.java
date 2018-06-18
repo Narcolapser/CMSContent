@@ -199,17 +199,23 @@ public final class CMSRestController {
 	@RequestMapping("getDocument")
 	public DocWrapper getDocument(
 		@RequestParam(value="source", defaultValue = "Internal") String source,
-		@RequestParam(value="id", defaultValue = "1") String id
+		@RequestParam(value="id", defaultValue = "") String id
 		)
 	{
 		if (source.equals("CommonSpot") || source.equals("CSPortalPage"))
-			id = "/" + id + ".cfm";
+		{
+			if (id.charAt(0) != '/')
+				id = "/" + id;
+			if (!(id.substring(id.length()-4).equals(".cfm")))
+				id = id + ".cfm";
+		}
 		logger.debug("Recieved request to get a document from: " + source + " with path: " + id);
 		DocWrapper ret = new DocWrapper();
 		try
 		{
 			CMSDocumentDao dbo = getDbo(source);
 			CMSDocument val = dbo.getDocument(id);
+			logger.debug(val.toString());
 			ret.setDoc(val);
 		}
 		catch(Exception e)
