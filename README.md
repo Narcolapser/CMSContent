@@ -56,11 +56,19 @@ making a new portlet. This re-write seeks to solve those issues by:
 * Move JS libraries to webjars. - Check
 
 ###0.9:
+* "delete" documents (actually just flagging them as deleted, never delete anything) - check
+* CMSEditor tree updates when new document saved. - check
+* setup with Lucene search library. - Failed
+* Forms as a datasource - check
+* JSPs in sub folders. - check
+* CMSForm and CMSEditor using same layout for document saving. - check
+
+###1.0:
 * portlet caching
 * Video play back
-* "delete" documents (actually just flagging them as deleted, never delete anything) - check
-* CMSEditor tree updates when new document saved.
-* setup with Lucene search library.
+* Unified CMSEditor.
+* WebComponents to simplify Editors.
+
 
 ###Abandoned:
 * More layouts:

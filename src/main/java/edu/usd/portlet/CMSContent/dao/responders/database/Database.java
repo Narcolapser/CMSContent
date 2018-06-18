@@ -31,7 +31,7 @@ public class Database implements CMSResponder
 	//get the name of the responder.
 	public String getName(){return "Database";}
 	
-	public String getOptionInfo(){return "Connection String:";}
+	public String getOptionInfo(){return "Nothing needed.";}
 	
 	//respond to the form returned to the system.
 	public boolean respond(String json, String options)

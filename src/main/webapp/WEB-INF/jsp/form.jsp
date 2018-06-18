@@ -51,6 +51,12 @@
 				<div data-control="formInfo"><input data-control="replyType" type="hidden" class="form-control" value="${control.getString('label')}"/></div>
 				<c:set var="replyType">${control.getString('label')}</c:set>
 			</c:when>
+			<c:when test="${val eq 'date'}">
+				<div data-control="date"><p>${control.getString("label")}</p><input type="date" class="form-control"></input></div>
+			</c:when>
+			<c:when test="${val eq 'multi-text'}">
+				<div data-control="multi-text"><p>${control.getString("label")}</p><textarea class="form-control"></textarea></div>
+			</c:when>
 			<c:otherwise>
 				<div data-control="label"><h2>${control.getString("label")}</h2></div>
 			</c:otherwise>
@@ -88,8 +94,16 @@ function submit(formId)
 			item = "Submit";
 		if (form.children[i].dataset.control == 'text')
 			value = form.children[i].children[1].value;
+			
+		if (form.children[i].dataset.control == 'multi-text')
+			value = form.children[i].children[1].value;
+			
+		if (form.children[i].dataset.control == 'date')
+			value = form.children[i].children[1].value;
+			
 		if (form.children[i].dataset.control == 'select')
 			value = form.children[i].children[1].options[form.children[i].children[1].selectedIndex].value;
+			
 		if (form.children[i].dataset.control == 'bool')
 		{
 			value = form.children[i].children[0].children[0].value;
