@@ -60,6 +60,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 		String view = prefs.getValue(mode,"layouts/single");
 		for(CMSLayout layout:layouts)
 		{
+			logger.debug("Comparing " + layout.getView() + " to " + view);
 			if (layout.getView().equals(view))
 			{
 				ret = layout.copy(layout);
