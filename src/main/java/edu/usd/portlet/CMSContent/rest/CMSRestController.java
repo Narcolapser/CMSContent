@@ -149,7 +149,10 @@ public final class CMSRestController {
 			for(CMSResponder re:responders)
 				if (replyType.equals(re.getName()))
 					if(!re.respond(form,options))
+					{
+						logger.error("Something went wrong when submitting form: " + form);
 						return "{\"result\":\"failure\"}";
+					}
 		}
 		catch(JSONException e)
 		{

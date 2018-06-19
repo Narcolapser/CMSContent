@@ -47,15 +47,15 @@
 			<c:when test="${val eq 'hr'}">
 				<div data-control="hr"><hr/></div>
 			</c:when>
-			<c:when test="${val eq 'respType'}">
-				<div data-control="formInfo"><input data-control="replyType" type="hidden" class="form-control" value="${control.getString('label')}"/></div>
-				<c:set var="replyType">${control.getString('label')}</c:set>
-			</c:when>
 			<c:when test="${val eq 'date'}">
 				<div data-control="date"><p>${control.getString("label")}</p><input type="date" class="form-control"></input></div>
 			</c:when>
 			<c:when test="${val eq 'multi-text'}">
 				<div data-control="multi-text"><p>${control.getString("label")}</p><textarea class="form-control"></textarea></div>
+			</c:when>
+			<c:when test="${val eq 'respType'}">
+				<div data-control="formInfo"><input data-control="replyType" type="hidden" class="form-control" value="${control.getString('label')}"/></div>
+				<c:set var="replyType">${control.getString('label')}</c:set>
 			</c:when>
 			<c:otherwise>
 				<div data-control="label"><h2>${control.getString("label")}</h2></div>
@@ -63,6 +63,9 @@
 		</c:choose>
 	</c:forEach>
 	<a data-control="submit" id="submit_btn" class="btn btn-default" onclick="submit('${id}');false">Submit</a>
+	<div id="loading_icon" style="display:none;">
+		<img src="/CMSContent/loading.gif" alt="Please wait..." style="height:50px"/>
+	</div>
 </form>
 <script src="/ResourceServingWebapp/rs/jquery/1.10.2/jquery-1.10.2.min.js" type="text/javascript"> </script>
 <script src="/ResourceServingWebapp/rs/jqueryui/1.10.3/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
@@ -153,12 +156,20 @@ function submit(formId)
 		data:{"form":JSON.stringify(data),"replyType":"${replyType}"},
 		success:formReponseRecieved});
 	var sub = document.getElementById("submit_btn");
-	sub.setAttribute("disabled","disabled");
+	//sub.setAttribute("disabled","disabled");
+	sub.style = "display:none;";
+	var loading = document.getElementById("loading_icon");
+	loading.style = "";
 }
 function formReponseRecieved(data, textStatus, jqXHR)
 {
 	var sub = document.getElementById("submit_btn");
 	sub.removeAttribute("disabled");
+	var sub = document.getElementById("submit_btn");
+	//sub.setAttribute("disabled","disabled");
+	sub.style = "";
+	var loading = document.getElementById("loading_icon");
+	loading.style = "display:none;";
 	//alert("Response recieved" + JSON.stringify(data));
 	if(data["result"] == "failure")
 		alert("Error submitting your response. Please try again later");
