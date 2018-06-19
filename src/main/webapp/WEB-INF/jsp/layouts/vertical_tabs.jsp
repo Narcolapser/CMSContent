@@ -49,14 +49,14 @@ button.copy-btn{
 		<div id="left_col" class="left_col" >
 			<ul class="nav nav-tabs nav-pills" id="${channelId}_tabs">
 				<c:set var="counter" value="${0}"/>
-				<c:forEach var="page" items="${content}">
+				<c:forEach var="document" items="${content}">
 					<c:set var="aclass"></c:set>
 					<c:if test="${counter == active}">
 						<c:set var="aclass">active</c:set>
 					</c:if>
 					<li class="btn-group ${aclass}" role="group">
 						<a href="#${channelId}-${counter}" data-toggle="tab" class="btn btn-default tab-btn">
-							${page.title}
+							${document.title}
 						</a>
 						<c:if test="${properties.get('Link buttons (True/False)') == 'True'}">
 							<button class="copy-btn btn btn-default" id="copy-btn-${counter}">
@@ -71,30 +71,23 @@ button.copy-btn{
 		<div id="right_col" class="right_col">
 			<c:set var="counter" value="${0}"/>
 			<div class="tab-content">
-				<c:forEach var="page" items="${content}">
+				<c:forEach var="document" items="${content}">
 					<c:choose>
 						<c:when test="${counter == active}">
 							<div id="${channelId}-${counter}" class="tab-pane active">
 								<c:choose>
-									<c:when test="${page.docType eq 'form'}">
-										<cms:form content="${page}" username="${username}"/>
+									<c:when test="${document.docType eq 'form'}">
+										<cms:form content="${document}" username="${username}"/>
 									</c:when>
 									<c:otherwise>
-										<div class="usdChannel">${page.content}</div>
+										<div class="usdChannel">${document.render()}</div>
 									</c:otherwise>
 								</c:choose>
 							</div>
 						</c:when>
 						<c:otherwise>
 							<div id="${channelId}-${counter}" class="tab-pane">
-								<c:choose>
-									<c:when test="${page.docType eq 'form'}">
-										<cms:form content="${page}" username="${username}" replyType="coming soon"/>
-									</c:when>
-									<c:otherwise>
-										<div class="usdChannel">${page.content}</div>
-									</c:otherwise>
-								</c:choose>
+								<div class="usdChannel">${document.render()}</div>
 							</div>
 						</c:otherwise>
 					</c:choose>
@@ -110,7 +103,7 @@ button.copy-btn{
 <link rel="stylesheet" href="<c:url value='/webjars/jquery-ui-themes/1.12.1/smoothness/jquery-ui.min.css'/>" />
 <script>
 <c:set var="counter" value="${0}"/>
-<c:forEach var="page" items="${content}">
+<c:forEach var="document" items="${content}">
 	document.getElementById('copy-btn-${counter}').setAttribute("data-clipboard-text",
 		location.protocol + '//' + location.host + location.pathname + "?tab=${counter}");
 	var client = new ZeroClipboard( document.getElementById('copy-btn-${counter}') );

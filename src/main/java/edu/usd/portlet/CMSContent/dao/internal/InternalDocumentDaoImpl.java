@@ -1,6 +1,7 @@
 package edu.usd.portlet.cmscontent.dao;
 
 import java.util.List;
+import java.util.ArrayList;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Query;
@@ -28,7 +29,6 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 	}
 
 	public void setSessionFactory(SessionFactory sessionFactory) {
-		logger.info("Setting session factory");
 		this.sessionFactory = sessionFactory;
 	}
 	
@@ -36,9 +36,54 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 	public List<CMSDocument> getAllDocuments()
 	{
 		Session session = sessionFactory.openSession();
-		String hql = "FROM CMSDocument WHERE removed = 0";
+		String hql = "FROM CMSDocument WHERE removed = 0 and docType = 'html'";
 		Query query = session.createQuery(hql);
 		List<CMSDocument> docList = query.list();
+		return docList;
+	}
+	
+	public List<CMSDocument> getAllDocumentsContentLess()
+	{
+		return getAllContentLess("html");
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<CMSDocument> getAllForms()
+	{
+		Session session = sessionFactory.openSession();
+		String hql = "FROM CMSDocument WHERE removed = 0 and docType = 'form'";
+		Query query = session.createQuery(hql);
+		List<CMSDocument> docList = query.list();
+		return docList;
+	}
+	public List<CMSDocument> getAllFormsContentLess()
+	{
+		return getAllContentLess("form");
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<CMSDocument> getAllContentLess(String docType)
+	{
+		logger.debug("Getting documents with out content");
+		Session session = sessionFactory.openSession();
+		String hql = "SELECT id, title, keyTerms, docType FROM CMSDocument WHERE removed = 0 and docType = '"+docType+"'";
+		Query query = session.createQuery(hql);
+		
+		List<CMSDocument> docList = new ArrayList<CMSDocument>();
+		List<Object[]> list = query.list();
+		for(Object[] obj: list)
+		{
+			CMSDocument doc = new CMSDocument();
+			doc.setId((String)obj[0]);
+			doc.setTitle((String)obj[1]);
+			doc.setKeyTerms((String)obj[2]);
+			doc.setDocType((String)obj[3]);
+			
+			doc.setSource("Internal");
+			doc.setRemoved(false);
+			doc.setContent("");
+			docList.add(doc);
+		}
 		return docList;
 	}
 	

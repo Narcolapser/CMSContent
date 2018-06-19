@@ -48,4 +48,8 @@ public interface CMSDocumentDao
 	public boolean deleteEnabled();
 	//returns whether or not this Dao has the ability to delete documents from
 	//it's source. 
+	
+	public String getSourceType();
+	//returns the type of document that this source provides. Used to determine
+	//what editor should be thrown up.
 }

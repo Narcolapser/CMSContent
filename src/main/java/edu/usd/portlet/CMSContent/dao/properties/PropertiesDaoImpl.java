@@ -44,7 +44,11 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 	{
 		WindowState state = request.getWindowState();
 		if (WindowState.MAXIMIZED.equals(state))
-			return getLayout(request,"maximized");
+		{
+			CMSLayout max = getLayout(request,"maximized");
+			if (max.getSubscriptionsAsDocs().size()!=0)
+				return max;
+		}
 		return getLayout(request,"normal");
 	}
 	
@@ -53,27 +57,20 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 	
 		PortletPreferences prefs = request.getPreferences();
 		if ((prefs.getValue("pageUri",null) != null))
-//			if (mode.equals("maximized"))
-//				return new CMSLayout();
-//			else
-				return getLayoutLegacy(request);
-		
-		logger.debug("Not a legacy portlet!");
+			return getLayoutLegacy(request);
 		
 		CMSLayout ret = new CMSLayout();
 		
-		String view = prefs.getValue(mode,"view_single");
+		String view = prefs.getValue(mode,"layouts/single");
 		for(CMSLayout layout:layouts)
 		{
-			//logger.debug("Layout option: " + layout.getView() + " looking for: " + view);
+			logger.debug("Comparing " + layout.getView() + " to " + view);
 			if (layout.getView().equals(view))
 			{
 				ret = layout.copy(layout);
-				//logger.debug("Match!: " + ret.getView());
 			}
 		}
 		
-		logger.debug("Found view: " + view);
 		String[] subs = prefs.getValues(mode+".subscriptions",new String[0]);
 		logger.debug("found subs: " + subs.length + " for " + mode+".subscriptions");
 		List<CMSSubscription> subscriptions = new ArrayList<CMSSubscription>();
@@ -120,7 +117,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 	public void setLayout(PortletRequest request, String mode, CMSLayout layout)
 	{
 		PortletPreferences prefs = request.getPreferences();
-		logger.debug("resetting layout. to: " + layout.getView());
+		logger.debug("setting layout. to: " + layout.getView());
 		try
 		{
 			//Legacy:
@@ -133,10 +130,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			{
 				String pref = pks.nextElement();
 				if (pref.contains(mode))
-				{
-					logger.debug("pk: " + pref);
 					prefkeys.add(pref);
-				}
 			}
 			for(String pk : prefkeys)
 				prefs.reset(pk);
@@ -144,7 +138,6 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			prefs.setValue(mode,layout.getView());
 			
 			ArrayList<String> subs = new ArrayList<String>();
-			logger.debug("subs: " + layout.getSubscriptions().size());
 			for(CMSSubscription cmssub:layout.getSubscriptions())
 			{
 				
@@ -189,6 +182,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 
 	private CMSLayout getLayoutLegacy(PortletRequest request)
 	{
+		logger.debug("Legacy portlet");
 		PortletPreferences prefs = request.getPreferences();
 		String[] pageUriArray = prefs.getValues("pageUri",null);
 		String source;
@@ -224,7 +218,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 		
 		CMSLayout layout = new CMSLayout();
 		
-		layout.setView("view_single");
+		layout.setView("layouts/single");
 		layout.setSubscriptions(ret);
 		
 		return layout;
