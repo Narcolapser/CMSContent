@@ -261,6 +261,9 @@ function update_content(data, textStatus, jqXHR)
 			for(var j=0; j<form_resp.options.length; j++)
 				if (form[i]["label"] == form_resp.options[j].value)
 					form_resp.selectedIndex = j;
+			var repop = document.getElementById("formRespOption");
+			repop.value = form[i]["options"];
+			responder_change();
 			continue;
 		}
 		var row = new_tbody.insertRow(new_tbody.length);
