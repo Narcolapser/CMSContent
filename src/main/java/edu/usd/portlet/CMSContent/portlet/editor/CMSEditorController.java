@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 import java.util.Random;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 
 //import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
@@ -45,7 +48,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.portlet.ModelAndView;
 
-import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.InternalDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
@@ -64,13 +66,6 @@ import javax.naming.InitialContext;
 @RequestMapping("VIEW")
 public class CMSEditorController {
 	protected final Log logger = LogFactory.getLog(this.getClass());
-
-	@Autowired 
-	private InternalDao intdbo = null;
-	public void setInternalDao(InternalDao intdbo)
-	{
-		this.intdbo = intdbo;
-	}
 
 	@Autowired
 	List<CMSDocumentDao> dataSources;
@@ -110,7 +105,22 @@ public class CMSEditorController {
 		//get any paramaters that were passed.
 		refData.put("parameters",request.getParameterMap());
 
-		return new ModelAndView("editor",refData);
+		//get the base url of this server.
+		try
+		{
+			String hostname = InetAddress.getLocalHost().getHostName();
+			logger.debug("Host name is: " + hostname);
+			if (hostname.contains("dev-uportal"))
+				refData.put("hostname","dev-uportal");
+			else
+				refData.put("hostname","my");
+		}
+		catch (java.net.UnknownHostException e)
+		{
+			refData.put("hostname","unknown");
+		}
+
+		return new ModelAndView("editors/document",refData);
 	}
 	
 	

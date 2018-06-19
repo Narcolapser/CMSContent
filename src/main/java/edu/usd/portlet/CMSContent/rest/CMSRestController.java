@@ -17,7 +17,7 @@ import org.json.JSONObject;
 import org.json.JSONException;
 import org.json.JSONArray;
 
-import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
+import edu.usd.portlet.cmscontent.dao.FormDaoImpl;
 import edu.usd.portlet.cmscontent.dao.InternalDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
@@ -28,8 +28,6 @@ import edu.usd.portlet.cmscontent.dao.CMSResponder;
 public final class CMSRestController {
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
-	
-	private CMSDocumentDao csdbo = new CommonSpotDaoImpl();
 	
 	@Autowired
 	List<CMSDocumentDao> dataSources;
@@ -96,7 +94,7 @@ public final class CMSRestController {
 		{
 			JSONObject obj = new JSONObject(form);
 			CMSDocument doc = new CMSDocument();
-			doc.setTitle("" + obj.getJSONObject("doc").getString("name"));
+			doc.setTitle("" + obj.getJSONObject("doc").getString("title"));
 			doc.setId("" + obj.getJSONObject("doc").getString("id"));
 			doc.setSource("Internal");
 			doc.setDocType("form");
@@ -138,11 +136,11 @@ public final class CMSRestController {
 		try
 		{
 			logger.debug("Recieved form response: " + form + " which will be sent to: " + replyType);
-			CMSDocumentDao dbo = getDbo("Internal");
+			FormDaoImpl dbo = (FormDaoImpl)getDbo("InternalForms");
 			JSONObject obj = new JSONObject(form);
 			logger.debug(obj.getString("formId"));
 			CMSDocument doc = dbo.getDocument(obj.getString("formId"));
-			ArrayList<JSONObject> jform = doc.json();
+			ArrayList<JSONObject> jform = dbo.getDocJson(doc);
 			String options = "";
 			for(JSONObject entry: jform)
 				if(entry.getString("type").equals("respType"))
@@ -151,7 +149,10 @@ public final class CMSRestController {
 			for(CMSResponder re:responders)
 				if (replyType.equals(re.getName()))
 					if(!re.respond(form,options))
+					{
+						logger.error("Something went wrong when submitting form: " + form);
 						return "{\"result\":\"failure\"}";
+					}
 		}
 		catch(JSONException e)
 		{
@@ -201,17 +202,23 @@ public final class CMSRestController {
 	@RequestMapping("getDocument")
 	public DocWrapper getDocument(
 		@RequestParam(value="source", defaultValue = "Internal") String source,
-		@RequestParam(value="id", defaultValue = "1") String id
+		@RequestParam(value="id", defaultValue = "") String id
 		)
 	{
 		if (source.equals("CommonSpot") || source.equals("CSPortalPage"))
-			id = "/" + id + ".cfm";
+		{
+			if (id.charAt(0) != '/')
+				id = "/" + id;
+			if (!(id.substring(id.length()-4).equals(".cfm")))
+				id = id + ".cfm";
+		}
 		logger.debug("Recieved request to get a document from: " + source + " with path: " + id);
 		DocWrapper ret = new DocWrapper();
 		try
 		{
 			CMSDocumentDao dbo = getDbo(source);
 			CMSDocument val = dbo.getDocument(id);
+			logger.debug(val.toString());
 			ret.setDoc(val);
 		}
 		catch(Exception e)

@@ -166,6 +166,7 @@ div.col_content{
 											<th class="pos_col" >Position</th>
 											<th>Title</th>
 											<th>Id</th>
+											<th>Source</th>
 											<th>Security Groups</th>
 											<th></th>
 										</tr>
@@ -186,8 +187,9 @@ div.col_content{
 												</td>
 												<td>${doc.docTitle}</td>
 												<td>${doc.docId}</td>
+												<td>${doc.docSource}</td>
 												<td>
-													<select id="security_select_${mode}_${doc.docId}" class="chosen-select-multi" multiple="" data-placeholder="Everyone" OnChange="sec_change('security_select_${mode}_${doc.docId}','${mode}','${doc.docId}');">
+													<select id="security_select_${mode}_${fn:replace(doc.docId,'/','-')}" class="chosen-select-multi" multiple="" data-placeholder="Everyone" OnChange="sec_change('security_select_${mode}_${fn:replace(doc.docId,'/','-')}','${mode}','${doc.docId}');">
 														<c:forEach var="role" items="${securityRoles}">
 															<c:set var="contains" value="false"/>
 															<c:forEach var="irole" items="${doc.securityGroups}">
@@ -251,6 +253,7 @@ div.col_content{
 	</td>
 	<td>%3$s</td>
 	<td>%2$s</td>
+	<td>%4$s</td>
 	<td>
 		<select id="security_select_%1$s_%2$s" class="chosen-select-multi" multiple="" data-placeholder="Everyone" OnChange="sec_change('security_select_%1$s_%2$s','%1$s','%2$s');">
 			<c:forEach var="role" items="${securityRoles}">
@@ -282,7 +285,7 @@ function getSelectValues(select) {
 	var options = select && select.options;
 	var opt;
 
-	for (var i=0, i=options.length; i<i; i++) {
+	for (var i=0; i<options.length; i++) {
 		opt = options[i];
 
 		if (opt.selected) {
@@ -333,18 +336,18 @@ function add_document(val)
 	var table = document.getElementById(val+"_docs_table");
 	table = table.children[1];
 	var last_row = table.children[table.children.length - 1];
-	var row = new_doc_row(selected_title,selected,val);
+	var row = new_doc_row(selected_title,selected,val,source_selected);
 	if (last_row != null)
 		table.insertBefore(row,last_row.nextSibling);
 	else
 		table.appendChild(row);
 	$(".chosen-select-multi").chosen({width: "100%",no_results_text:"Security role not found."});
 }
-function new_doc_row(title,id,mode)
+function new_doc_row(title,id,mode,source)
 {
 	var new_row = document.createElement("TR");
 	var content = `${doc_row}`;
-	new_row.innerHTML = sprintf(content,mode,id,title);
+	new_row.innerHTML = sprintf(content,mode,id,title,source);
 	console.log(sprintf("This is a test. Mode: %1$s Title: %2$s ID: %3$s Mode: %1$s",mode,title,id));
 	return new_row;
 }
