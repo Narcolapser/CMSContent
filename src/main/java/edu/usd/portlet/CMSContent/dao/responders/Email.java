@@ -6,6 +6,10 @@ import org.springframework.stereotype.Component;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONArray;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -34,7 +38,7 @@ public class Email implements CMSResponder
 		
 		String to=options.split(",")[1];
 		String from=options.split(",")[0];
-		String host = "exchange.usd.edu";
+		String host = "smtp.usd.edu";
 		Properties properties = System.getProperties();
 		properties.setProperty("mail.smtp.host",host);
 		Session session = Session.getDefaultInstance(properties);
@@ -43,8 +47,8 @@ public class Email implements CMSResponder
 			MimeMessage message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(from));
 			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-			message.setSubject("This is the subject Line!");
-			message.setText(json);
+			message.setSubject("Form response.");
+			message.setText(formMessage(json));
 			Transport.send(message);
 			logger.debug("Message sent sucessfully");
 		}
@@ -54,5 +58,35 @@ public class Email implements CMSResponder
 			return false;
 		}
 		return true;
+	}
+	
+	private String formMessage(String json)
+	{
+		String ret = "Error processing form.";
+		try
+		{
+			JSONObject obj = new JSONObject(json);
+			ret = "The user " + obj.getString("username") + " submitted the form " + obj.getString("formId") + " with the following: \n";
+			for(String key:obj.getNames(obj))
+			{
+				if (key.equals("Submit"))
+					continue;
+				if (key.equals("replyType"))
+					continue;
+				if (key.equals("username"))
+					continue;
+				if (key.equals("formId"))
+					continue;
+					
+				ret += key + "\t: " + obj.getString(key);
+				logger.debug("Key: " + key + " Value: " + obj.getString(key) + "\n");
+			}
+		}
+		catch (JSONException e)
+		{
+			logger.error("Error processing user's response: " + e);
+			return "Error processing form.";
+		}
+		return ret;
 	}
 }

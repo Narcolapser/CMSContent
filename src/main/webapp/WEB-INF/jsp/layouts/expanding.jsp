@@ -68,21 +68,14 @@
 			</div>
 		</div>
 		<c:set var="counter" value="${0}"/>
-		<c:forEach var="page" items="${content}">
+		<c:forEach var="document" items="${content}">
 			<div class="section">
 				<div class="section_title section_collapsed" id="${channelId}_${counter}_title" 
 					onClick="expandingCms_toggleSection('${channelId}_${counter}','${channelId}');">
-					${page.title}
+					${document.title}
 				</div>
 				<div class="section_body" id="${channelId}_${counter}_body" style="display: none;">
-					<c:choose>
-						<c:when test="${page.docType eq 'form'}">
-							<cms:form content="${page}" username="${username}" replyType="coming soon"/>
-						</c:when>
-						<c:otherwise>
-							<div class="usdChannel">${page.content}</div>
-						</c:otherwise>
-					</c:choose>
+					<div class="usdChannel">${document.render()}</div>
 				</div>
 			</div>
 			<c:set var="counter" value="${counter + 1}"/>

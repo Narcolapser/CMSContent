@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 import java.util.Random;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 //import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
@@ -45,7 +47,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.portlet.ModelAndView;
 
-import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.InternalDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
@@ -103,7 +104,22 @@ public class CMSFormController {
 		for(CMSResponder re:responders)
 			res.add(re.getName());
 		refData.put("responders",res);
+		
+		//get the base url of this server.
+		try
+		{
+			String hostname = InetAddress.getLocalHost().getHostName();
+			logger.debug("Host name is: " + hostname);
+			if (hostname.contains("dev-uportal"))
+				refData.put("hostname","dev-uportal");
+			else
+				refData.put("hostname","my");
+		}
+		catch (java.net.UnknownHostException e)
+		{
+			refData.put("hostname","unknown");
+		}
 
-		return new ModelAndView("form",refData);
+		return new ModelAndView("editors/form",refData);
 	}
 }

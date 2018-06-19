@@ -21,7 +21,7 @@ import edu.usd.portlet.cmscontent.dao.InternalDocumentDao;
 
 @Component
 @Service
-public class InternalDaoImpl implements InternalDao, DisposableBean
+public class InternalDaoImpl implements CMSDocumentDao, DisposableBean
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 	
@@ -32,8 +32,8 @@ public class InternalDaoImpl implements InternalDao, DisposableBean
 		return internalDocumentDao;
 	}
 
-	public void setInternalDocumentDao(InternalDocumentDao internalDocumentDao) {
-		logger.info("Setting Internal Document Autowire");
+	public void setInternalDocumentDao(InternalDocumentDao internalDocumentDao)
+	{
 		this.internalDocumentDao = internalDocumentDao;
 	}
 
@@ -58,7 +58,7 @@ public class InternalDaoImpl implements InternalDao, DisposableBean
 	{
 		try
 		{
-			List<CMSDocument> docs = this.internalDocumentDao.getAllDocuments();
+			List<CMSDocument> docs = this.internalDocumentDao.getAllDocumentsContentLess();
 			return docs;
 		}
 		catch (Exception e)
@@ -70,18 +70,17 @@ public class InternalDaoImpl implements InternalDao, DisposableBean
 
 	public CMSDocument getDocument(String Id)
 	{
-		CMSDocument page;
+		CMSDocument doc;
 		try
 		{
-			List<CMSDocument> docs = this.internalDocumentDao.getAllDocuments();
-			page = this.internalDocumentDao.getDocumentById(Id);
+			doc = this.internalDocumentDao.getDocumentById(Id);
 		}
 		catch (Exception e)
 		{
 			logger.debug("Error in fetching docs: " + e);
 			return null;
 		}
-		return page;
+		return doc;
 	}
 	
 	public void saveDocument(CMSDocument val)
@@ -107,4 +106,6 @@ public class InternalDaoImpl implements InternalDao, DisposableBean
 	public boolean saveEnabled(){return true;}
 	
 	public boolean deleteEnabled(){return true;}
+	
+	public String getSourceType(){return "html";}
 }
