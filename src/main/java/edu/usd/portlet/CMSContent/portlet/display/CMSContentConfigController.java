@@ -39,7 +39,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.portlet.ModelAndView;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
@@ -164,7 +163,7 @@ public class CMSContentConfigController
 			refData.put("hostname","unknown");
 		}
 
-		return new ModelAndView("config",refData);
+		return new ModelAndView("editors/layout",refData);
 	}
 
 
@@ -231,7 +230,7 @@ public class CMSContentConfigController
 	{
 		String groups = json.substring(1,json.length()-1).replace("\"","");
 //		logger.debug("updating security 3");
-//		logger.debug("updating the security groups of " + doc + " to " + groups);
+		logger.debug("updating the security groups of " + doc + " to " + groups);
 		String[] gval = groups.split(",");
 		List<String> sgroups = Arrays.asList(gval);
 		CMSLayout layout = this.conf.getLayout(request,mode);

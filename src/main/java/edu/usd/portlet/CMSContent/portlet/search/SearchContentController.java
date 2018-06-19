@@ -117,6 +117,7 @@ public class SearchContentController implements PortletConfigAware
 	@EventMapping(SearchConstants.SEARCH_REQUEST_QNAME_STRING)
 	public void searchContent(EventRequest request, EventResponse response)
 	{
+		logger.debug("Recieved search request");
 		final Event event = request.getEvent();
 		final SearchRequest searchQuery = (SearchRequest)event.getValue();
 		
@@ -139,14 +140,14 @@ public class SearchContentController implements PortletConfigAware
 				continue;
 
 			int rank = index.search(searchQuery.getSearchTerms(),doc.getSource(),doc.getId());
-			logger.debug("Searched, now to see if we have any matches.");
+			//logger.debug("Searched, now to see if we have any matches.");
 			if(rank > 0)
 			{
 				logger.debug("Got a hit with a rank of " + rank + " on " + doc.getId());
 				final SearchResult searchResult = new SearchResult();
 				searchResult.setTitle(request.getPreferences().getValue("searchResultsTitle", "${portlet.title.replace('O','4'}"));
 				//searchResult.setSummary(doc.getTitle());
-				searchResult.setSummary(this.getSummary(doc.getContent(),searchTerms));
+				searchResult.setSummary(this.getSummary(doc.getContent(),searchTerms) + "Ranked: " + rank);
 
 				searchResult.getType().add("CMS Content");
 
@@ -154,13 +155,15 @@ public class SearchContentController implements PortletConfigAware
 				if(fname != null)
 					searchResult.setExternalUrl("https://" + request.getServerName() + "/uPortal/max/render.uP?pCt="+fname);
 
-				//searchResults.getSearchResult().add(searchResult);
 				searchResult.setRank(rank);
+				searchResults.getSearchResult().add(searchResult);
+				logger.debug(searchResult);
 				break;
 			}
 		}
 		
 		response.setEvent(SearchConstants.SEARCH_RESULTS_QNAME, searchResults);
+		logger.debug(searchResults);
 
 		return;
 	}

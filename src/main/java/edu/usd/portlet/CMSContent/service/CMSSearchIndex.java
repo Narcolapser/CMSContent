@@ -52,20 +52,24 @@ public class CMSSearchIndex
 
 			for(CMSDocumentDao dao: dataSources)
 			{
-				logger.debug("Indexing " + dao.getDaoName());
+				logger.info("Indexing " + dao.getDaoName());
 				List<CMSDocument> docs = dao.getAllDocumentsContentless();
-				logger.debug("1");
 				for(CMSDocument doc: docs)
 				{
-					logger.debug("2");
-					CMSDocument val = dao.getDocument(doc.getId());
-					IndexEntry ie = new IndexEntry(val);
-					logger.debug(ie);
-					index.put(dao.getDaoName() + doc.getId(),ie);
-					logger.debug(index.get(dao.getDaoName() + doc.getId()));
+					try
+					{
+						CMSDocument val = dao.getDocument(doc.getId());
+						IndexEntry ie = new IndexEntry(val);
+						index.put(dao.getDaoName() + doc.getId(),ie);
+					}
+					catch(IllegalArgumentException e)
+					{
+						logger.error("Error indexing document: " + doc.getId() + " Error: " + e);
+					}
 				}
 			}
-			logger.debug("Indexer built");
+			logger.info("" + index.size() + " documents were indexed");
+			logger.info("Indexer built");
 		}
 		catch(Exception e)
 		{
@@ -76,6 +80,7 @@ public class CMSSearchIndex
 	public int search(String query, String doc_source, String doc_id)
 	{
 		int ret = 0;
+		query = query.toLowerCase();
 		try
 		{
 			for(String term:query.split(" "))
@@ -83,18 +88,16 @@ public class CMSSearchIndex
 				if(Arrays.asList(ENGLISH_STOP_WORDS).contains(term))
 					continue;
 				IndexEntry val = index.get(doc_source+doc_id);
-				logger.debug(val);
-				logger.debug(val.words);
 				if (val.words.containsKey(term))
 				{
 					ret += val.words.get(term);
-					logger.debug("Got a match: " + term + " with a score of: " + val.words.get(term));
+					//logger.debug("Got a match: " + term + " with a score of: " + val.words.get(term));
 				}
 			}
 		}
 		catch(Exception e)
 		{
-			logger.error("Problem searching " + doc_source + doc_id + ":" + e);
+			//logger.error("Problem searching " + doc_source + doc_id + ":" + e);
 			return 0;
 		}
 		
@@ -125,8 +128,8 @@ public class CMSSearchIndex
 			this.title = title;
 			
 			//Remove html and non alpha numeric characters
-			content = Jsoup.parse(content).text();
-			content = content.replaceAll("[^A-Za-z0-9 ]", "");
+			content = Jsoup.parse(content).text().toLowerCase();
+			content = content.replaceAll("[^A-Za-z0-9 ]", " ");
 			
 			words = new HashMap<>();
 			for(String word:content.split(" "))
@@ -148,7 +151,7 @@ public class CMSSearchIndex
 			this.title = doc.getTitle();
 			
 			//Remove html and non alpha numeric characters
-			String content = Jsoup.parse(doc.getContent()).text();
+			String content = Jsoup.parse(doc.render()).text().toLowerCase();
 			content = content.replaceAll("[^A-Za-z0-9 ]", "");
 			
 			words = new HashMap<>();
@@ -158,11 +161,12 @@ public class CMSSearchIndex
 				else
 					words.put(word,1);
 
-			for(String word:doc.getKeyTerms().split(" "))
-				if(words.containsKey(word))
-					words.put(word,words.get(word)+100);
-				else
-					words.put(word,100);
+			if(doc.getKeyTerms() != null)
+				for(String word:doc.getKeyTerms().split(" "))
+					if(words.containsKey(word))
+						words.put(word,words.get(word)+100);
+					else
+						words.put(word,100);
 		}
 	}
 }
