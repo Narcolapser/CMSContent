@@ -78,7 +78,7 @@ public class Email implements CMSResponder
 				if (key.equals("formId"))
 					continue;
 					
-				ret += key + "\t: " + obj.getString(key);
+				ret += key + "\t: " + obj.getString(key) + "\n";
 				logger.debug("Key: " + key + " Value: " + obj.getString(key) + "\n");
 			}
 		}
