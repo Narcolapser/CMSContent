@@ -18,10 +18,12 @@
 	padding: 10px;
 }
 .left_col{
-	width:300px;
+	width: ${tab_width+15}px;
+	float: left;
 }
 .right_col{
 	width: auto;
+	float: left;
 }
 div.col_content{
 	width: 100%;
