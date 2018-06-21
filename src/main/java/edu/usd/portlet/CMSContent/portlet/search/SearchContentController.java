@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.Date;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -118,6 +119,7 @@ public class SearchContentController implements PortletConfigAware
 	public void searchContent(EventRequest request, EventResponse response)
 	{
 		logger.debug("Recieved search request");
+		long start = System.currentTimeMillis();
 		final Event event = request.getEvent();
 		final SearchRequest searchQuery = (SearchRequest)event.getValue();
 		
@@ -129,41 +131,50 @@ public class SearchContentController implements PortletConfigAware
 		searchResults.setQueryId(searchQuery.getQueryId());
 		searchResults.setWindowId(request.getWindowID());
 
+		final SearchResult searchResult = new SearchResult();
+		searchResult.setTitle("This is a test");
+		searchResult.setSummary("Testing summary");
+		searchResult.getType().add("CMS Content");
+		searchResult.setRank(10);
+		searchResults.getSearchResult().add(searchResult);
+
 		CMSLayout layout = this.conf.getLayout(request,"maximized");
 
 		//Preparing a the list of page content.
-		ArrayList<CMSDocument> content = layout.getContent(request,dataSources);
+//		ArrayList<CMSDocument> content = layout.getContent(request,dataSources);
 
-		for (CMSDocument doc: content)
-		{
-			if(doc == null)
-				continue;
+//		for (CMSDocument doc: content)
+//		{
+//			if(doc == null)
+//				continue;
 
-			int rank = index.search(searchQuery.getSearchTerms(),doc.getSource(),doc.getId());
-			//logger.debug("Searched, now to see if we have any matches.");
-			if(rank > 0)
-			{
-				logger.debug("Got a hit with a rank of " + rank + " on " + doc.getId());
-				final SearchResult searchResult = new SearchResult();
-				searchResult.setTitle(request.getPreferences().getValue("searchResultsTitle", "${portlet.title.replace('O','4'}"));
-				//searchResult.setSummary(doc.getTitle());
-				searchResult.setSummary(this.getSummary(doc.getContent(),searchTerms) + "Ranked: " + rank);
+//			int rank = index.search(searchQuery.getSearchTerms(),doc.getSource(),doc.getId());
+//			//logger.debug("Searched, now to see if we have any matches.");
+//			if(rank > 0)
+//			{
+////				logger.debug("Got a hit with a rank of " + rank + " on " + doc.getId());
+//				final SearchResult searchResult = new SearchResult();
+//				searchResult.setTitle(request.getPreferences().getValue("searchResultsTitle", "${portlet.title.replace('O','4'}"));
+//				//searchResult.setSummary(doc.getTitle());
+//				searchResult.setSummary(this.getSummary(doc.getContent(),searchTerms) + "Ranked: " + rank);
 
-				searchResult.getType().add("CMS Content");
+//				searchResult.getType().add("CMS Content");
 
-				String fname = request.getPreferences().getValue("fname",null);
-				if(fname != null)
-					searchResult.setExternalUrl("https://" + request.getServerName() + "/uPortal/max/render.uP?pCt="+fname);
+//				String fname = request.getPreferences().getValue("fname",null);
+//				if(fname != null)
+//					searchResult.setExternalUrl("https://" + request.getServerName() + "/uPortal/max/render.uP?pCt="+fname);
 
-				searchResult.setRank(rank);
-				searchResults.getSearchResult().add(searchResult);
-				logger.debug(searchResult);
-				break;
-			}
-		}
-		
+//				searchResult.setRank(rank);
+//				searchResults.getSearchResult().add(searchResult);
+////				logger.debug(searchResult);
+////				logger.debug(searchResults);
+//				logger.info(searchResults);
+//				break;
+//			}
+//		}
+		long end = System.currentTimeMillis();
+		logger.info("Search completed in: " + (end - start));
 		response.setEvent(SearchConstants.SEARCH_RESULTS_QNAME, searchResults);
-		logger.debug(searchResults);
 
 		return;
 	}
