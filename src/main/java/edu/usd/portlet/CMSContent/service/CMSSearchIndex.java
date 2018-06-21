@@ -85,8 +85,8 @@ public class CMSSearchIndex
 		{
 			for(String term:query.split(" "))
 			{
-				if(Arrays.asList(ENGLISH_STOP_WORDS).contains(term))
-					continue;
+//				if(Arrays.asList(ENGLISH_STOP_WORDS).contains(term))
+//					continue;
 				IndexEntry val = index.get(doc_source+doc_id);
 				if (val.words.containsKey(term))
 				{
