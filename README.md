@@ -81,4 +81,6 @@ Query for copying prod table:
 DROP TABLE [uPortal].[dbo].[CMSDocument]
 SELECT * INTO [uPortal].[dbo].[CMSDocument] FROM [USD-SQL05\SQL01].uPortal.dbo.CMSDocument
 
+SELECT INTO uPortal.dbo.CMSDocument FROM [USD-SQL05\SQL01].uPortal.dbo.CMSDocument
+
 For reference tomorrow: http://valotas.com/get-output-of-jsp-or-servlet-response/
