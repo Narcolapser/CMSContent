@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 //import java.util.Integer;
 
 import org.apache.commons.logging.Log;
@@ -37,9 +39,13 @@ public class CMSSearchIndex
 	"that", "the", "their", "then", "there", "these",
 	"they", "this", "to", "was", "will", "with"
 	};
+	
+	public Set<String> STOP_WORDS;
 	protected final Log logger = LogFactory.getLog(this.getClass());
 	
 	Map<String,IndexEntry> index = new HashMap<>();
+	
+	public Map<String,String> doc_index = new HashMap<>();
 	
 	@Autowired
 	List<CMSDocumentDao> dataSources;
@@ -61,6 +67,7 @@ public class CMSSearchIndex
 						CMSDocument val = dao.getDocument(doc.getId());
 						IndexEntry ie = new IndexEntry(val);
 						index.put(dao.getDaoName() + doc.getId(),ie);
+						doc_index.put(dao.getDaoName() + doc.getId(),val.render());
 					}
 					catch(IllegalArgumentException e)
 					{
@@ -75,6 +82,7 @@ public class CMSSearchIndex
 		{
 			logger.error("Error building index: " + e);
 		}
+		STOP_WORDS = new HashSet<String>(Arrays.asList(ENGLISH_STOP_WORDS));
 	}
 
 	public int search(String query, String doc_source, String doc_id)
@@ -85,19 +93,18 @@ public class CMSSearchIndex
 		{
 			for(String term:query.split(" "))
 			{
-//				if(Arrays.asList(ENGLISH_STOP_WORDS).contains(term))
-//					continue;
+				//not sure if this works.
+				if(STOP_WORDS.contains(term))
+					continue;
 				IndexEntry val = index.get(doc_source+doc_id);
 				if (val.words.containsKey(term))
 				{
 					ret += val.words.get(term);
-					//logger.debug("Got a match: " + term + " with a score of: " + val.words.get(term));
 				}
 			}
 		}
 		catch(Exception e)
 		{
-			//logger.error("Problem searching " + doc_source + doc_id + ":" + e);
 			return 0;
 		}
 		
