@@ -152,7 +152,7 @@ public class CMSSearchIndex
 			
 			//Remove html and non alpha numeric characters
 			String content = Jsoup.parse(doc.render()).text().toLowerCase();
-			content = content.replaceAll("[^A-Za-z0-9 ]", "");
+			content = content.replaceAll("[^A-Za-z0-9 ]", " ");
 			
 			words = new HashMap<>();
 			for(String word:content.split(" "))
