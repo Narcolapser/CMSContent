@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.Date;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -75,6 +76,7 @@ import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSLayout;
 import edu.usd.portlet.cmscontent.dao.CMSSubscription;
+import edu.usd.portlet.cmscontent.service.CMSSearchIndex;
 
 
 
@@ -96,6 +98,9 @@ public class SearchContentController implements PortletConfigAware
 	@Autowired
 	List<CMSLayout> layouts;
 	
+	@Autowired
+	CMSSearchIndex index;
+	
 	protected PortletConfig portletConfig;
 
 	public void setPortletConfig(PortletConfig portletConfig)
@@ -113,6 +118,8 @@ public class SearchContentController implements PortletConfigAware
 	@EventMapping(SearchConstants.SEARCH_REQUEST_QNAME_STRING)
 	public void searchContent(EventRequest request, EventResponse response)
 	{
+		logger.debug("Recieved search request");
+		long start = System.currentTimeMillis();
 		final Event event = request.getEvent();
 		final SearchRequest searchQuery = (SearchRequest)event.getValue();
 		
@@ -121,111 +128,56 @@ public class SearchContentController implements PortletConfigAware
 
 		final SearchResults searchResults = new SearchResults();
 		
-		Random rand = new Random();
 		searchResults.setQueryId(searchQuery.getQueryId());
 		searchResults.setWindowId(request.getWindowID());
-
-		//Creating the model object that will be passed to the view.
-		Map<String, Object> refData = new HashMap<String, Object>();
 
 		CMSLayout layout = this.conf.getLayout(request,"maximized");
 
 		//Preparing a the list of page content.
-		ArrayList<CMSDocument> content = layout.getContent(request,dataSources);
+		List<CMSDocument> content = layout.getSubscriptionsAsDocs();
+
+		layout = this.conf.getLayout(request,"normal");
+		content.addAll(layout.getSubscriptionsAsDocs());
 
 		for (CMSDocument doc: content)
 		{
 			if(doc == null)
 				continue;
-			for (String term: searchTerms)
+
+			int rank = index.search(searchQuery.getSearchTerms(),doc.getSource(),doc.getId());
+			if(rank > 0)
 			{
-				int rank = getRank(doc.getContent(),searchQuery.getSearchTerms(),doc.getKeyTerms());
-				//logger.info("Rank of " + doc.getTitle() + ": " + rank + " for term: " + term);
+				final SearchResult searchResult = new SearchResult();
+				searchResult.setTitle(request.getPreferences().getValue("searchResultsTitle", "${portlet.title.replace('O','4'}"));
+				searchResult.setSummary(getSummarySimple(index.doc_index.get(doc.getSource() + doc.getId()),searchTerms));
 
-				if(rank > 0)
-				//if(doc.getContent().contains(term))
-				{
-					final SearchResult searchResult = new SearchResult();
-					searchResult.setTitle(request.getPreferences().getValue("searchResultsTitle", "${portlet.title.replace('O','4'}"));
-					//searchResult.setSummary(doc.getTitle());
-					searchResult.setSummary(this.getSummary(doc.getContent(),searchTerms));
+				searchResult.getType().add("CMS Content");
 
-					searchResult.getType().add("CMS Content");
+				String fname = request.getPreferences().getValue("fname",null);
+				if(fname != null)
+					searchResult.setExternalUrl("https://" + request.getServerName() + "/uPortal/max/render.uP?pCt="+fname);
 
-					String fname = request.getPreferences().getValue("fname",null);
-					if(fname != null)
-						searchResult.setExternalUrl("https://" + request.getServerName() + "/uPortal/max/render.uP?pCt="+fname);
-
-					searchResults.getSearchResult().add(searchResult);
-					searchResult.setRank(rank);
-					break;
-				}
+				searchResult.setRank(rank);
+				searchResults.getSearchResult().add(searchResult);
+				long end = System.currentTimeMillis();
+				logger.debug("Search completed in: " + (end - start));
+				break;
 			}
 		}
-		
 		response.setEvent(SearchConstants.SEARCH_RESULTS_QNAME, searchResults);
 
 		return;
 	}
-	
-	private int getRank(String content, String query, String keyTerms)
-	{
-		int ret = 0;
-		if (keyTerms == null)
-			keyTerms = "";
 
-		keyTerms = keyTerms.toLowerCase();
-
-		try
-		{
-			if (content != null)
-				content = content.toLowerCase();
-			else
-				content = "";
-			if (query != null)
-				query = query.toLowerCase();
-			else
-				query = "";
-			final String[] searchTerms = query.split(" ");
-			for(String term:searchTerms)
-			{
-				int index = content.indexOf(term);
-				int lastIndex = -1;
-				while (index > lastIndex)
-				{
-					ret += 1;
-					lastIndex = index;
-					index = content.indexOf(term,index) + 1;
-				}
-				//the above method had been a little flaky, so I'm leaving this
-				//alternative here just in case.
-				//if (content.contains(term))
-				//	ret += 1;
-				if (keyTerms.contains(term.toLowerCase()))
-					ret += 100;
-			}
-		}
-		catch(Exception e)
-		{
-			logger.info("Error getting rank: " + e);
-		}
-		return ret;
-	}
-	
-	private String getSummary(String content, String[] terms)
+	private String getSummarySimple(String content, String[] terms)
 	{
-		String ret = "Error fetching preview";
+		if (content == null)
+			return "content is null";
+		String ret = "";
 		//final String[] searchTerms = query.split(" ");
 		try
 		{
-			Document doc = Jsoup.parse(content);
-			ret = "";
-			for(Element child: doc.children())
-			{
-				ret += findTerm(child,terms[0]).text();
-			}
-			content = ret;
-			ret = "";
+			content = Jsoup.parse(content).text();
 			for(String term:terms)
 			{
 				int start = content.toLowerCase().indexOf(term.toLowerCase());
@@ -240,8 +192,29 @@ public class SearchContentController implements PortletConfigAware
 				else
 					ret += content.substring(start+term.length(),start+term.length()+PREVIEW_LENGTH) + "...</p>";
 			}
-			if (ret.length() == 0)
-				ret = "No preview is available.";
+		}
+		catch(Exception e)
+		{
+			ret = "Error fetching preview";
+			logger.warn("Error while attempting to retrieve preview" + e);
+		}
+		return ret;
+	}
+
+
+	//this code represents a much neater summary, but I couldn't get it fully working. I'm just
+	//going to leave it for now. Maybe some day I'll revisit this and get the nicer preview up to
+	//snuff. For now simple text it is.
+	private String getSummary(String content, String[] terms)
+	{
+		if (content == null)
+			return "content is null";
+		String ret = "Error fetching preview";
+		//final String[] searchTerms = query.split(" ");
+		try
+		{
+			Document doc = Jsoup.parse(content);
+			return findTerm(doc,terms[0]).html();
 		}
 		catch(Exception e)
 		{
@@ -261,6 +234,9 @@ public class SearchContentController implements PortletConfigAware
 				Element el = findTerm(child,term);
 				if(el != null)
 				{
+					String name = el.nodeName();
+					if (name.equals("a") || name.equals("li"))
+						return null;
 					ret = el;
 				}
 				else
@@ -270,6 +246,15 @@ public class SearchContentController implements PortletConfigAware
 			}
 		}
 		return ret;
+	}
+
+	public CMSDocumentDao getDbo(String name)
+	{
+		CMSDocumentDao dbo = dataSources.get(0);
+		for(CMSDocumentDao ds:dataSources)
+			if (ds.getDaoName().equals(name))
+				dbo = ds;
+		return dbo;
 	}
 }
 
