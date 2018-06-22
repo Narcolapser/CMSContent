@@ -136,6 +136,9 @@ public class SearchContentController implements PortletConfigAware
 		//Preparing a the list of page content.
 		List<CMSDocument> content = layout.getSubscriptionsAsDocs();
 
+		layout = this.conf.getLayout(request,"normal");
+		content.addAll(layout.getSubscriptionsAsDocs());
+
 		for (CMSDocument doc: content)
 		{
 			if(doc == null)
