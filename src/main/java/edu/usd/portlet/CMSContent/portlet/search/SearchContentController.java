@@ -149,7 +149,7 @@ public class SearchContentController implements PortletConfigAware
 			{
 				final SearchResult searchResult = new SearchResult();
 				searchResult.setTitle(request.getPreferences().getValue("searchResultsTitle", "${portlet.title.replace('O','4'}"));
-				searchResult.setSummary(this.getSummary(doc.getContent(),searchTerms) + "Ranked: " + rank);
+				searchResult.setSummary(getSummarySimple(index.doc_index.get(doc.getSource() + doc.getId()),searchTerms));
 
 				searchResult.getType().add("CMS Content");
 
@@ -159,31 +159,25 @@ public class SearchContentController implements PortletConfigAware
 
 				searchResult.setRank(rank);
 				searchResults.getSearchResult().add(searchResult);
-				logger.info(searchResults);
+				long end = System.currentTimeMillis();
+				logger.debug("Search completed in: " + (end - start));
 				break;
 			}
 		}
-		long end = System.currentTimeMillis();
-		logger.info("Search completed in: " + (end - start));
 		response.setEvent(SearchConstants.SEARCH_RESULTS_QNAME, searchResults);
 
 		return;
 	}
 
-	private String getSummary(String content, String[] terms)
+	private String getSummarySimple(String content, String[] terms)
 	{
-		String ret = "Error fetching preview";
+		if (content == null)
+			return "content is null";
+		String ret = "";
 		//final String[] searchTerms = query.split(" ");
 		try
 		{
-			Document doc = Jsoup.parse(content);
-			ret = "";
-			for(Element child: doc.children())
-			{
-				ret += findTerm(child,terms[0]).text();
-			}
-			content = ret;
-			ret = "";
+			content = Jsoup.parse(content).text();
 			for(String term:terms)
 			{
 				int start = content.toLowerCase().indexOf(term.toLowerCase());
@@ -198,8 +192,29 @@ public class SearchContentController implements PortletConfigAware
 				else
 					ret += content.substring(start+term.length(),start+term.length()+PREVIEW_LENGTH) + "...</p>";
 			}
-			if (ret.length() == 0)
-				ret = "No preview is available.";
+		}
+		catch(Exception e)
+		{
+			ret = "Error fetching preview";
+			logger.warn("Error while attempting to retrieve preview" + e);
+		}
+		return ret;
+	}
+
+
+	//this code represents a much neater summary, but I couldn't get it fully working. I'm just
+	//going to leave it for now. Maybe some day I'll revisit this and get the nicer preview up to
+	//snuff. For now simple text it is.
+	private String getSummary(String content, String[] terms)
+	{
+		if (content == null)
+			return "content is null";
+		String ret = "Error fetching preview";
+		//final String[] searchTerms = query.split(" ");
+		try
+		{
+			Document doc = Jsoup.parse(content);
+			return findTerm(doc,terms[0]).html();
 		}
 		catch(Exception e)
 		{
@@ -219,6 +234,9 @@ public class SearchContentController implements PortletConfigAware
 				Element el = findTerm(child,term);
 				if(el != null)
 				{
+					String name = el.nodeName();
+					if (name.equals("a") || name.equals("li"))
+						return null;
 					ret = el;
 				}
 				else
@@ -228,6 +246,15 @@ public class SearchContentController implements PortletConfigAware
 			}
 		}
 		return ret;
+	}
+
+	public CMSDocumentDao getDbo(String name)
+	{
+		CMSDocumentDao dbo = dataSources.get(0);
+		for(CMSDocumentDao ds:dataSources)
+			if (ds.getDaoName().equals(name))
+				dbo = ds;
+		return dbo;
 	}
 }
 
