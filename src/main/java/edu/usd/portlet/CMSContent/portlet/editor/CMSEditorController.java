@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 import java.util.Random;
+import java.util.Arrays;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -96,7 +97,7 @@ public class CMSEditorController {
 			saveEnabled.put(ds.getDaoName(),ds.saveEnabled());
 			deleteEnabled.put(ds.getDaoName(),ds.deleteEnabled());
 		}
-		refData.put("sources",sources.toArray());
+		refData.put("sources",Arrays.toString(sources.toArray()));
 		logger.debug("Sources: ");
 		logger.debug(sources);
 		refData.put("saveEnabled",saveEnabled);

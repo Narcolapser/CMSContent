@@ -62,6 +62,20 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 	}
 	
 	@SuppressWarnings("unchecked")
+	public List<CMSDocument> getAllReports()
+	{
+		Session session = sessionFactory.openSession();
+		String hql = "FROM CMSDocument WHERE removed = 0 and docType = 'report'";
+		Query query = session.createQuery(hql);
+		List<CMSDocument> docList = query.list();
+		return docList;
+	}
+	public List<CMSDocument> getAllReportsContentLess()
+	{
+		return getAllContentLess("report");
+	}
+	
+	@SuppressWarnings("unchecked")
 	private List<CMSDocument> getAllContentLess(String docType)
 	{
 		logger.debug("Getting documents with out content");

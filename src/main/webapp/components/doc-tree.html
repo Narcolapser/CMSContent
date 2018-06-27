@@ -1,0 +1,70 @@
+<link rel="import" href="/CMSContent/js/polymer.html">
+<!--<link rel="import" href="/components/materializecss-styles/materializecss-styles.html">-->
+<!--<link rel="import" href="/components/hax-body-behaviors/hax-body-behaviors.html">-->
+<!--<link rel="import" href="/components/schema-behaviors/schema-behaviors.html">-->
+
+<dom-module id="doc-tree">
+	<template>
+		<div>
+			<div class="form-group">
+				<label for="doc_title">Title:</label>
+				<input type="text" class="form-control" id="doc_title" name="doc_title">
+			</div>
+			<div class="form-group">
+				<label for="doc_source">Document:</label>
+				<select id="doc_source" class="form-control" OnChange='onSourceChange();' title="CMS Source">
+<!--<option class="form-control" id="doc_source_${source}" value="${source}" data-saveEnabled="${saveEnabled[source]}" data-deleteEnabled="${deleteEnabled[source]}" selected="selected">${source}</option>-->
+				</select>
+			</div>
+			<input type="search" id="doc_tree_search" class="form-control" value="[[sources]]" placeholder="Search..."></input>
+			<div id="doc_tree" style="height: 250px;overflow: hidden;overflow-y: scroll;"></div>
+			<div class="form-group" style="display: none;">
+				<label for="doc_loc">Selected Path:</label>
+				<input id="doc_loc" type="text" class="form-control" name="doc_loc" disabled="disabled">
+			</div>
+			<div class="form-group">
+				<label for="doc_id">Document Name/ID:</label>
+				<input id="doc_id" type="text" class="form-control" name="doc_id">
+			</div>
+			<div class="form-group">
+				<label for="doc_search">Search Terms:</label>
+				<input id="doc_search" type="text" class="form-control" name="doc_search">
+			</div>
+			<p>
+				<div class="btn-group" role="group" aria-label="Editor actions">
+					<button id="load_btn" onclick="load();return false" class="btn btn-default" title="Load Selected Document">Load</button>
+					<button id="save_btn" onclick="save();return false" class="btn btn-success" title="save document" disabled="disabled">Save</button>
+					<button id="delete_btn" onclick="delete_doc();return false" class="btn btn-danger" title="delete document">Delete</button>
+					<button id="new_btn" onclick="newFolder();return false" class="btn btn-info" title="New Folder">New Folder</button>
+					<a id="return_btn" href="https://${server}/uPortal/p/cmseditor" class="btn btn-primary">Return</a>
+					<a id="att_btn" href="https://${server}/uPortal/p/attman" class="btn btn-default" title="Go to attachments manager"><i class="fa fa-paperclip"></i></a>
+				</div>
+			</p>
+		</div>
+	</template>
+	<link rel="import" href="/js/polymer.html">
+	<script>
+		Polymer({
+			is: 'doc-tree',
+			properties: {
+				sources: {
+					type: String,
+				},
+			},
+			ready: function () {
+				console.log("Preparing Doc Tree");
+				//Populate the source options.
+				var source_select = document.getElementById("doc_source");
+				
+				var source_array = this.sources.replace('\[\]','').split(',');
+				for(var i = 0; i < source_array.length; i++)
+				{
+					var option = document.createElement("option");
+					option.text = source_array[i];
+					source_select.add(option);
+				}
+				console.log("Doc tree is ready");
+			}
+		});
+	</script>
+</dom-module>

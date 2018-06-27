@@ -12,6 +12,9 @@
 <script src="<c:url value='/webjars/chosen/1.8.2/chosen.jquery.js'/>" type="text/javascript"></script>
 <link rel="stylesheet" href="<c:url value='/webjars/chosen/1.8.2/chosen.min.css'/>" />
 
+<script src="https://rawgit.com/webcomponents/webcomponents-lite/master/webcomponents-lite.js"></script>
+<link rel="import" href="/CMSContent/components/doc-tree.html">
+
 <c:set var="server">${hostname}.usd.edu</c:set>
 <c:set var="n"><portlet:namespace/></c:set>
 <c:set var="selected" value=""/>
@@ -38,56 +41,7 @@
 
 <div style="width:100%;">
 	<div style="width:400px; float: left;">
-
-		<div class="form-group">
-			<label for="doc_title">Title:</label>
-			<input type="text" class="form-control" id="doc_title" name="doc_title">
-		</div>
-<!--${sources}
-<c:forEach var="source" items="${sources}">
-	${source}
-</c:forEach>
--->
-
-		<div class="form-group">
-			<label for="doc_source">Document:</label>
-			<select id="doc_source" class="form-control" OnChange='onSourceChange();' title="CMS Source">
-				<c:forEach var="source" items="${sources}">
-					<c:choose>
-						<c:when test="${parameters.get('source')[0] == source}">
-							<option class="form-control" id="doc_source_${source}" value="${source}" data-saveEnabled="${saveEnabled[source]}" data-deleteEnabled="${deleteEnabled[source]}" selected="selected">${source}</option>
-						</c:when>
-						<c:otherwise>
-							<option class="form-control" id="doc_source_${source}" value="${source}" data-saveEnabled="${saveEnabled[source]}" data-deleteEnabled="${deleteEnabled[source]}">${source}</option>
-						</c:otherwise>
-					</c:choose>
-				</c:forEach>
-			</select>
-		</div>
-		<input type="search" id="doc_tree_search" class="form-control" value="${search}" placeholder="Search..."></input>
-		<div id="doc_tree" style="height: 250px;overflow: hidden;overflow-y: scroll;"></div>
-		<div class="form-group" style="display: none;">
-			<label for="doc_loc">Selected Path:</label>
-			<input id="doc_loc" type="text" class="form-control" name="doc_loc" disabled="disabled">
-		</div>
-		<div class="form-group">
-			<label for="doc_id">Document Name/ID:</label>
-			<input id="doc_id" type="text" class="form-control" name="doc_id">
-		</div>
-		<div class="form-group">
-			<label for="doc_search">Search Terms:</label>
-			<input id="doc_search" type="text" class="form-control" name="doc_search">
-		</div>
-		<p>
-			<div class="btn-group" role="group" aria-label="Editor actions">
-				<button id="load_btn" onclick="load();return false" class="btn btn-default" title="Load Selected Document">Load</button>
-				<button id="save_btn" onclick="save();return false" class="btn btn-success" title="save document" disabled="disabled">Save</button>
-				<button id="delete_btn" onclick="delete_doc();return false" class="btn btn-danger" title="delete document">Delete</button>
-				<button id="new_btn" onclick="newFolder();return false" class="btn btn-info" title="New Folder">New Folder</button>
-				<a id="return_btn" href="https://${server}/uPortal/p/cmseditor" class="btn btn-primary">Return</a>
-				<a id="att_btn" href="https://${server}/uPortal/p/attman" class="btn btn-default" title="Go to attachments manager"><i class="fa fa-paperclip"></i></a>
-			</div>
-		</p>
+		<doc-tree sources="${sources}"></doc-tree>
 	</div>
 	<div style="margin-left: 410px;">
 		<textarea id="${n}content" name="content">put content here.</textarea>
