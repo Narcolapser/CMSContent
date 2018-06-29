@@ -103,6 +103,6 @@ function setUrl(anchor)
 	var docid = anchor.getAttribute("data-docid");
 	console.log(docid);
 	var title = anchor.getAttribute("data-doctitle");
-	window.history.pushState("",title,location.protocol + '//' + location.host + location.pathname + "&tab=" + docid);
+	window.history.pushState("",title,location.protocol + '//' + location.host + location.pathname + "?tab=" + docid);
 }
 </script>
