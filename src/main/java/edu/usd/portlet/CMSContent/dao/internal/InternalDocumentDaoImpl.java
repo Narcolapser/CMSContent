@@ -66,7 +66,7 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 	{
 		logger.debug("Getting documents with out content");
 		Session session = sessionFactory.openSession();
-		String hql = "SELECT id, title, keyTerms, docType FROM CMSDocument WHERE removed = 0 and docType = '"+docType+"'";
+		String hql = "SELECT id, title, keyTerms, docType, source FROM CMSDocument WHERE removed = 0 and docType = '"+docType+"'";
 		Query query = session.createQuery(hql);
 		
 		List<CMSDocument> docList = new ArrayList<CMSDocument>();
@@ -78,8 +78,8 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 			doc.setTitle((String)obj[1]);
 			doc.setKeyTerms((String)obj[2]);
 			doc.setDocType((String)obj[3]);
+			doc.setSource((String)obj[4]);
 			
-			doc.setSource("Internal");
 			doc.setRemoved(false);
 			doc.setContent("");
 			docList.add(doc);
