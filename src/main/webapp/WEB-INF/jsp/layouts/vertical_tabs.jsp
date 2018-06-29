@@ -42,10 +42,14 @@ button.copy-btn{
 }
 </style>
 <c:set var="req" value="${pageContext.request}" />
-<c:set var="active" value="${0}"/>
+<c:set var="active" value="0"/>
 <c:if test="${not empty parameters.get('tab')[0]}">
 	<c:set var="active" value="${parameters.get('tab')[0]}"/>
 </c:if>
+<c:if test="${active.matches('[0-9]+')}">
+	<c:set var="active" value="${content[active].id}"/>
+</c:if>
+<!-- active document ${active}-->
 <div class="usdChannel">
 	<div id="content">
 		<div id="left_col" class="left_col" >
@@ -53,11 +57,13 @@ button.copy-btn{
 				<c:set var="counter" value="${0}"/>
 				<c:forEach var="document" items="${content}">
 					<c:set var="aclass"></c:set>
-					<c:if test="${counter == active}">
+					<!-- active vs current: ${document.id } ${active}-->
+					<c:if test="${document.id == active}">
 						<c:set var="aclass">active</c:set>
 					</c:if>
 					<li class="btn-group ${aclass}" role="group">
-						<a href="#${channelId}-${counter}" data-toggle="tab" class="btn btn-default tab-btn">
+						<a href="#${channelId}-${counter}" data-toggle="tab" class="btn btn-default tab-btn"
+							data-docid="${document.id}" onclick="setUrl(this)" data-doctitle="${document.title}">
 							${document.title}
 						</a>
 						<c:if test="${properties.get('Link buttons (True/False)') == 'True'}">
@@ -74,25 +80,13 @@ button.copy-btn{
 			<c:set var="counter" value="${0}"/>
 			<div class="tab-content">
 				<c:forEach var="document" items="${content}">
-					<c:choose>
-						<c:when test="${counter == active}">
-							<div id="${channelId}-${counter}" class="tab-pane active">
-								<c:choose>
-									<c:when test="${document.docType eq 'form'}">
-										<cms:form content="${document}" username="${username}"/>
-									</c:when>
-									<c:otherwise>
-										<div class="usdChannel">${document.render()}</div>
-									</c:otherwise>
-								</c:choose>
-							</div>
-						</c:when>
-						<c:otherwise>
-							<div id="${channelId}-${counter}" class="tab-pane">
-								<div class="usdChannel">${document.render()}</div>
-							</div>
-						</c:otherwise>
-					</c:choose>
+					<c:set var="aclass"></c:set>
+					<c:if test="${document.id == active}">
+						<c:set var="aclass">active</c:set>
+					</c:if>
+					<div id="${channelId}-${counter}" class="tab-pane ${aclass}">
+						<div class="usdChannel">${document.render()}</div>
+					</div>
 					<c:set var="counter" value="${counter + 1}"/>
 				</c:forEach>
 			</div>
@@ -101,14 +95,14 @@ button.copy-btn{
 </div>
 <script src="<c:url value='/webjars/jquery/3.3.1-1/jquery.min.js'/>" type="text/javascript"></script>
 <script src="<c:url value='/webjars/jquery-ui/1.12.1/jquery-ui.min.js'/>" type="text/javascript"></script>
-<script src="<c:url value='/webjars/zeroclipboard/2.2.0/ZeroClipboard.min.js'/>" type="text/javascript"></script>
 <link rel="stylesheet" href="<c:url value='/webjars/jquery-ui-themes/1.12.1/smoothness/jquery-ui.min.css'/>" />
 <script>
-<c:set var="counter" value="${0}"/>
-<c:forEach var="document" items="${content}">
-	document.getElementById('copy-btn-${counter}').setAttribute("data-clipboard-text",
-		location.protocol + '//' + location.host + location.pathname + "?tab=${counter}");
-	var client = new ZeroClipboard( document.getElementById('copy-btn-${counter}') );
-	<c:set var="counter" value="${counter + 1}"/>
-</c:forEach>
+function setUrl(anchor)
+{
+	console.log(anchor);
+	var docid = anchor.getAttribute("data-docid");
+	console.log(docid);
+	var title = anchor.getAttribute("data-doctitle");
+	window.history.pushState("",title,location.protocol + '//' + location.host + location.pathname + "&tab=" + docid);
+}
 </script>
