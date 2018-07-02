@@ -42,7 +42,7 @@ public class FormDoc extends CMSDocument
 	public FormDoc(CMSDocument val)
 	{
 		this.title = val.title;
-		this.Id = val.Id;
+		this.id = val.id;
 		this.source = val.source;
 		this.docType = val.docType;
 		this.content = val.content;
@@ -65,7 +65,7 @@ public class FormDoc extends CMSDocument
 			for(int i = 0; i < obj.length(); i++)
 				jobj.add(obj.getJSONObject(i));
 			model.put("content",model);
-			model.put("id",this.Id);
+			model.put("id",this.id);
 			model.put("json",jobj);
 			if (this.attributes != null)
 				model.put("username",this.attributes.get("username"));
