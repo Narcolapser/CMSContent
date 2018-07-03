@@ -42,7 +42,7 @@ public class FormDoc extends CMSDocument
 	public FormDoc(CMSDocument val)
 	{
 		this.title = val.title;
-		this.Id = val.Id;
+		this.id = val.id;
 		this.source = val.source;
 		this.docType = val.docType;
 		this.content = val.content;
@@ -63,9 +63,17 @@ public class FormDoc extends CMSDocument
 			JSONArray obj = new JSONArray(this.content);
 			ArrayList<JSONObject> jobj = new ArrayList<JSONObject>();
 			for(int i = 0; i < obj.length(); i++)
+			{
+				JSONObject val = obj.getJSONObject(i);
+				if(!val.has("required"))
+				{
+					logger.debug("Object did not have a required field");
+					val.put("required",false);
+				}
 				jobj.add(obj.getJSONObject(i));
+			}
 			model.put("content",model);
-			model.put("id",this.Id);
+			model.put("id",this.id);
 			model.put("json",jobj);
 			if (this.attributes != null)
 				model.put("username",this.attributes.get("username"));
