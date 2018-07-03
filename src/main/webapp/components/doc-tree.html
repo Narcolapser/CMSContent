@@ -9,7 +9,7 @@
 				<input type="text" class="form-control" id="doc_title" name="doc_title">
 			</div>
 			<div class="form-group">
-				<doc-selector onChange="update_source();"></doc-selector>
+				<doc-selector id="selector" onChange="update_source();" ></doc-selector>
 			</div>
 			<input type="search" id="doc_tree_search" class="form-control" value="[[sources]]" placeholder="Search..."></input>
 			<div id="doc_tree" style="height: 250px;overflow: hidden;overflow-y: scroll;"></div>
@@ -50,16 +50,17 @@
 				console.log("Preparing Doc Tree");
 
 				console.log("Doc tree is ready");
-				this.addEventListener('source-change',function(e)
+				var selector = document.getElementById("selector");
+				selector.addEventListener('source-change',function(e)
 				{
-					console.log("Caught the source change");
-					console.log(e);
+					console.log("Caught the source change 1");
+					console.log(JSON.stringify(selector));
 				});
 			}
 		});
 		function update_source(val)
 		{
-			console.log("Source changed!");
+			console.log("Source changed! caught in update_source");
 			console.log(val);
 		}
 	</script>

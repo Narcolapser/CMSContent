@@ -3,7 +3,7 @@
 <dom-module id="doc-selector">
 	<template>
 		<label for="doc_source">Document:</label>
-		<select id="doc_source" class="form-control" OnChange='onSourceChange();' title="CMS Source">
+		<select id="doc_source" class="form-control" OnChange='onSourceChange();' title="CMS Source" value="{{hostValue::change}}">
 		</select>
 	</template>
 	<link rel="import" href="/js/polymer.html">
@@ -14,6 +14,14 @@
 				onChange: {
 					type: Object,
 				},
+				hostValue: {
+					type: String,
+					observer: '_observer'
+				}
+			},
+			_observer: function(v)
+			{
+				console.log('selected: ' + v);
 			},
 			ready: function () {
 				//Populate the source options.
@@ -39,7 +47,10 @@
 		function onSourceChange()
 		{
 			console.log("Source has changed.");
-			this.onChange("internal");
+			const event = new CustomEvent('source-change', {bubbles: true, composed: true, detail:"internal"});
+			this.dispatchEvent(event);
+			//console.log(this.onChange);
+			//this.onChange("internal");
 		}
 	</script>
 </dom-module>
