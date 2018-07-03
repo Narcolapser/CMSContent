@@ -1,0 +1,45 @@
+<link rel="import" href="/CMSContent/js/polymer.html">
+
+<dom-module id="doc-selector">
+	<template>
+		<label for="doc_source">Document:</label>
+		<select id="doc_source" class="form-control" OnChange='onSourceChange();' title="CMS Source">
+		</select>
+	</template>
+	<link rel="import" href="/js/polymer.html">
+	<script>
+		Polymer({
+			is: 'doc-selector',
+			properties: {
+				onChange: {
+					type: Object,
+				},
+			},
+			ready: function () {
+				//Populate the source options.
+				var request = new XMLHttpRequest();
+				request.open('GET','/CMSContent/v2/document/sources',true);
+				request.onload = function ()
+					{
+						var sources = JSON.parse(request.responseText);
+						var source_select = document.getElementById("doc_source");
+						for(var i = 0; i < sources.length; i++)
+						{
+							var option = document.createElement("option");
+							option.text = sources[i].name;
+							option.setAttribute("data-saveEnabled",sources[i].save);
+							option.setAttribute("data-deleteEnabled",sources[i].delete);
+							option.setAttribute("data-docType",sources[i].type);
+							source_select.add(option);
+						}
+					};
+				request.send();
+			}
+		});
+		function onSourceChange()
+		{
+			console.log("Source has changed.");
+			this.onChange("internal");
+		}
+	</script>
+</dom-module>
