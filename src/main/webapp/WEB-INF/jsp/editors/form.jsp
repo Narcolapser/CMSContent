@@ -107,6 +107,7 @@
 				<th>Label</th>
 				<th>Type</th>
 				<th>Options (if applicable, seperated by commas)</th>
+				<th>Required</th>
 				<td></td>
 			</thead>
 			<tbody id="control_body">
@@ -139,13 +140,15 @@
 				<optgroup label="Informative/Structural">
 					<option value="label">Label</option>
 					<option value="hr">Horrizontal Line</option>
+					<option value="p">Paragraph</option>
 				</optgroup>
 				<optgroup label="Entry">
 					<option value="text">Text</option>
 					<option value="multi-text">Multi-line Text</option>
 					<option value="date">Date picker</option>
+					<option value="datetime">Date Time</option>
 					<option value="select">Drop Down</option>
-					<option value="bool">True/False</option>
+					<option value="multi-select">Multi-select</option>
 					<option value="checkbox">Checkbox</option>
 					<option value="radiobutton">Radio Button</option>
 				</optgroup>
@@ -153,6 +156,9 @@
 		</td>
 		<td>
 			<span>Options: </span><input name="options" type="text" class="form-control"></input>
+		</td>
+		<td>
+			<input type="checkbox" name="Required" value="required">Required</input>
 		</td>
 		<td><button class="btn btn-danger" onclick="remove_control(this);return false;">Remove</button></td>
 	</tr>
@@ -270,6 +276,8 @@ function update_content(data, textStatus, jqXHR)
 		row.innerHTML = `${control_row}`;
 		row.children[1].children[1].value=form[i]["label"];
 		row.children[3].children[1].value=form[i]["options"];
+		if(form[i]["required"] != undefined)
+			row.children[4].children[0].checked = form[i]["required"];
 		for(var j=0; j< row.children[2].children[1].options.length; j++)
 			if (row.children[2].children[1].options[j].value==form[i]["type"])
 			{
@@ -299,9 +307,11 @@ function save()
 		tp = row.cells[2].children[1];
 		tp = tp.options[tp.selectedIndex].value;
 		ops = row.cells[3].children[1].value;
+		req = row.cells[4].children[0].checked;
 		entry['label'] = label;
 		entry['type'] = tp;
 		entry['options'] = ops;
+		entry['required'] = req;
 		form_json.push(entry);
 	}
 	var doc_table = document.getElementById("doc_table");

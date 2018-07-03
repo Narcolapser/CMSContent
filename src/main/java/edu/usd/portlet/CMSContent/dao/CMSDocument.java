@@ -33,7 +33,7 @@ public class CMSDocument
 
 	@Id
 	@Column(name = "id")
-	protected String Id;
+	protected String id;
 	
 	@Column(name = "title")
 	protected String title;
@@ -53,35 +53,58 @@ public class CMSDocument
 	
 	@Column(name = "removed")
 	protected boolean removed;
-	
-	protected String contentJson;
 
 	public CMSDocument(){}
 
-	public CMSDocument(String title, String Id, String source, String docType, String content, String keyTerms, boolean removed)
+	public CMSDocument(String title, String id, String source, String docType, String content, String keyTerms, boolean removed)
 	{
 		this.title = title;
-		this.Id = Id;
+		this.id = id;
 		this.source = source;
 		this.docType = docType;
 		this.content = content;
 		this.keyTerms = keyTerms;
 		this.removed = removed;
 	}
-	public CMSDocument(String title, String Id, String source, String docType, String content)
+	public CMSDocument(String title, String id, String source, String docType, String content)
 	{
 		this.title = title;
-		this.Id = Id;
+		this.id = id;
 		this.source = source;
 		this.docType = docType;
 		this.content = content;
 		this.keyTerms = "";
 		this.removed = false;
 	}
-	public CMSDocument(String title, String Id)
+	public CMSDocument(String json)
+	{
+		this.title = "";
+		this.id = "";
+		this.source = "";
+		this.docType = "";
+		this.content = "";
+		this.keyTerms = "";
+		this.removed = true;
+		try
+		{
+			JSONObject obj = new JSONObject();
+			this.title = obj.getString("title");
+			this.id = obj.getString("id");
+			this.source = obj.getString("source");
+			this.docType = obj.getString("docType");
+			this.content = obj.getString("content");
+			this.keyTerms = obj.getString("keyTerms");
+			this.removed = obj.getBoolean("removed");
+		}
+		catch(JSONException e)
+		{
+			logger.error("Failure to decode json: " + json + " error: " + e);
+		}
+	}
+	public CMSDocument(String title, String id)
 	{
 		this.title = title;
-		this.Id = Id;
+		this.id = id;
 	}
 	public String getTitle()
 	{
@@ -93,11 +116,11 @@ public class CMSDocument
 	}
 	public String getId()
 	{
-		return this.Id;
+		return this.id;
 	}
 	public void setId(String val)
 	{
-		this.Id = val;
+		this.id = val;
 	}
 	public String getSource()
 	{
@@ -150,7 +173,7 @@ public class CMSDocument
 	public String toString()
 	{
 		String ret = "Title: " + this.title;
-		ret += " Id: " + this.Id;
+		ret += " id: " + this.id;
 		ret += " Source: " + this.source;
 		ret += " Type: " + this.docType;
 		if (this.content != null)
@@ -168,5 +191,26 @@ public class CMSDocument
 	public String render()
 	{
 		return this.content;
+	}
+	
+	public String toJSON()
+	{
+		try
+		{
+			JSONObject obj = new JSONObject();
+			obj.put("id",this.id);
+			obj.put("title",this.title);
+			obj.put("source",this.source);
+			obj.put("docType",this.docType);
+			obj.put("content",this.content);
+			obj.put("keyTerms",this.keyTerms);
+			obj.put("removed",this.removed);
+			return obj.toString();
+		}
+		catch(JSONException e)
+		{
+			logger.error("Failure to encode json: " + this.id + " error: " + e);
+			return "{}";
+		}
 	}
 }
