@@ -681,6 +681,11 @@
 			<groupId>org.directwebremoting</groupId>
 			<artifactId>dwr</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.webjars.bowergithub.vpusher</groupId>
+			<artifactId>paper-tree</artifactId>
+			<version>1.0.3</version>
+		</dependency>
 	</dependencies>
 
 	<profiles>
