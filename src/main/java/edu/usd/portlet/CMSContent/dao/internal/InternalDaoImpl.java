@@ -37,28 +37,11 @@ public class InternalDaoImpl implements CMSDocumentDao, DisposableBean
 		this.internalDocumentDao = internalDocumentDao;
 	}
 
-	public List<String> getAvailableDocuments()
-	{
-		List<String> ret = new ArrayList<String>();
-		try
-		{
-			List<CMSDocument> docs = this.internalDocumentDao.getAllDocuments();
-			for(CMSDocument doc:docs)
-				ret.add(doc.getTitle());
-			return ret;
-		}
-		catch (Exception e)
-		{
-			logger.debug("Error in fetching docs: " + e);
-			return null;
-		}
-	}
-
 	public List<CMSDocument> getAllDocumentsContentless()
 	{
 		try
 		{
-			List<CMSDocument> docs = this.internalDocumentDao.getAllDocumentsContentLess();
+			List<CMSDocument> docs = this.internalDocumentDao.getAllDocumentsContentLess("html");
 			return docs;
 		}
 		catch (Exception e)

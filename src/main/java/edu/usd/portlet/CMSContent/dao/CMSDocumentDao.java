@@ -18,9 +18,6 @@ import edu.usd.portlet.cmscontent.dao.CMSDocument;
 public interface CMSDocumentDao
 {
 
-	public List<String> getAvailableDocuments();
-	// Get a list of available documents, returning just the doc's title.
-
 	public List<CMSDocument> getAllDocumentsContentless();
 	// Get the a list of available documents. It returns a list of all the
 	// documents but with out the content associted with them. So it is a

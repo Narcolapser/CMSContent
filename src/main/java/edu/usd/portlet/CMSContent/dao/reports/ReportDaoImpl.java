@@ -31,7 +31,7 @@ import edu.usd.portlet.cmscontent.components.SwallowingJspRenderer;
  */
 
 @Component
-public class FormDaoImpl implements CMSDocumentDao, DisposableBean
+public class ReportDaoImpl implements CMSDocumentDao, DisposableBean
 {
 	@Autowired
 	private SwallowingJspRenderer jspRenderer;
@@ -68,7 +68,7 @@ public class FormDaoImpl implements CMSDocumentDao, DisposableBean
 	
 	public String getDaoName()
 	{
-		return "InternalForms";
+		return "InternalReports";
 	}
 
 	public void destroy() throws Exception {
@@ -80,22 +80,6 @@ public class FormDaoImpl implements CMSDocumentDao, DisposableBean
 	
 	public boolean deleteEnabled(){return true;}
 	
-	public String getSourceType(){return "form";}
+	public String getSourceType(){return "report";}
 	
-	public ArrayList<JSONObject> getDocJson(CMSDocument doc)
-	{
-		try
-		{
-			JSONArray obj = new JSONArray(doc.getContent());
-			ArrayList<JSONObject> jobj = new ArrayList<JSONObject>();
-			for(int i = 0; i < obj.length(); i++)
-				jobj.add(obj.getJSONObject(i));
-			return jobj;
-		}
-		catch(JSONException e)
-		{
-			logger.error("Error loading form data: " + e);
-			return null;
-		}
-	}
 }
