@@ -148,10 +148,16 @@ public class CMSLayout
 	
 	public ModelAndView display(Map<String, Object> model)
 	{
+		logger.debug("Displaying");
 		logger.debug(model.get("content"));
+		logger.debug("There was the model content");
 		for(CMSDocument doc:(List<CMSDocument>)model.get("content"))
 		{
+//			logger.debug("preparing to personalize:");
+//			logger.debug(doc);
+//			logger.debug(model);
 			doc.personalize(model);
+//			logger.debug("Personalization done.");
 		}
 		if(this.view.equals("view_single"))
 			this.setView("layouts/single");

@@ -48,5 +48,14 @@ public class DatabaseRepo
 		session.saveOrUpdate(ans);
 		session.flush();
 	}
-
+	
+	@Transactional(readOnly = true)
+	public List<DatabaseResponse> getResponses(String formId)
+	{
+		Session session = sessionFactory.openSession();
+		String hql = "FROM DatabaseResponse WHERE form = '" + formId + "'";
+		Query query = session.createQuery(hql);
+		List<DatabaseResponse> ret = query.list();
+		return ret;
+	}
 }
