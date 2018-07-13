@@ -162,7 +162,7 @@ function submit(formId)
 		{
 			value = [];
 			for(var j = 0; j < form.children[i].children[1].length; j++)
-				if(form.children[i].children[1].options[j].selected) value.push(form.children[i].children[1].options.value);
+				if(form.children[i].children[1].options[j].selected) value.push(form.children[i].children[1].options[j].value);
 			console.log(value);
 			if(form.children[i].dataset.required == 'true')
 				if(value == [undefined])

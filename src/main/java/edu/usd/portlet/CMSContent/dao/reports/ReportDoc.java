@@ -31,6 +31,8 @@ public class ReportDoc extends CMSDocument
 	private SwallowingJspRenderer jspRenderer;
 	
 	private List<DatabaseResponse> responses;
+	
+	private String[] fields;
 
 	public SwallowingJspRenderer getJspRenderer()
 	{
@@ -65,27 +67,27 @@ public class ReportDoc extends CMSDocument
 		try
 		{
 			Map<String,Object> model = new HashMap<String,Object>();
-			JSONArray obj = new JSONArray(this.content);
-			ArrayList<JSONObject> jobj = new ArrayList<JSONObject>();
-			for(int i = 0; i < obj.length(); i++)
-			{
-				JSONObject val = obj.getJSONObject(i);
-				if(!val.has("required"))
-				{
-					logger.debug("Object did not have the 'required' field, this just means the form was made before the 'required' field was a thing.");
-					val.put("required",false);
-				}
-				jobj.add(obj.getJSONObject(i));
-			}
-			model.put("content",model);
-			model.put("id",this.id);
-			model.put("json",jobj);
+//			JSONArray obj = new JSONArray(this.content);
+//			ArrayList<JSONObject> jobj = new ArrayList<JSONObject>();
+//			for(int i = 0; i < obj.length(); i++)
+//			{
+//				JSONObject val = obj.getJSONObject(i);
+//				if(!val.has("required"))
+//				{
+//					logger.debug("Object did not have the 'required' field, this just means the form was made before the 'required' field was a thing.");
+//					val.put("required",false);
+//				}
+//				jobj.add(obj.getJSONObject(i));
+//			}
+//			model.put("content",model);
+//			model.put("id",this.id);
+//			model.put("json",jobj);
 			model.put("responses",this.responses);
 			
-			HashSet<String> fields = new HashSet<>();
-			for(DatabaseResponse resp:this.responses)
-				fields.addAll(resp.getFields());
-			model.put("fields",fields);
+//			HashSet<String> fields = new HashSet<>();
+//			for(DatabaseResponse resp:this.responses)
+//				fields.addAll(resp.getFields());
+			model.put("fields",this.fields);
 			
 			if (this.attributes != null)
 				model.put("username",this.attributes.get("username"));
@@ -107,5 +109,15 @@ public class ReportDoc extends CMSDocument
 	public void setResponses(List<DatabaseResponse> val)
 	{
 		this.responses = val;
+	}
+	
+	public String[] getFields()
+	{
+		return this.fields;
+	}
+	
+	public void setFields(String[] val)
+	{
+		this.fields = val;
 	}
 }

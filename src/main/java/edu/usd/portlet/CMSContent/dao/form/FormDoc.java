@@ -1,5 +1,6 @@
 package edu.usd.portlet.cmscontent.dao;
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
@@ -67,7 +68,7 @@ public class FormDoc extends CMSDocument
 				JSONObject val = obj.getJSONObject(i);
 				if(!val.has("required"))
 				{
-					logger.debug("Object did not have a required field");
+					logger.debug("Object did not have the 'required' field, this just means the form was made before the 'required' field was a thing.");
 					val.put("required",false);
 				}
 				jobj.add(obj.getJSONObject(i));
@@ -86,5 +87,29 @@ public class FormDoc extends CMSDocument
 		}
 		
 		return html;
+	}
+	public String[] getFields()
+	{
+		try
+		{
+			List<String> fields = new ArrayList<String>();
+			JSONArray obj = new JSONArray(this.content);
+			for(int i = 0; i < obj.length(); i++)
+			{
+				JSONObject val = obj.getJSONObject(i);
+				if(!(val.getString("type").equals("label") || val.getString("type").equals("hr") || val.getString("type").equals("p")))
+				{
+					logger.debug("found a field with response");
+					fields.add(val.getString("label"));
+				}
+			}
+			return fields.toArray(new String[0]);
+		}
+		catch (Exception e)
+		{
+			logger.debug("Error rendering:");
+			logger.debug(e);
+			return null;
+		}
 	}
 }
