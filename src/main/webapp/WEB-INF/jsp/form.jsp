@@ -5,6 +5,7 @@
 <form id="${id}">
 	<div data-control="formInfo"><input data-control="formId" type="hidden" class="form-control" value="${id}"/></div>
 	<div data-control="formInfo"><input data-control="username" type="hidden" class="form-control" value="${username}"/></div>
+	<div data-control="formInfo"><input data-control="useremail" type="hidden" class="form-control" value="${useremail}"/></div>
 	<c:forEach var="control" items="${json}">
 		<c:set var="val">${control.getString("type")}</c:set>
 		<c:set var="s"></c:set>
@@ -228,8 +229,8 @@ function submit(formId)
 	{
 		//alert(JSON.stringify(data));
 		$.ajax({dataType:"json",
-			url:"/CMSContent/v1/api/formResponse.json",
-			data:{"form":JSON.stringify(data),"replyType":"${replyType}"},
+			url:"/CMSContent/v2/form/response.json",
+			data:{"form":JSON.stringify(data)},
 			success:formReponseRecieved});
 		var sub = document.getElementById("submit_btn");
 		//sub.setAttribute("disabled","disabled");

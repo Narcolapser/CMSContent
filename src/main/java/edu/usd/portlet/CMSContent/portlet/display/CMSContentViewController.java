@@ -101,6 +101,9 @@ public class CMSContentViewController {
 		
 		//get username.
 		refData.put("username",((Map)request.getAttribute(PortletRequest.USER_INFO)).get("username"));
+		
+		//get user email.
+		refData.put("useremail",((Map)request.getAttribute(PortletRequest.USER_INFO)).get("mail"));
 
 		return layout.display(refData);
 	}
