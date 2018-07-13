@@ -44,15 +44,14 @@ public final class FormApi {
 		return dbo;
 	}
 
-	@RequestMapping("formResponse")
+	@RequestMapping("response")
 	public String formResponse(
-		@RequestParam(value="form", defaultValue = "") String form,
-		@RequestParam(value="replyType", defaultValue = "") String replyType
+		@RequestParam(value="form", defaultValue = "") String form
 		)
 	{
 		try
 		{
-			logger.debug("Recieved form response: " + form + " which will be sent to: " + replyType);
+			logger.debug("Recieved form response: " + form);
 			FormDaoImpl dbo = (FormDaoImpl)getDbo("InternalForms");
 			JSONObject obj = new JSONObject(form);
 			logger.debug(obj.getString("formId"));
@@ -61,13 +60,9 @@ public final class FormApi {
 			String options = "";
 			for(JSONObject entry: jform)
 				if(entry.getString("type").equals("respType"))
-					options = entry.getString("options");
-			logger.debug("Responder options: " + options);
-			for(CMSResponder re:responders)
-				if (replyType.equals(re.getName()))
-					if(!re.respond(form,options))
+					if(!getCMSResponder(entry.getString("label")).respond(form,entry.getString("options")))
 					{
-						logger.error("Something went wrong when submitting form: " + form);
+						logger.error("Something went wrong when submitting form: " + form + " to responder: " + entry.getString("label"));
 						return "{\"result\":\"failure\"}";
 					}
 		}
@@ -79,6 +74,13 @@ public final class FormApi {
 		return "{\"result\":\"success\"}";
 	}
 
+	private CMSResponder getCMSResponder(String name)
+	{
+		for(CMSResponder re:responders)
+			if (name.equals(re.getName()))
+				return re;
+		return null;
+	}
 
 	@RequestMapping("listResponders")
 	public String listResponder()

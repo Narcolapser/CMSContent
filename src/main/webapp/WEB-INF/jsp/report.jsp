@@ -1,7 +1,7 @@
 <%-- Author: Toben Archer | Version $Id$ --%>
 <%@ page contentType="text/html" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<table class="table">
+<table class="table table-striped">
 	<tr>
 		<c:forEach var="field" items="${fields}">
 			<c:if test="${field.length() > 20}">

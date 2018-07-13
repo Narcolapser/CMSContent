@@ -77,7 +77,10 @@ public class FormDoc extends CMSDocument
 			model.put("id",this.id);
 			model.put("json",jobj);
 			if (this.attributes != null)
+			{
 				model.put("username",this.attributes.get("username"));
+				model.put("useremail",this.attributes.get("useremail"));
+			}
 			html = jspRenderer.render("form",model);
 		}
 		catch (Exception e)

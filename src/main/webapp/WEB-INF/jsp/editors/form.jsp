@@ -80,26 +80,19 @@
 			<c:set var="selected" value="form:${parameters.get('doc')[0]}"/>
 		</c:if>
 
-		<table id="doc_table" class="table table-striped">
-			<tbody>
-				<tr>
-					<td>Form Response Type:</td>
-					<td>
-						<select id="formResp" OnChange="responder_change()" class="form-control">
-							<c:forEach var="res" items="${responders}">
-								<option value="${res}">${res}</option>
-							</c:forEach>
-						</select>
-					</td>
-					<td id="formRespOptionLabel">
-						Responder Option:
-					</td>
-					<td colspan="3">
-						<input id="formRespOption" class="form-control"/>
-					</td>
-				</tr>
+		<table id="responder_table" class="table table-striped">
+			<thead>
+				<th>Responder Type</th>
+				<th></th>
+				<th>Responder Configuration</th>
+			</thead>
+			<tbody id="responder_body">
 			</tbody>
 		</table>
+
+		<button onclick="add_responder();return false" class="btn btn-info" title="Add another control">
+			<i class="fa fa-plus-square"></i>
+		</button>
 
 		<table id="control_table" class="table table-striped">
 			<thead>
@@ -118,6 +111,24 @@
 		</button>
 	</div>
 </div>
+
+<c:set var="responder_row">
+	<tr>
+		<td>
+			<select id="formResp" OnChange="responder_change(this)" class="form-control">
+				<c:forEach var="res" items="${responders}">
+					<option value="${res.getName()}" data-option="${res.getOptionInfo()}">${res.getName()}</option>
+				</c:forEach>
+			</select>
+		</td>
+		<td id="formRespOptionLabel">
+			Responder Option:
+		</td>
+		<td>
+			<input id="formRespOption" class="form-control"/>
+		</td>
+	</tr>
+</c:set>
 
 <c:set var="control_row">
 	<tr>
@@ -204,16 +215,6 @@ function move_control(dir,control)
 	nrow.children[3].children[1].value = row.children[3].children[1].value;
 	nrow.children[2].children[1].selectedIndex = row.children[2].children[1].selectedIndex;
 }
-//function load()
-//{
-//	var selector = document.getElementById("formSelector");
-//	var myindex = selector.selectedIndex;
-//	var doc_id = selector.options[myindex].value;
-//	
-//	${n}.jQuery.ajax({dataType:"json",
-//		url:"/CMSContent/v1/api/getDocument.json",
-//		data:{"source":"Internal","id":doc_id},
-//		success:update_content});
 //}
 function load()
 {
@@ -256,20 +257,15 @@ function update_content(data, textStatus, jqXHR)
 	
 	var form = JSON.parse(data.doc.content);
 	//alert("Form: " + form);
-	var new_tbody = document.createElement('tbody')
+	var new_tbody = document.createElement('tbody');
+	var rtable = document.createElement('tbody');
 	new_tbody.id = "control_body";
+	rtable.id = "responder_body";
 	for(var i=0; i<form.length; i++)
 	{
-		//alert("Form entry: " + JSON.stringify(form[i]));
-		//{"options":"1223","label":"443","type":"label"}
 		if(form[i]["type"] == "respType")
 		{
-			for(var j=0; j<form_resp.options.length; j++)
-				if (form[i]["label"] == form_resp.options[j].value)
-					form_resp.selectedIndex = j;
-			var repop = document.getElementById("formRespOption");
-			repop.value = form[i]["options"];
-			responder_change();
+			load_resp(rtable,form[i]['label'],form[i]['options']);
 			continue;
 		}
 		var row = new_tbody.insertRow(new_tbody.length);
@@ -285,8 +281,20 @@ function update_content(data, textStatus, jqXHR)
 				break;
 			}
 	}
+	
 	var old_tbody = document.getElementById("control_body");
-	old_tbody.parentNode.replaceChild(new_tbody, old_tbody)
+	old_tbody.parentNode.replaceChild(new_tbody, old_tbody);
+	var old_rbody = document.getElementById("responder_body");
+	old_rbody.parentNode.replaceChild(rtable, old_rbody);
+}
+function load_resp(rtable,rtype,roption)
+{
+	var row = rtable.insertRow(rtable.length);
+	row.innerHTML = `${responder_row}`;
+	for(var i; i < row.cells[0].children[0].options.length; i ++)
+		if(row.cells[0].children[0].options[i].value == rtype)
+			row.cells[0].children[0].options[i].selected = true;
+	row.cells[2].children[0].value = roption;
 }
 
 function add_control()
@@ -295,30 +303,40 @@ function add_control()
 	var row = table.insertRow(table.length);
 	row.innerHTML = `${control_row}`;
 }
+
+function add_responder()
+{
+	var table = document.getElementById("responder_table");
+	var row = table.insertRow(table.length);
+	row.innerHTML = `${responder_row}`;
+}
+
 function save()
 {
-	var table = document.getElementById("control_table");
+	//assemble document information:
+	var doc_info = {};
+	doc_info['id'] = get_doc_id();
 	var form_title = document.getElementById("formTitle");
+	doc_info['title'] = form_title.value;
+	
+	//assemble document json body
+	var table = document.getElementById("control_table");
 	var form_json = [];
 	for (var i=1,row; row = table.rows[i];i++)
-	{
-		var label, tp, ops, entry={};
-		label = row.cells[1].children[1].value;
-		tp = row.cells[2].children[1];
-		tp = tp.options[tp.selectedIndex].value;
-		ops = row.cells[3].children[1].value;
-		req = row.cells[4].children[0].checked;
-		entry['label'] = label;
-		entry['type'] = tp;
-		entry['options'] = ops;
-		entry['required'] = req;
-		form_json.push(entry);
-	}
-	var doc_table = document.getElementById("doc_table");
-	var doc_info = {};
-	doc_info['name'] = doc_table.rows[0].cells[3].children[0].value;
+		form_json.push(get_form_entry(row));
 
-	//doc_info['id'] = doc_table.rows[0].cells[5].children[0].value;
+	//assemble responder options.
+	var responder_table = document.getElementById("responder_table");
+	for (var i=1,row; row = responder_table.rows[i]; i++)
+		form_json.push(get_responder_config(row));
+
+	$.ajax({dataType:"json",
+		url:"/CMSContent/v1/api/saveForm.json",
+		data:{"form":JSON.stringify({"form":form_json,"doc":doc_info})},
+		success:form_saved});
+}
+function get_doc_id()
+{
 	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
 	var doc_id = getNodePath(node);
 	if(node.data['type'] == "folder")
@@ -327,7 +345,7 @@ function save()
 		else
 			doc_id += "/" + node.text;
 
-	if (doc_id == doc_source)
+	if (doc_id == "InternalForms")
 		doc_id = "";
 
 	var path = doc_id;
@@ -336,18 +354,30 @@ function save()
 	else
 		doc_id += "/" + document.getElementById("doc_id").value;
 	console.log(doc_id);
-	doc_info['id'] = doc_id;
-	doc_info['title'] = form_title.value;
-	
-	var resp = {};
-	resp['label'] = doc_table.rows[0].cells[1].children[0].value;
+	return doc_id;
+}
+function get_form_entry(row)
+{
+	var label, tp, ops, entry={};
+	label = row.cells[1].children[1].value;
+	tp = row.cells[2].children[1];
+	tp = tp.options[tp.selectedIndex].value;
+	ops = row.cells[3].children[1].value;
+	req = row.cells[4].children[0].checked;
+	entry['label'] = label;
+	entry['type'] = tp;
+	entry['options'] = ops;
+	entry['required'] = req;
+	return entry;
+}
+function get_responder_config(resp_row)
+{
+	var resp ={};
+	//resp['label'] = resp_row.cells[0].children[0].options[resp_row.cells[0].children[0].selectedIndex];
+	resp['label'] = resp_row.cells[0].children[0].selectedOptions[0].value;
 	resp['type'] = "respType";
-	resp['options'] = doc_table.rows[0].cells[3].children[0].value;
-	form_json.push(resp);
-	$.ajax({dataType:"json",
-		url:"/CMSContent/v1/api/saveForm.json",
-		data:{"form":JSON.stringify({"form":form_json,"doc":doc_info})},
-		success:form_saved});
+	resp['options'] = resp_row.cells[2].children[0].value;
+	return resp;
 }
 function form_saved(data, textStatus, jqXHR)
 {
@@ -357,10 +387,10 @@ function form_saved(data, textStatus, jqXHR)
 function delete_form()
 {
 
-	var doc_table = document.getElementById("doc_table");
+	var responder_table = document.getElementById("responder_table");
 	$.ajax({dataType:"json",
 		url:"/CMSContent/v1/api/delete.json",
-		data:{"sanitybit":31415,"id":doc_table.rows[0].cells[5].children[0].value},
+		data:{"sanitybit":31415,"id":responder_table.rows[0].cells[5].children[0].value},
 		success:form_deleted});
 }
 function form_deleted(data,textStatus, jqXHR)
@@ -524,21 +554,12 @@ function newFolder()
 	${n}.jQuery("#doc_tree").jstree().create_node('#'+parent, newNode, position, false, false);
 }
 
-function responder_change()
+function responder_change(resp_selector)
 {
 	console.log("resp changed");
-	var resp_selector = document.getElementById("formResp");
-	var resp_name = resp_selector.options[resp_selector.selectedIndex].value;
-	console.log(resp_name);
-	$.ajax({dataType:"json",
-		url:"/CMSContent/v1/api/getResponder.json",
-		data:{"name":resp_name},
-		success:responder_update});
-}
-function responder_update(data, textStatus, jqXHR)
-{
-	var resp_option = document.getElementById("formRespOptionLabel");
-	resp_option.innerHTML = data['responder']['optionInfo'];
+	resp_option = resp_selector.options[resp_selector.selectedIndex].getAttribute("data-option");
+	console.log(resp_option);
+	resp_selector.parentNode.parentNode.children[1].innerHTML = resp_option;
 }
 
 $(document).ready(function(){
