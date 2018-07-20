@@ -44,7 +44,7 @@ public class Database implements CMSResponder
 			String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new java.util.Date());
 //			String id = obj.getString("username") + "-" + obj.getString("formId") + "-" + timeStamp;
 			DatabaseResponse resp = new DatabaseResponse();
-			resp.setUserName(obj.getString("username"));
+			resp.setUsername(obj.getString("username"));
 			resp.setForm(obj.getString("formId"));
 			resp.setResponseTime(timeStamp);
 			databaseRepo.insertResponse(resp);
