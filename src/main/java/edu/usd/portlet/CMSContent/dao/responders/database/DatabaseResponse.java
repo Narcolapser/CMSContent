@@ -1,6 +1,7 @@
 package edu.usd.portlet.cmscontent.dao;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -64,12 +65,12 @@ public class DatabaseResponse
 		this.id = val;
 	}
 	
-	public String getUserName()
+	public String getUsername()
 	{
 		return this.username;
 	}
 	
-	public void setUserName(String val)
+	public void setUsername(String val)
 	{
 		this.username = val;
 	}
@@ -92,6 +93,32 @@ public class DatabaseResponse
 	public void setResponseTime(String val)
 	{
 		this.responseTime = val;
+	}
+	
+	public Set<DatabaseAnswer> getAnswers()
+	{
+		return this.answers;
+	}
+	
+	public void setAnswers(Set<DatabaseAnswer> val)
+	{
+		this.answers = val;
+	}
+	
+	public List<String> getFields()
+	{
+		List<String> ret = new ArrayList<>();
+		for(DatabaseAnswer answer:answers)
+			if(!ret.contains(answer.getField()))
+				ret.add(answer.getField());
+		return ret;
+	}
+	public String getAnswer(String field)
+	{
+		for(DatabaseAnswer answer:answers)
+			if(answer.getField().equals(field))
+				return answer.getAnswer();
+		return "";
 	}
 }
 

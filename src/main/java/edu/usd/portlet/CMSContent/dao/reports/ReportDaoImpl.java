@@ -21,34 +21,43 @@ import java.util.ArrayList;
 import edu.usd.portlet.cmscontent.dao.UsdSql;
 import edu.usd.portlet.cmscontent.components.SwallowingJspRenderer;
 
+import edu.usd.portlet.cmscontent.dao.DatabaseRepo;
+import edu.usd.portlet.cmscontent.dao.DatabaseResponse;
+import edu.usd.portlet.cmscontent.dao.DatabaseAnswer;
+
 /**
- * This is an implementation of the CMSDocumentDao. It is responsible for pulling in
- * data from our old CMS, CSPortalPage. It is realatively straight forward as all
- * the heavy lifting is done in the database. 
+ * This is an implementation of the CMSDocumentDao. It will display the content
+ * of form responses in various ways.
  * 
  * @author Toben Archer
  * @version $Id$
  */
 
 @Component
-public class FormDaoImpl implements CMSDocumentDao, DisposableBean
+public class ReportDaoImpl implements CMSDocumentDao, DisposableBean
 {
 	@Autowired
 	private SwallowingJspRenderer jspRenderer;
 
 	@Autowired
 	private InternalDocumentDao internalDocumentDao;
+	
+	@Autowired
+	private DatabaseRepo databaseRepo;
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	public CMSDocument getDocument(String Id)
 	{
 		logger.debug("Fetching document with ID of: " + Id);
-		FormDoc doc;
+		ReportDoc doc;
 		try
 		{
-			doc = new FormDoc(this.internalDocumentDao.getDocumentById(Id));
+			List<DatabaseResponse> responses = databaseRepo.getResponses(Id);
+			doc = new ReportDoc(this.internalDocumentDao.getDocumentById(Id));
+			doc.setResponses(responses);
 			doc.setJspRenderer(jspRenderer);
+			doc.setFields(new FormDoc(this.internalDocumentDao.getDocumentById(Id)).getFields());
 		}
 		catch (Exception e)
 		{
@@ -68,7 +77,7 @@ public class FormDaoImpl implements CMSDocumentDao, DisposableBean
 	
 	public String getDaoName()
 	{
-		return "InternalForms";
+		return "InternalReports";
 	}
 
 	public void destroy() throws Exception {
@@ -80,22 +89,6 @@ public class FormDaoImpl implements CMSDocumentDao, DisposableBean
 	
 	public boolean deleteEnabled(){return true;}
 	
-	public String getSourceType(){return "form";}
+	public String getSourceType(){return "report";}
 	
-	public ArrayList<JSONObject> getDocJson(CMSDocument doc)
-	{
-		try
-		{
-			JSONArray obj = new JSONArray(doc.getContent());
-			ArrayList<JSONObject> jobj = new ArrayList<JSONObject>();
-			for(int i = 0; i < obj.length(); i++)
-				jobj.add(obj.getJSONObject(i));
-			return jobj;
-		}
-		catch(JSONException e)
-		{
-			logger.error("Error loading form data: " + e);
-			return null;
-		}
-	}
 }

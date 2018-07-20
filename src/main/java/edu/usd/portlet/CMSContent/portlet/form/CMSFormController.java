@@ -100,10 +100,10 @@ public class CMSFormController {
 		refData.put("parameters",request.getParameterMap());
 		
 		//get the available responders.
-		List<String> res = new ArrayList<String>();
-		for(CMSResponder re:responders)
-			res.add(re.getName());
-		refData.put("responders",res);
+//		List<String> res = new ArrayList<String>();
+//		for(CMSResponder re:responders)
+//			res.add(re.getName());
+		refData.put("responders",responders);
 		
 		//get the base url of this server.
 		try

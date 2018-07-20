@@ -40,10 +40,10 @@ public class DatabaseAnswer
 	@Column(name = "answer_id")
 	protected int id;
 	
-	@Column(name = "field")
+	@Column(name = "field", columnDefinition="TEXT")
 	protected String field;
 	
-	@Column(name = "answer")
+	@Column(name = "answer", columnDefinition="TEXT")
 	protected String answer;
 	
 	@ManyToOne

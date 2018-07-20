@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,13 +22,17 @@ import org.json.JSONArray;
  * @version $Id$
  */
 
-public class FormDoc extends CMSDocument
+public class ReportDoc extends CMSDocument
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 	
 	private Map<String,Object> attributes;
 
 	private SwallowingJspRenderer jspRenderer;
+	
+	private List<DatabaseResponse> responses;
+	
+	private String[] fields;
 
 	public SwallowingJspRenderer getJspRenderer()
 	{
@@ -38,9 +44,9 @@ public class FormDoc extends CMSDocument
 		this.jspRenderer = val;
 	}
 
-	public FormDoc(){}
+	public ReportDoc(){}
 
-	public FormDoc(CMSDocument val)
+	public ReportDoc(CMSDocument val)
 	{
 		this.title = val.title;
 		this.id = val.id;
@@ -52,7 +58,7 @@ public class FormDoc extends CMSDocument
 	}
 	public void personalize(Map<String,Object> attributes)
 	{
-		logger.debug("Personalizing from formdoc");
+		logger.debug("Personalizing from ReportDoc");
 		this.attributes = attributes;
 	}
 	public String render()
@@ -61,27 +67,12 @@ public class FormDoc extends CMSDocument
 		try
 		{
 			Map<String,Object> model = new HashMap<String,Object>();
-			JSONArray obj = new JSONArray(this.content);
-			ArrayList<JSONObject> jobj = new ArrayList<JSONObject>();
-			for(int i = 0; i < obj.length(); i++)
-			{
-				JSONObject val = obj.getJSONObject(i);
-				if(!val.has("required"))
-				{
-					logger.debug("Object did not have the 'required' field, this just means the form was made before the 'required' field was a thing.");
-					val.put("required",false);
-				}
-				jobj.add(obj.getJSONObject(i));
-			}
-			model.put("content",model);
-			model.put("id",this.id);
-			model.put("json",jobj);
+			model.put("responses",this.responses);
+			model.put("fields",this.fields);
+			
 			if (this.attributes != null)
-			{
 				model.put("username",this.attributes.get("username"));
-				model.put("useremail",this.attributes.get("useremail"));
-			}
-			html = jspRenderer.render("form",model);
+			html = jspRenderer.render("report",model);
 		}
 		catch (Exception e)
 		{
@@ -91,28 +82,23 @@ public class FormDoc extends CMSDocument
 		
 		return html;
 	}
+	public List<DatabaseResponse> getResponses()
+	{
+		return this.responses;
+	}
+	
+	public void setResponses(List<DatabaseResponse> val)
+	{
+		this.responses = val;
+	}
+	
 	public String[] getFields()
 	{
-		try
-		{
-			List<String> fields = new ArrayList<String>();
-			JSONArray obj = new JSONArray(this.content);
-			for(int i = 0; i < obj.length(); i++)
-			{
-				JSONObject val = obj.getJSONObject(i);
-				if(!(val.getString("type").equals("label") || val.getString("type").equals("hr") || val.getString("type").equals("p")))
-				{
-					logger.debug("found a field with response");
-					fields.add(val.getString("label"));
-				}
-			}
-			return fields.toArray(new String[0]);
-		}
-		catch (Exception e)
-		{
-			logger.debug("Error rendering:");
-			logger.debug(e);
-			return null;
-		}
+		return this.fields;
+	}
+	
+	public void setFields(String[] val)
+	{
+		this.fields = val;
 	}
 }
