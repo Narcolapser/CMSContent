@@ -184,7 +184,7 @@
 			<name>contextConfigLocation</name>
 			<value>/WEB-INF/context/portlet/CMSEditor.xml</value>
 		</init-param>
-		<expiration-cache>0</expiration-cache>
+		<expiration-cache>300</expiration-cache>
 		<supports>
 			<mime-type>text/html</mime-type>
 			<portlet-mode>view</portlet-mode>
