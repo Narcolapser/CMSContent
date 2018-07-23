@@ -22,7 +22,17 @@ import edu.usd.portlet.cmscontent.dao.InternalDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSResponder;
-
+/**
+ * This class provides a REST API for the documents accessed by this portlet.
+ * There are 5 principle methods:
+ *   get     : Returns a requested document from specified source.
+ *   list    : Lists available documents from specified source.
+ *   save    : Saves a document to specified source.
+ *   delete  : Deletes a document from specified source.
+ *   sources : Lists available document sources.
+ *
+ * @author Toben Archer (Toben.Archer@usd.edu)
+ */
 @RestController
 @RequestMapping("/v2/document")
 public final class DocumentApi {

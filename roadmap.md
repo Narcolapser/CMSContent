@@ -52,8 +52,12 @@
 ###1.0:
 * portlet caching
 * Video play back
+* CMSForms all bounce off of the database so that response time can be very fast.
+
+###1.1:
 * Unified CMSEditor.
 * WebComponents to simplify Editors.
+* CMSForm confirmation email needs to use a document for it's return body. But this will require a fancier way to set options.
 
 
 ###Abandoned:
@@ -66,3 +70,11 @@
 Query for copying prod table:
 DROP TABLE [uPortal].[dbo].[CMSDocument]
 SELECT * INTO [uPortal].[dbo].[CMSDocument] FROM [USD-SQL05\SQL01].uPortal.dbo.CMSDocument
+
+## Other things I've noticed that need fixing:
+* No way to remove extra Responders.
+* Horizontal tabs has zero clip instead of url rewriting.
+* Vertical tabs doesn't force content size effectively enough.
+* Vertical tabs kind of breaks on smaller displays, should probably turn into expanding on smaller displays.
+* Reports and internal forms don't index properly to be searched.
+* 

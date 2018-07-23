@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
-//import java.util.Integer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,6 +27,22 @@ import org.jsoup.select.Elements;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 
+/**
+ * This class provides a prepared search index for CMSContent inorder to provide
+ * a fast response to search requests. Principly it is fairly simple. Every
+ * document is broken into it's lower case word tolkens. Then the occurances of
+ * those words are counted and a dictionary of those word counts is created for
+ * each document. When you search "campus housing" and a document uses the word
+ * "campus" 10 times and "housing" 5, that document is passed back with a rank
+ * of 15. However, documents can also have keywords associated with them. In
+ * such a case, the keyword adds a weight of 100 to that word. 
+ *
+ * There is a collection of common words to be ignored at the beginning of the
+ * class to skip those over powering everything.
+ *
+ * @author Toben Archer (Toben.Archer@usd.edu)
+ */
+
 @Component
 @Service
 public class CMSSearchIndex
@@ -41,6 +56,7 @@ public class CMSSearchIndex
 	};
 	
 	public Set<String> STOP_WORDS;
+	
 	protected final Log logger = LogFactory.getLog(this.getClass());
 	
 	Map<String,IndexEntry> index = new HashMap<>();
@@ -55,12 +71,16 @@ public class CMSSearchIndex
 	{
 		try
 		{
-
-//Temporarily removed to save development time.
 			for(CMSDocumentDao dao: dataSources)
 			{
 				logger.info("Indexing " + dao.getDaoName());
+				
+				//get the documents without their content first. This is done
+				//primarily since the interface doesn't actually specifiy a way
+				//to request all the documents with content to keep it simiple.
 				List<CMSDocument> docs = dao.getAllDocumentsContentless();
+				
+				//loop over every document and construct an index entry for it.
 				for(CMSDocument doc: docs)
 				{
 					try
@@ -83,37 +103,51 @@ public class CMSSearchIndex
 		{
 			logger.error("Error building index: " + e);
 		}
+		
+		//this seems to be the simplest way to create a set from a static array.
 		STOP_WORDS = new HashSet<String>(Arrays.asList(ENGLISH_STOP_WORDS));
 	}
 
 	public int search(String query, String doc_source, String doc_id)
 	{
+		//We are going to be returning the search rank value of the document
+		//that we have been requested to search.
 		int ret = 0;
+		
+		//this prevents case sensativity.
 		query = query.toLowerCase();
+		
+		//if there is a problem searching we'll just ignore this document to
+		//keep things moving quickly. 
 		try
 		{
+			//break the query into tolkens and get the rank for each one.
 			for(String term:query.split(" "))
 			{
-				//not sure if this works.
+				//if it is a common english word, skip it.
 				if(STOP_WORDS.contains(term))
 					continue;
+					
+				//get the index entry from the index.
 				IndexEntry val = index.get(doc_source+doc_id);
+				
+				//if the entry has the term in it's word list, add the value to
+				//this documents search rank value.
 				if (val.words.containsKey(term))
-				{
 					ret += val.words.get(term);
-				}
 			}
 		}
 		catch(Exception e)
 		{
+			logger.error("Error searching document: " + e);
 			return 0;
 		}
-		
 		
 		return ret;
 	}
 
-	public CMSDocumentDao getDbo(String name)
+	//convinence method for getting the document source.
+	private CMSDocumentDao getDbo(String name)
 	{
 		CMSDocumentDao dbo = dataSources.get(0);
 		for(CMSDocumentDao ds:dataSources)
