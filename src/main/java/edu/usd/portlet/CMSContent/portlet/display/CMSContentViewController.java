@@ -23,8 +23,6 @@ import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSLayout;
 import edu.usd.portlet.cmscontent.dao.CMSSubscription;
-//import edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl;
-//import edu.usd.portlet.cmscontent.dao.InternalDao;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
 import javax.portlet.PortletRequest;
 import javax.portlet.WindowState;
 
@@ -70,7 +69,7 @@ public class CMSContentViewController {
 	}
 
 	@RequestMapping
-	public ModelAndView viewContent(RenderRequest request)
+	public ModelAndView viewContent(RenderRequest request, RenderResponse response)
 	{
 		logger.debug("Number of datasources: " + dataSources.size());
 		for(CMSDocumentDao ds:dataSources)
@@ -90,12 +89,6 @@ public class CMSContentViewController {
 		//Get content
 		refData.put("content",layout.getContent(request,dataSources));
 
-		//Get channel ID
-		refData.put("channelId","CMS" + request.getWindowID());
-
-		//Get portlet path. Not sure if this is truely necessary. I'll probably depricate it.
-		refData.put("portletPath",request.getContextPath());
-
 		//get any paramaters that were passed.
 		refData.put("parameters",request.getParameterMap());
 		
@@ -104,6 +97,15 @@ public class CMSContentViewController {
 		
 		//get user email.
 		refData.put("useremail",((Map)request.getAttribute(PortletRequest.USER_INFO)).get("mail"));
+
+		//Caching
+		String etag = String.valueOf(refData.hashCode());
+		logger.info("etag: " + etag);
+		response.getCacheControl().setETag(etag);
+		response.getCacheControl().setExpirationTime(60);
+
+		//Get channel ID
+		refData.put("channelId","CMS" + request.getWindowID());
 
 		return layout.display(refData);
 	}
