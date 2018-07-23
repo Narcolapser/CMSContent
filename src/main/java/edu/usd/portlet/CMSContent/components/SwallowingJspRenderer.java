@@ -22,6 +22,18 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * This class provides the facility to render a JSP document into a string which
+ * can be used by a document source to provide more complicated personalization
+ * of a document. It was originally created to allow CMSForms to embed username
+ * and email address in the form to save them as valueable bits of information
+ * and allow for richer functionality. But also allows for document sources to
+ * store their document as a data structure rather than a string and then render
+ * it using JSP files.
+ *
+ * @author Toben Archer (Toben.Archer@usd.edu)
+ */
+
 @Component
 public class SwallowingJspRenderer implements ServletContextAware
 {

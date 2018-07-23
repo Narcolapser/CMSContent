@@ -23,6 +23,13 @@ import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSResponder;
 
+/**
+ * This class provides the original cobbled together API of this portlet. It's
+ * all kludged together, don't use it. Use the DocumentAPI or the FormAPI.
+ *
+ * @author Toben Archer (Toben.Archer@usd.edu)
+ */
+
 @RestController
 @RequestMapping("/v1/api")
 public final class CMSRestController {
