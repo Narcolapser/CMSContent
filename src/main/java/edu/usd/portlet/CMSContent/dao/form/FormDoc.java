@@ -16,6 +16,17 @@ import org.json.JSONException;
 import org.json.JSONArray;
 
 /**
+ * This class provides a hand full of customizations to make the CMSForms work.
+ * The biggest one is the custom render method which converts the json string in
+ * which the form's structure is stored into an HTML string which the layout can
+ * display. Doing it this way seperates the two concerns. Layouts need not know
+ * anything about what a form is, and the forms don't need to worry about the
+ * structure of the layout.
+ * 
+ * The method "getFields" is actually primarily for CMSReports. It allows for a
+ * consistent listing of the fields in the form so that the reports can them
+ * selves be consistent in their display.
+ * 
  * @author Toben Archer
  * @version $Id$
  */

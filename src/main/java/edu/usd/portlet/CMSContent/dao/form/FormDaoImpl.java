@@ -22,9 +22,11 @@ import edu.usd.portlet.cmscontent.dao.UsdSql;
 import edu.usd.portlet.cmscontent.components.SwallowingJspRenderer;
 
 /**
- * This is an implementation of the CMSDocumentDao. It is responsible for pulling in
- * data from our old CMS, CSPortalPage. It is realatively straight forward as all
- * the heavy lifting is done in the database. 
+ * This class provides CMSContent with the ability to display forms. Forms have
+ * a couple of features that simple HTML documents lack. Specifically they need
+ * to be personalized to every user to allow for information such as username to
+ * be embedded in it so that we know who submitted the form. But the other thing
+ * that is fairly unqiue is the ability to return a document as JSON. 
  * 
  * @author Toben Archer
  * @version $Id$

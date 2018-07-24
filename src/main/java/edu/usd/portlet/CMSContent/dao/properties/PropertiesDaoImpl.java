@@ -29,6 +29,11 @@ import edu.usd.portlet.cmscontent.dao.CMSLayout;
 import edu.usd.portlet.cmscontent.dao.CMSSubscription;
 
 /**
+ * This is an implementation of the CMSConfigDao which leverages the portal's
+ * built in properties system. You could theoretically make one that does it
+ * entirely in hibernate or some such way, but lacking anyway to determing what
+ * the portlet is uniquely it would be very hard.
+ * 
  * @author Toben Archer
  * @version $Id$
  */
@@ -40,39 +45,49 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 	@Autowired
 	List<CMSLayout> layouts;
 	
+	//the default getLayout method. It will attempt to return, context aware, the current layout.
 	public CMSLayout getLayout(PortletRequest request)
 	{
+		//If the window state is maximized return the maximized view.
 		WindowState state = request.getWindowState();
 		if (WindowState.MAXIMIZED.equals(state))
 		{
 			CMSLayout max = getLayout(request,"maximized");
+			//if the maximized view has no subscriptions, skip it and go with the normal view.
 			if (max.getSubscriptionsAsDocs().size()!=0)
 				return max;
 		}
+		
+		//Otherwise return the normal view. 
 		return getLayout(request,"normal");
 	}
 	
 	public CMSLayout getLayout(PortletRequest request, String mode)
 	{
-	
 		PortletPreferences prefs = request.getPreferences();
-		if ((prefs.getValue("pageUri",null) != null))
-			return getLayoutLegacy(request);
-		
+		//create a new CMSLayout object which will be returned.
 		CMSLayout ret = new CMSLayout();
 		
+		//Get the view for the current mode, if there isn't one, assume single.
 		String view = prefs.getValue(mode,"layouts/single");
+		ret.setView(view);
+		
+		//Iterate over the available layouts and grab the approparite class.
 		for(CMSLayout layout:layouts)
 		{
 			logger.debug("Comparing " + layout.getView() + " to " + view);
 			if (layout.getView().equals(view))
 			{
+				//make a copy of that class so that we can get the benefits of polymorphism.
 				ret = layout.copy(layout);
 			}
 		}
 		
+		//Get this layout's subscriptions.
 		String[] subs = prefs.getValues(mode+".subscriptions",new String[0]);
 		logger.debug("found subs: " + subs.length + " for " + mode+".subscriptions");
+
+		//Iterate over the array of strings and form them neatly into CMSSubscription objects.
 		List<CMSSubscription> subscriptions = new ArrayList<CMSSubscription>();
 		for(String sub:subs)
 		{
@@ -83,15 +98,17 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			csub.setDocId(id);
 			csub.setDocSource(source);
 			
+			//Get the security groups for this subscription. 
 			String[] groups = prefs.getValues(mode+".subscriptions."+sub,new String[0]);
 			csub.setSecurityGroups(Arrays.asList(groups));
 			
 			subscriptions.add(csub);
 		}
 		logger.debug("Total subscriptions: " + subscriptions.size());
+		ret.setSubscriptions(subscriptions);
 		
+		//Get any properties set for this layout.
 		String[] props = prefs.getValues(mode+".properties",new String[0]);
-		//logger.debug("found props: " + props.length + " for " + mode + ".properties");
 		for(String prop:props)
 		{
 			try
@@ -99,18 +116,14 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 				int delimiter = prop.indexOf(";");
 				String property = prop.substring(0,delimiter);
 				String value = prop.substring(delimiter+1);
-				//logger.debug("Property found, Key: " + property + " Value: " + value);
 				ret.setProperty(property,value);
 			}
 			catch (Exception e)
 			{
-				//logger.info("Error while trying to load property: " + prop + " Error: " + e);
+				logger.debug("Error while trying to load property: " + prop + " Error: " + e);
 			}
 		}
-		
-		ret.setView(view);
-		ret.setSubscriptions(subscriptions);
-		
+
 		return ret;
 	}
 	
@@ -120,40 +133,48 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 		logger.debug("setting layout. to: " + layout.getView());
 		try
 		{
-			//Legacy:
-			prefs.reset("pageUri");
-			prefs.store();
-
+			//Get the list of preference names.
 			Enumeration<String> pks = prefs.getNames();
 			List<String> prefkeys = new ArrayList<String>();
+			
+			//Iterate over that list to find the ones that are related this mode's view.
 			while(pks.hasMoreElements())
 			{
 				String pref = pks.nextElement();
 				if (pref.contains(mode))
 					prefkeys.add(pref);
 			}
+			
+			//Reset, e.g. delete, those preferences so we don't have any loose ends.
 			for(String pk : prefkeys)
 				prefs.reset(pk);
+
+			//Set the mode's view to the layout's view. 
 			logger.debug("Setting " + mode + " to " + layout.getView());
 			prefs.setValue(mode,layout.getView());
 			
+			//Iterate through the layout's subscriptions and add each one as a preference.
 			ArrayList<String> subs = new ArrayList<String>();
 			for(CMSSubscription cmssub:layout.getSubscriptions())
 			{
-				
+				//Delimit between document source and document id with a semicolon.
 				String sub = cmssub.getDocSource();
 				sub += ";";
 				sub += cmssub.getDocId();
 				subs.add(sub);
+				
+				//If the subscription has security groups, add them in.
 				if(cmssub.getSecurityGroups() != null)
 				{
 					String[] insertArray = new String[cmssub.getSecurityGroups().size()];
 					prefs.setValues(mode+".subscriptions."+sub, cmssub.getSecurityGroups().toArray(insertArray));
 				}
 			}
+			//Add all the subscriptions into the mode's subscriptions preference.
 			String[] insertArray = new String[subs.size()];
 			prefs.setValues(mode+".subscriptions",subs.toArray(insertArray));
 			
+			//If the view has properties, save those as well. 
 			ArrayList<String> props = new ArrayList<String>();
 			Set<String> keys = layout.getProperties().keySet();
 			for(String key:keys)
@@ -166,64 +187,21 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 				}
 				catch (Exception e)
 				{
-				
+					logger.error("Error saving layout properties: " + e);
 				}
 			}
 			String[] propArray = new String[subs.size()];
 			prefs.setValues(mode+".properties",props.toArray(propArray));
+			
+			//save changes.
 			prefs.store();
 			logger.debug("layout reset.");
 		}
 		catch(Exception e)
 		{
-			logger.debug("Failure!" + e);
+			logger.error("Failure in setting layout: " + e);
 		}
 	}
-
-	private CMSLayout getLayoutLegacy(PortletRequest request)
-	{
-		logger.debug("Legacy portlet");
-		PortletPreferences prefs = request.getPreferences();
-		String[] pageUriArray = prefs.getValues("pageUri",null);
-		String source;
-		List<CMSSubscription> ret = new ArrayList<CMSSubscription>();
-		try
-		{
-			for(String val:pageUriArray)
-			{
-				if(val == null)
-				{
-					CMSSubscription csub = new CMSSubscription();
-					csub.setDocId("blank");
-					csub.setDocSource("blank");
-					ret.add(csub);
-					continue;
-				}
-				//default is commonspot for backwards compatibility reasons.
-				source = prefs.getValue(val,"CommonSpot");
-				CMSSubscription csub = new CMSSubscription();
-				csub.setDocId(val);
-				csub.setDocSource(source);
-				ret.add(csub);
-			}
-		}
-		catch(Exception e)
-		{
-			logger.debug("There were no values set");
-			CMSSubscription csub = new CMSSubscription();
-			csub.setDocId("blank");
-			csub.setDocSource("blank");
-			ret.add(csub);
-		}
-		
-		CMSLayout layout = new CMSLayout();
-		
-		layout.setView("layouts/single");
-		layout.setSubscriptions(ret);
-		
-		return layout;
-	}
-
 
 	public void destroy() throws Exception {
 	}

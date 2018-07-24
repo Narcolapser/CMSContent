@@ -34,7 +34,6 @@ public class TabbedOld extends CMSLayout
 		CMSLayout l = new CMSLayout(val);
 		l.view = "layouts/Tabbed_old";
 		l.name = "TabbedOld";
-		//logger.info("mid-copy: layout: " + l.getName() + ";" + l.getView());
 		return l;
 	}
 	
@@ -46,11 +45,9 @@ public class TabbedOld extends CMSLayout
 	
 	public Map<String,String> getProperties()
 	{
-		//logger.debug("Tabs properties!");
 		Map<String,String> ret = this.getDefaultProperties();
 		for(String val:ret.keySet())
 		{
-			//logger.debug("Key: " + val);
 			if(!this.properties.containsKey(val))
 				this.properties.put(val,ret.get(val));
 		}
