@@ -19,6 +19,21 @@ import org.apache.commons.collections.IteratorUtils;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.InternalDocumentDao;
 
+/**
+ * This class provides CMSContent basic internal storage of documents. This is
+ * where I stress that CMSContent is NOT intended to be your full content
+ * management service. This is meant to be a convinence utility, a sort of stop
+ * gap measure. Primarily it lacks any mechanism for controlling who can publish
+ * beyond the security measures of the portal or for publishing approval
+ * workflows. 
+ *
+ * From the Java side this is a fairly straight forward class and stands as the
+ * best example of a simple implementation of the CMSDocumentDao interface. 
+ *
+ * @author Toben Archer
+ * @version $Id$
+ */
+
 @Component
 @Service
 public class InternalDaoImpl implements CMSDocumentDao, DisposableBean

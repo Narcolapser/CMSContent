@@ -77,4 +77,5 @@ SELECT * INTO [uPortal].[dbo].[CMSDocument] FROM [USD-SQL05\SQL01].uPortal.dbo.C
 * Vertical tabs doesn't force content size effectively enough.
 * Vertical tabs kind of breaks on smaller displays, should probably turn into expanding on smaller displays.
 * Reports and internal forms don't index properly to be searched.
-* 
+* Expanding layout gets stuck if you click "Collapse all"
+* Compond keys with document id and document type.
