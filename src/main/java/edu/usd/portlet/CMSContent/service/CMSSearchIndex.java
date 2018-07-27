@@ -56,26 +56,26 @@ public class CMSSearchIndex
 		try
 		{
 
-//Temporarily removed to save development time.
-			for(CMSDocumentDao dao: dataSources)
-			{
-				logger.info("Indexing " + dao.getDaoName());
-				List<CMSDocument> docs = dao.getAllDocumentsContentless();
-				for(CMSDocument doc: docs)
-				{
-					try
-					{
-						CMSDocument val = dao.getDocument(doc.getId());
-						IndexEntry ie = new IndexEntry(val);
-						index.put(dao.getDaoName() + doc.getId(),ie);
-						doc_index.put(dao.getDaoName() + doc.getId(),val.render());
-					}
-					catch(IllegalArgumentException e)
-					{
-						logger.error("Error indexing document: " + doc.getId() + " Error: " + e);
-					}
-				}
-			}
+			//Removed since it was giving inconsistent results.
+//			for(CMSDocumentDao dao: dataSources)
+//			{
+//				logger.info("Indexing " + dao.getDaoName());
+//				List<CMSDocument> docs = dao.getAllDocumentsContentless();
+//				for(CMSDocument doc: docs)
+//				{
+//					try
+//					{
+//						CMSDocument val = dao.getDocument(doc.getId());
+//						IndexEntry ie = new IndexEntry(val);
+//						index.put(dao.getDaoName() + doc.getId(),ie);
+//						doc_index.put(dao.getDaoName() + doc.getId(),val.render());
+//					}
+//					catch(IllegalArgumentException e)
+//					{
+//						logger.error("Error indexing document: " + doc.getId() + " Error: " + e);
+//					}
+//				}
+//			}
 			logger.info("" + index.size() + " documents were indexed");
 			logger.info("Indexer built");
 		}
