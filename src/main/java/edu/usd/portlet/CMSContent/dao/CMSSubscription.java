@@ -3,6 +3,13 @@ package edu.usd.portlet.cmscontent.dao;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ * The many-to-many connector between CMSDocuments and CMSLayouts.
+ * 
+ * @author Toben Archer
+ * @version $Id$
+ */
+
 public class CMSSubscription
 {
 	private String docId;

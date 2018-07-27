@@ -79,3 +79,9 @@ SELECT * INTO [uPortal].[dbo].[CMSDocument] FROM [USD-SQL05\SQL01].uPortal.dbo.C
 * Reports and internal forms don't index properly to be searched.
 * Expanding layout gets stuck if you click "Collapse all"
 * Compond keys with document id and document type.
+* Double check all the input types in CMSForms, at least checkbox doesn't actually get saved if required
+* Responders are showing up in reports.
+* Return button is broken on CMSForm editor
+* Automaticly displaying source content is broken in CMSEditor.
+* CMSEditor displays internal forms and internal reports even though it can't edit them (properly)
+* Deleted documents cause the display of a portlet to explode.

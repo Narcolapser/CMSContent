@@ -19,7 +19,11 @@ import org.json.JSONArray;
 import org.springframework.web.portlet.ModelAndView;
 
 import edu.usd.portlet.cmscontent.dao.DatabaseResponse;
-
+/**
+ * This responder saves the form responses to the database.
+ *
+ * @author Toben Archer (Toben.Archer@usd.edu)
+ */
 @Component
 public class Database implements CMSResponder
 {

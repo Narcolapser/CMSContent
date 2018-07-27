@@ -13,6 +13,13 @@ import org.apache.commons.logging.LogFactory;
 import edu.usd.portlet.cmscontent.dao.CMSSubscription;
 import org.springframework.web.portlet.ModelAndView;
 
+/**
+ * The base layout class on which other layouts are built. 
+ *
+ * @author Toben Archer
+ * @version $Id$
+ */
+
 public class CMSLayout
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
@@ -108,29 +115,29 @@ public class CMSLayout
 	
 	public void updateSubscription(CMSSubscription val, int index)
 	{
-		logger.info("Index: " + index + " list length: " + this.subscriptions.size());
+		logger.debug("Index: " + index + " list length: " + this.subscriptions.size());
 		if (this.subscriptions.size() <= index)
 			if (val != null)
 			{
-				logger.info("Added subscription");
+				logger.debug("Added subscription");
 				this.subscriptions.add(val);
 			}
 			else
 			{
-				logger.info("This is the gimp!");
+				logger.debug("This is the gimp!");
 			}
 		else
 			if (val == null)
 			{
-				logger.info("Removed subscription");
+				logger.debug("Removed subscription");
 				this.subscriptions.remove(index);
 			}
 			else
 			{
-				logger.info("changed subscription");
+				logger.debug("changed subscription");
 				this.subscriptions.set(index,val);
 			}
-		logger.info("Completeing the update function");
+		logger.debug("Completeing the update function");
 	}
 	
 	public List<CMSDocument> getSubscriptionsAsDocs()
@@ -148,34 +155,14 @@ public class CMSLayout
 	
 	public ModelAndView display(Map<String, Object> model)
 	{
-		logger.debug("Displaying");
-		logger.debug(model.get("content"));
-		logger.debug("There was the model content");
 		for(CMSDocument doc:(List<CMSDocument>)model.get("content"))
-		{
-//			logger.debug("preparing to personalize:");
-//			logger.debug(doc);
-//			logger.debug(model);
 			doc.personalize(model);
-//			logger.debug("Personalization done.");
-		}
-		if(this.view.equals("view_single"))
-			this.setView("layouts/single");
-		if(this.view.equals("view_tabbed"))
-			this.setView("layouts/tabbed");
-		if(this.view.equals("view_tabbed_old"))
-			this.setView("layouts/tabbed_old");
-		if(this.view.equals("view_vertical_tabs"))
-			this.setView("layouts/vertical_tabs");
-		if(this.view.equals("view_expanding"))
-			this.setView("layouts/expanding");
-
-		logger.debug(this.view);
+			
 		return new ModelAndView(this.view,model);
 	}
 	public CMSLayout copy(CMSLayout val)
 	{
-		logger.debug("Layout Copying is copying");
+		logger.trace("Layout Copying is copying");
 		return new CMSLayout(val);
 	}
 	

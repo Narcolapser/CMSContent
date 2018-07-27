@@ -44,7 +44,6 @@ import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 import edu.usd.portlet.cmscontent.dao.CMSLayout;
 import edu.usd.portlet.cmscontent.dao.CMSSubscription;
-import edu.usd.portlet.cmscontent.dao.InternalDao;
 import edu.usd.portlet.cmscontent.dao.security.Role;
 
 import edu.usd.portlet.cmscontent.service.PortletXMLGroupService;
