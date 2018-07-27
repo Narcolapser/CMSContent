@@ -20,6 +20,14 @@ import javax.activation.*;
 
 import org.springframework.web.portlet.ModelAndView;
 
+/**
+ * This responder is used to automatically send a confirmation email to a user
+ * when responds to an email. The option set here allows the form creator
+ * to give some sort of message to the user in response. 
+ *
+ * @author Toben Archer (Toben.Archer@usd.edu)
+ */
+
 @Component
 public class ConfirmationEmail implements CMSResponder
 {

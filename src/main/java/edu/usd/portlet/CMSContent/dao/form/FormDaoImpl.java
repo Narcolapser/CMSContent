@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
-import edu.usd.portlet.cmscontent.dao.UsdSql;
 import edu.usd.portlet.cmscontent.components.SwallowingJspRenderer;
 
 /**

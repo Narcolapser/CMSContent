@@ -27,6 +27,10 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
+ * This class holds the primary part of the form response. specifically the
+ * specific response id, the user who responded, the time of response, and the
+ * form that was responded to. It will map to DatabaseAnswers with the specific
+ * field and it's answers.
  * @author Toben Archer
  * @version $Id$
  */

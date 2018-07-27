@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
-import edu.usd.portlet.cmscontent.dao.UsdSql;
 import edu.usd.portlet.cmscontent.components.SwallowingJspRenderer;
 
 import edu.usd.portlet.cmscontent.dao.DatabaseRepo;
@@ -41,7 +40,7 @@ public class ReportDaoImpl implements CMSDocumentDao, DisposableBean
 
 	@Autowired
 	private InternalDocumentDao internalDocumentDao;
-	
+
 	@Autowired
 	private DatabaseRepo databaseRepo;
 
@@ -69,6 +68,7 @@ public class ReportDaoImpl implements CMSDocumentDao, DisposableBean
 
 	public List<CMSDocument> getAllDocumentsContentless()
 	{
+		//Reports are made by the response of forms. So reports IDs are the same as forms.
 		List<CMSDocument> docs = this.internalDocumentDao.getAllDocumentsContentLess("form");
 		return docs;
 	}

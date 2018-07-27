@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
+ * This class is to hold the specific field and answer. 
  * @author Toben Archer
  * @version $Id$
  */

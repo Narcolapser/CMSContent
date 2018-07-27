@@ -20,6 +20,13 @@ import javax.activation.*;
 
 import org.springframework.web.portlet.ModelAndView;
 
+/**
+ * This responder is used to send an email to a specific user with the result of
+ * the form. It only works with systems that allow annonymous stmp requests.
+ *
+ * @author Toben Archer (Toben.Archer@usd.edu)
+ */
+
 @Component
 public class Email implements CMSResponder
 {
@@ -28,7 +35,7 @@ public class Email implements CMSResponder
 	//get the name of the responder.
 	public String getName(){return "Email";}
 	
-	public String getOptionInfo(){return "Sending addres, Receiving address:";}
+	public String getOptionInfo(){return "Sending address, Receiving address:";}
 
 	//respond to the form returned to the system.
 	public boolean respond(String json, String options)
