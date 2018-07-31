@@ -148,6 +148,8 @@ $(document).ready(function(){
 		console.log(r.join(','));
 	}).jstree();
 	
+	//make sure everything lines up.
+	onSourceChange();
 	});
 });
 

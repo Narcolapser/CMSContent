@@ -157,7 +157,18 @@ public class CMSLayout
 	{
 		for(CMSDocument doc:(List<CMSDocument>)model.get("content"))
 			doc.personalize(model);
-			
+		
+		if(this.view.equals("view_single"))
+			this.setView("layouts/single");
+		if(this.view.equals("view_tabbed"))
+			this.setView("layouts/tabbed");
+		if(this.view.equals("view_tabbed_old"))
+			this.setView("layouts/tabbed_old");
+		if(this.view.equals("view_vertical_tabs"))
+			this.setView("layouts/vertical_tabs");
+		if(this.view.equals("view_expanding"))
+			this.setView("layouts/expanding");
+
 		return new ModelAndView(this.view,model);
 	}
 	public CMSLayout copy(CMSLayout val)

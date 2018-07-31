@@ -46,7 +46,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
 import org.springframework.web.portlet.ModelAndView;
 
-import edu.usd.portlet.cmscontent.dao.InternalDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
@@ -91,9 +90,12 @@ public class CMSEditorController {
 		Map<String,Boolean> deleteEnabled = new HashMap<String,Boolean>();
 		for(CMSDocumentDao ds:dataSources)
 		{
-			sources.add(ds.getDaoName());
-			saveEnabled.put(ds.getDaoName(),ds.saveEnabled());
-			deleteEnabled.put(ds.getDaoName(),ds.deleteEnabled());
+			if(ds.getSourceType().equals("html"))
+			{
+				sources.add(ds.getDaoName());
+				saveEnabled.put(ds.getDaoName(),ds.saveEnabled());
+				deleteEnabled.put(ds.getDaoName(),ds.deleteEnabled());
+			}
 		}
 		refData.put("sources",sources.toArray());
 		refData.put("saveEnabled",saveEnabled);
