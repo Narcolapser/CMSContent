@@ -98,10 +98,14 @@ public class CMSContentConfigController
 		for(CMSSubscription sub : content)//Itterate over each sub.
 			for(CMSDocumentDao ds:dataSources)//We need to itterate over the datasources to find which one the document came from. 
 				try
+				{
 					if(ds.getDaoName().equals(sub.getDocSource()))
 						sub.setDocTitle(ds.getDocument(sub.getDocId()).getTitle());// once found, we get the document and fetch it's title. 
+				}
 				catch (java.lang.NullPointerException e)
+				{
 					logger.warn("Could not fetch document \"" + sub.getDocId() + "\" because: " + e);
+				}
 
 		//Pass in the normal view information.
 		final Map<String, Object> contentMap = new HashMap<String, Object>();
@@ -121,10 +125,14 @@ public class CMSContentConfigController
 			for(CMSSubscription sub : content)
 				for(CMSDocumentDao ds:dataSources)
 					try
+					{
 						if(ds.getDaoName().equals(sub.getDocSource()))
 							sub.setDocTitle(ds.getDocument(sub.getDocId()).getTitle());
+					}
 					catch (java.lang.NullPointerException e)
+					{
 						logger.warn("Could not fetch document \"" + sub.getDocId() + "\" because: " + e);
+					}
 			contentMap.put("maximized",content);
 			String maxDisplayType = max.getView();
 			layoutMap.put("maximized",max);

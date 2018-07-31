@@ -18,7 +18,6 @@ import org.json.JSONException;
 import org.json.JSONArray;
 
 import edu.usd.portlet.cmscontent.dao.FormDaoImpl;
-import edu.usd.portlet.cmscontent.dao.InternalDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSResponder;
