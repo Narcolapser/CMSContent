@@ -71,31 +71,31 @@ public class CMSSearchIndex
 	{
 		try
 		{
-			for(CMSDocumentDao dao: dataSources)
-			{
-				logger.info("Indexing " + dao.getDaoName());
-				
-				//get the documents without their content first. This is done
-				//primarily since the interface doesn't actually specifiy a way
-				//to request all the documents with content to keep it simiple.
-				List<CMSDocument> docs = dao.getAllDocumentsContentless();
-				
-				//loop over every document and construct an index entry for it.
-				for(CMSDocument doc: docs)
-				{
-					try
-					{
-						CMSDocument val = dao.getDocument(doc.getId());
-						IndexEntry ie = new IndexEntry(val);
-						index.put(dao.getDaoName() + doc.getId(),ie);
-						doc_index.put(dao.getDaoName() + doc.getId(),val.render());
-					}
-					catch(IllegalArgumentException e)
-					{
-						logger.error("Error indexing document: " + doc.getId() + " Error: " + e);
-					}
-				}
-			}
+//			for(CMSDocumentDao dao: dataSources)
+//			{
+//				logger.info("Indexing " + dao.getDaoName());
+//				
+//				//get the documents without their content first. This is done
+//				//primarily since the interface doesn't actually specifiy a way
+//				//to request all the documents with content to keep it simiple.
+//				List<CMSDocument> docs = dao.getAllDocumentsContentless();
+//				
+//				//loop over every document and construct an index entry for it.
+//				for(CMSDocument doc: docs)
+//				{
+//					try
+//					{
+//						CMSDocument val = dao.getDocument(doc.getId());
+//						IndexEntry ie = new IndexEntry(val);
+//						index.put(dao.getDaoName() + doc.getId(),ie);
+//						doc_index.put(dao.getDaoName() + doc.getId(),val.render());
+//					}
+//					catch(IllegalArgumentException e)
+//					{
+//						logger.error("Error indexing document: " + doc.getId() + " Error: " + e);
+//					}
+//				}
+//			}
 			logger.info("" + index.size() + " documents were indexed");
 			logger.info("Indexer built");
 		}

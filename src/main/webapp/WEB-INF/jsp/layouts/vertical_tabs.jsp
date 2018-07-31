@@ -6,39 +6,50 @@
 	<c:set var="tab_width" value="${238}"/>
 </c:if><!--Tab width: ${tab_width}-->
 <style>
-#content-wrapper{
-	display:table;
-	width: 100%;
-}
-#content{
-	display:table-row;
-}
-#content>div{
-	display:table-cell;
-	padding: 10px;
-}
-.left_col{
-	width: ${tab_width+15}px;
+* {box-sizing: border-box}
+body {font-family: "Lato", sans-serif;}
+
+/* Style the tab */
+.tab {
 	float: left;
+	border: 1px solid #ccc;
+	background-color: #f1f1f1;
+	width: 30%;
 }
-.right_col{
-	width: auto;
-	float: left;
-}
-div.col_content{
+
+/* Style the buttons inside the tab */
+.tab button {
+	display: block;
+	background-color: inherit;
+	color: black;
+	padding: 22px 16px;
 	width: 100%;
+	border: none;
+	outline: none;
+	text-align: left;
+	cursor: pointer;
+	transition: 0.3s;
+	font-size: 17px;
 }
-a.tab-btn{
-	width:${tab_width}px;
-	padding: 10px 0px;
-	text-align: left
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+	background-color: #ddd;
 }
-button.copy-btn{
-	padding: 10px 12px;
-	border: 0px;
-}
-.nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus{
+
+/* Create an active/current "tab button" class */
+.tab button.active {
 	background-color: #AD0000;
+	color: white;
+}
+
+/* Style the tab content */
+.tabcontent {
+	float: left;
+	padding: 0px 12px;
+	border: 1px solid #ccc;
+	width: 70%;
+	border-left: none;
 }
 </style>
 <c:set var="req" value="${pageContext.request}" />
@@ -52,45 +63,21 @@ button.copy-btn{
 <!-- active document ${active}-->
 <div class="usdChannel">
 	<div id="content">
-		<div id="left_col" class="left_col" >
-			<ul class="nav nav-tabs nav-pills" id="${channelId}_tabs">
-				<c:set var="counter" value="${0}"/>
-				<c:forEach var="document" items="${content}">
-					<c:set var="aclass"></c:set>
-					<!-- active vs current: ${document.id } ${active}-->
-					<c:if test="${document.id == active}">
-						<c:set var="aclass">active</c:set>
-					</c:if>
-					<li class="btn-group ${aclass}" role="group">
-						<a href="#${channelId}-${counter}" data-toggle="tab" class="btn btn-default tab-btn"
-							data-docid="${document.id}" onclick="setUrl(this)" data-doctitle="${document.title}">
-							${document.title}
-						</a>
-						<c:if test="${properties.get('Link buttons (True/False)') == 'True'}">
-							<button class="copy-btn btn btn-default" id="copy-btn-${counter}">
-								<i class="fa fa-link"></i>
-							</button>
-						</c:if>
-					</li>
-					<c:set var="counter" value="${counter + 1}"/>
-				</c:forEach>
-			</ul>
+		<div class="tab">
+			<c:forEach var="document" items="${content}">
+				<c:set var="aclass"></c:set>
+				<c:if test="${document.id == active}">
+					<c:set var="aclass">id="defaultOpen"</c:set>
+				</c:if>
+				<button class="tablinks" onclick="openTab(event,'${channelId}-${document.id}',this)" ${aclass}
+					data-docid="${document.id}" data-doctitle="${document.title}">${document.title}</button>
+			</c:forEach>
 		</div>
-		<div id="right_col" class="right_col">
-			<c:set var="counter" value="${0}"/>
-			<div class="tab-content">
-				<c:forEach var="document" items="${content}">
-					<c:set var="aclass"></c:set>
-					<c:if test="${document.id == active}">
-						<c:set var="aclass">active</c:set>
-					</c:if>
-					<div id="${channelId}-${counter}" class="tab-pane ${aclass}">
-						<div class="usdChannel">${document.render()}</div>
-					</div>
-					<c:set var="counter" value="${counter + 1}"/>
-				</c:forEach>
+		<c:forEach var="document" items="${content}">
+			<div id="${channelId}-${document.id}" style="display:none;" class="tabcontent">
+				${document.render()}
 			</div>
-		</div>
+		</c:forEach>
 	</div>
 </div>
 <script src="<c:url value='/webjars/jquery/3.3.1-1/jquery.min.js'/>" type="text/javascript"></script>
@@ -105,4 +92,20 @@ function setUrl(anchor)
 	var title = anchor.getAttribute("data-doctitle");
 	window.history.pushState("",title,location.protocol + '//' + location.host + location.pathname + "?tab=" + docid);
 }
+function openTab(evt, tabid,button)
+{
+	var i, tabcontent, tablinks;
+	tabcontent = document.getElementsByClassName("tabcontent");
+	for (i = 0; i < tabcontent.length; i++)
+		tabcontent[i].style.display = "none";
+	
+	tablinks = document.getElementsByClassName("tablinks");
+	for (i = 0; i < tablinks.length; i++)
+		tablinks[i].className = tablinks[i].className.replace(" active","");
+	
+	document.getElementById(tabid).style.display = "block";
+	evt.currentTarget.className += " active";
+	setUrl(button);
+}
+document.getElementById("defaultOpen").click();
 </script>
