@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 import java.util.Random;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 
 //import javax.portlet.PortletPreferences;
@@ -80,13 +78,14 @@ public class CMSEditorController {
 	@RequestMapping
 	public ModelAndView viewContent(RenderRequest request, RenderResponse response)
 	{
-		logger.debug("Started primary view");
+		//prepare object to pass to render phase.
 		final Map<String, Object> refData = new HashMap<String, Object>();
 
-		logger.debug("fetching available pages");
+		//fetching available pages
 		for(CMSDocumentDao ds:dataSources)
 			refData.put(ds.getDaoName(),ds.getAllDocumentsContentless());
 
+		//Get sources and their information.
 		List<String> sources = new ArrayList<String>();
 		Map<String,Boolean> saveEnabled = new HashMap<String,Boolean>();
 		Map<String,Boolean> deleteEnabled = new HashMap<String,Boolean>();
@@ -97,33 +96,16 @@ public class CMSEditorController {
 			deleteEnabled.put(ds.getDaoName(),ds.deleteEnabled());
 		}
 		refData.put("sources",sources.toArray());
-		logger.debug("Sources: ");
-		logger.debug(sources);
 		refData.put("saveEnabled",saveEnabled);
 		refData.put("deleteEnabled",deleteEnabled);
 		
 		//get any paramaters that were passed.
 		refData.put("parameters",request.getParameterMap());
 
-		//get the base url of this server.
-		try
-		{
-			String hostname = InetAddress.getLocalHost().getHostName();
-			logger.debug("Host name is: " + hostname);
-			if (hostname.contains("dev-uportal"))
-				refData.put("hostname","dev-uportal");
-			else
-				refData.put("hostname","my");
-		}
-		catch (java.net.UnknownHostException e)
-		{
-			refData.put("hostname","unknown");
-		}
-
 		return new ModelAndView("editors/document",refData);
 	}
 	
-	
+	//Quasi AJAX request. This method saves a document.
 	@RequestMapping(params = {"action=Update"})
 	public void updatePage(ActionRequest request, ActionResponse response,
 		@RequestParam(value = "content", required = true) String content,
@@ -131,16 +113,16 @@ public class CMSEditorController {
 		@RequestParam(value = "doc_title", required = true) String title,
 		@RequestParam(value = "doc_source", required = false) String source)
 	{
-		logger.info("attempting to update page to1 : " + content);
-		logger.info("Title: " + title);
-		logger.info("Id: " + id);
-		logger.info("Doc Type: html");
-		logger.info("Source: " + source);
+		//create the document. Right now we can only work with HTML.
 		CMSDocument doc = new CMSDocument(title, id, source, "html", content);
+		
+		//get the datasource.
 		CMSDocumentDao dbo = dataSources.get(0);
 		for(CMSDocumentDao ds:dataSources)
 			if (ds.getDaoName() == source)
 				dbo = ds;
+				
+		//Save document to datasource.
 		dbo.saveDocument(doc);
 	}
 }

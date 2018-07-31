@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 import java.util.Random;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 //import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
@@ -84,41 +82,18 @@ public class CMSFormController {
 	@RequestMapping
 	public ModelAndView viewContent(RenderRequest request, RenderResponse response)
 	{
-		logger.debug("Started primary view");
+		//Prepare the object to pass to render phase.
 		final Map<String, Object> refData = new HashMap<String, Object>();
 
-		logger.debug("fetching available pages");
+		//fetching available pages
 		for(CMSDocumentDao ds:dataSources)
 			refData.put(ds.getDaoName(),ds.getAllDocumentsContentless());
-
-		List<String> sources = new ArrayList<String>();
-		for(CMSDocumentDao ds:dataSources)
-			sources.add(ds.getDaoName());
-		refData.put("sources",sources.toArray());
 		
 		//get any paramaters that were passed.
 		refData.put("parameters",request.getParameterMap());
 		
 		//get the available responders.
-//		List<String> res = new ArrayList<String>();
-//		for(CMSResponder re:responders)
-//			res.add(re.getName());
 		refData.put("responders",responders);
-		
-		//get the base url of this server.
-		try
-		{
-			String hostname = InetAddress.getLocalHost().getHostName();
-			logger.debug("Host name is: " + hostname);
-			if (hostname.contains("dev-uportal"))
-				refData.put("hostname","dev-uportal");
-			else
-				refData.put("hostname","my");
-		}
-		catch (java.net.UnknownHostException e)
-		{
-			refData.put("hostname","unknown");
-		}
 
 		return new ModelAndView("editors/form",refData);
 	}

@@ -9,7 +9,6 @@
 <script src="<c:url value='/webjars/sprintf.js/1.0.0/sprintf.min.js'/>" type="text/javascript"></script>
 
 <c:set var="n"><portlet:namespace/></c:set>
-<c:set var="server">${hostname}.usd.edu</c:set>
 <portlet:actionURL var="getPages" name="getPages"></portlet:actionURL>
 
 <style type="text/css">
@@ -304,19 +303,19 @@ function edit_document(val)
 	var source = source_selector.options[source_selector.selectedIndex].value;
 	console.log("Selected type: " + selected_type);
 	if (selected_type.includes("form"))
-		window.location.href = "https://${server}/uPortal/p/CMSForm.ctf2/max/render.uP?doc="+selected;
+		window.location.href = "/uPortal/p/CMSForm.ctf2/max/render.uP?doc="+selected;
 	else
-		window.location.href = "https://${server}/uPortal/p/cmseditor.ctf4/max/render.uP?doc="+selected+"&source="+source;
+		window.location.href = "/uPortal/p/cmseditor.ctf4/max/render.uP?doc="+selected+"&source="+source;
 }
 
 function new_document(val)
 {
-	window.location.href = "https://${server}/uPortal/p/cmseditor.ctf2/max/render.uP";
+	window.location.href = "/uPortal/p/cmseditor.ctf2/max/render.uP";
 }
 
 function new_form(val)
 {
-	window.location.href = "https://${server}/uPortal/p/CMSForm.ctf2/max/render.uP";
+	window.location.href = "/uPortal/p/CMSForm.ctf2/max/render.uP";
 }
 
 function add_document(val)
