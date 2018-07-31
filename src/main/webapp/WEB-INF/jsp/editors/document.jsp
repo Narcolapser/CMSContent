@@ -335,7 +335,7 @@ function populate_documents(data, textStatus, jqXHR)
 	var myindex = source_selector.selectedIndex;
 	nodes = getNodes(paths,source_selector.options[myindex].value,"");
 	nodes['state'] = 'opened';
-	${n}.jQuery('#doc_tree').jstree({'core' : {'check_callback' : true, 'multiple': false, 'data' : nodes},"plugins":["search"]});
+	${n}.jQuery('#doc_tree').jstree({'core' : {'check_callback' : true, 'multiple': false, 'data' : nodes},"search":{'case_insensitive':true,'show_only_matches':true},"plugins":["search"]});
 	${n}.jQuery('#doc_tree').on('changed.jstree', function (e, data)
 	{
 		var i, j, r = [];

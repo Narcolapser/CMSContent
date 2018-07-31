@@ -156,7 +156,8 @@ public class CMSLayout
 	public ModelAndView display(Map<String, Object> model)
 	{
 		for(CMSDocument doc:(List<CMSDocument>)model.get("content"))
-			doc.personalize(model);
+			if (doc != null)//if the document has been deleted you'll get a null value here.
+				doc.personalize(model);
 		
 		if(this.view.equals("view_single"))
 			this.setView("layouts/single");

@@ -1,91 +1,100 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 <!--tabbed page view.-->
 
-<script src="<c:url value='/webjars/jquery/3.3.1-1/jquery.min.js'/>" type="text/javascript"></script>
-<script src="<c:url value='/webjars/jquery-ui/1.12.1/jquery-ui.min.js'/>" type="text/javascript"></script>
-<script src="<c:url value='/webjars/jquery-form/4.2.1/jquery.form.min.js'/>" type="text/javascript"></script>
-<link rel="stylesheet" href="<c:url value='/webjars/jquery-ui-themes/1.12.1/smoothness/jquery-ui.min.css'/>" />
+<style>
+ /* Style the tab */
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+}
 
-<script src="<c:url value='/webjars/zeroclipboard/2.2.0/ZeroClipboard.min.js'/>" type="text/javascript"></script>
+/* Style the buttons that are used to open the tab content */
+.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+}
 
-<c:set var="active" value="${0}"/>
+/* Change background color of buttons on hover */
+.tab button:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+	background-color: #AD0000;
+	color: white;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+} 
+</style>
+
+<c:set var="req" value="${pageContext.request}" />
+<c:set var="active" value="0"/>
 <c:if test="${not empty parameters.get('tab')[0]}">
 	<c:set var="active" value="${parameters.get('tab')[0]}"/>
 </c:if>
+<c:if test="${active.matches('[0-9]+')}">
+	<c:set var="active" value="${content[active].id}"/>
+</c:if>
+<!-- active document ${active}-->
 <div class="usdChannel">
-	<div id="${channelId}" class="tabbed-channel-content">
-		<ul class="nav nav-tabs" id="${channelId}_tabs">
-			<c:set var="counter" value="${0}"/>
+	<div id="content">
+		<div class="tab">
 			<c:forEach var="document" items="${content}">
-				<c:choose>
-					<c:when test="${counter == active}">
-						<li class="active">
-							<div class="btn-group" role="group">
-								<a href="#${channelId}-${counter}" data-toggle="tab" class="btn btn-default">${document.title}</a>
-								<c:if test="${properties.get('Link buttons (True/False)') == 'True'}">
-									<button class="copy-btn btn btn-default" id="copy-btn-${counter}">
-										<i class="fa fa-link"></i>
-									</button>
-								</c:if>
-							</div>
-						</li>
-					</c:when>
-					<c:otherwise>
-						<li>
-							<div class="btn-group" role="group">
-								<a href="#${channelId}-${counter}" data-toggle="tab" class="btn btn-default">${document.title}</a>
-								<c:if test="${properties.get('Link buttons (True/False)') == 'True'}">
-									<button class="copy-btn btn btn-default" id="copy-btn-${counter}">
-										<i class="fa fa-link"></i>
-									</button>
-								</c:if>
-							</div>
-						</li>
-					</c:otherwise>
-				</c:choose>
-				<c:set var="counter" value="${counter + 1}"/>
-			</c:forEach>
-		</ul>
-		<c:set var="counter" value="${0}"/>
-		<div class="tab-content">
-			<c:forEach var="document" items="${content}">
-				<c:choose>
-					<c:when test="${counter == active}">
-						<div id="${channelId}-${counter}" class="tab-pane active">
-							<c:choose>
-								<c:when test="${document.docType eq 'form'}">
-									<cms:form content="${document}" username="${username}" replyType="coming soon"/>
-								</c:when>
-								<c:otherwise>
-									<div class="usdChannel">${document.render()}</div>
-								</c:otherwise>
-							</c:choose>
-						</div>
-					</c:when>
-					<c:otherwise>
-						<div id="${channelId}-${counter}" class="tab-pane">
-							<c:choose>
-								<c:when test="${document.docType eq 'form'}">
-									<cms:form content="${document}" username="${username}" replyType="coming soon"/>
-								</c:when>
-								<c:otherwise>
-									<div class="usdChannel">${document.render()}</div>
-								</c:otherwise>
-							</c:choose>
-						</div>
-					</c:otherwise>
-				</c:choose>
-				<c:set var="counter" value="${counter + 1}"/>
+				<c:set var="aclass"></c:set>
+				<c:if test="${document.id == active}">
+					<c:set var="aclass">id="defaultOpen"</c:set>
+				</c:if>
+				<button class="tablinks" onclick="openTab(event,'${channelId}-${document.id}',this)" ${aclass}
+					data-docid="${document.id}" data-doctitle="${document.title}">${document.title}</button>
 			</c:forEach>
 		</div>
+		<c:forEach var="document" items="${content}">
+			<div id="${channelId}-${document.id}" style="display:none;" class="tabcontent">
+				${document.render()}
+				<!---This comment is necessary. Tabs are broken without it.--->
+			</div>
+		</c:forEach>
 	</div>
 </div>
+<script src="<c:url value='/webjars/jquery/3.3.1-1/jquery.min.js'/>" type="text/javascript"></script>
+<script src="<c:url value='/webjars/jquery-ui/1.12.1/jquery-ui.min.js'/>" type="text/javascript"></script>
+<link rel="stylesheet" href="<c:url value='/webjars/jquery-ui-themes/1.12.1/smoothness/jquery-ui.min.css'/>" />
 <script>
-<c:set var="counter" value="${0}"/>
-<c:forEach var="document" items="${content}">
-	document.getElementById('copy-btn-${counter}').setAttribute("data-clipboard-text",
-		location.protocol + '//' + location.host + location.pathname + "?tab=${counter}");
-	var client = new ZeroClipboard( document.getElementById('copy-btn-${counter}') );
-	<c:set var="counter" value="${counter + 1}"/>
-</c:forEach>
+function setUrl(anchor)
+{
+	console.log(anchor);
+	var docid = anchor.getAttribute("data-docid");
+	console.log(docid);
+	var title = anchor.getAttribute("data-doctitle");
+	window.history.pushState("",title,location.protocol + '//' + location.host + location.pathname + "?tab=" + docid);
+}
+function openTab(evt, tabid,button)
+{
+	var i, tabcontent, tablinks;
+	tabcontent = document.getElementsByClassName("tabcontent");
+	for (i = 0; i < tabcontent.length; i++)
+		tabcontent[i].style.display = "none";
+	
+	tablinks = document.getElementsByClassName("tablinks");
+	for (i = 0; i < tablinks.length; i++)
+		tablinks[i].className = tablinks[i].className.replace(" active","");
+	
+	document.getElementById(tabid).style.display = "block";
+	evt.currentTarget.className += " active";
+	setUrl(button);
+}
+document.getElementById("defaultOpen").click();
 </script>

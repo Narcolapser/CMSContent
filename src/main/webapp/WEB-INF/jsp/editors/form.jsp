@@ -68,7 +68,7 @@
 				<button id="save_btn" onclick="save();return false" class="btn btn-success" title="save document">Save</button>
 				<button id="delete_btn" onclick="delete_form();return false" class="btn btn-danger" title="delete document">Delete</button>
 				<button id="new_btn" onclick="newFolder();return false" class="btn btn-info" title="New Folder">New Folder</button>
-				<button id="return_btn" href="/uPortal/p/cmseditor" class="btn btn-primary">Return</button>
+				<a id="return_btn" href="/uPortal/p/cmseditor" class="btn btn-primary">Return</a>
 			</div>
 		</p>
 	</div>
