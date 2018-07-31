@@ -12,7 +12,6 @@
 <script src="<c:url value='/webjars/chosen/1.8.2/chosen.jquery.js'/>" type="text/javascript"></script>
 <link rel="stylesheet" href="<c:url value='/webjars/chosen/1.8.2/chosen.min.css'/>" />
 
-<c:set var="server">${hostname}.usd.edu</c:set>
 <c:set var="n"><portlet:namespace/></c:set>
 <c:set var="selected" value=""/>
 <c:set var="search" value=""/>
@@ -69,7 +68,7 @@
 				<button id="save_btn" onclick="save();return false" class="btn btn-success" title="save document">Save</button>
 				<button id="delete_btn" onclick="delete_form();return false" class="btn btn-danger" title="delete document">Delete</button>
 				<button id="new_btn" onclick="newFolder();return false" class="btn btn-info" title="New Folder">New Folder</button>
-				<button id="return_btn" href="https://${server}/uPortal/p/cmseditor" class="btn btn-primary">Return</button>
+				<button id="return_btn" href="/uPortal/p/cmseditor" class="btn btn-primary">Return</button>
 			</div>
 		</p>
 	</div>
