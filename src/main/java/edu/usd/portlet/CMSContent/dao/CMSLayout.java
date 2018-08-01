@@ -196,15 +196,20 @@ public class CMSLayout
 			//get the security groups for this subscription.
 			List<String> groups = sub.getSecurityGroups();
 			
+			//if the document has been removed, we shouldn't add it to the content.
+			CMSDocument doc = ds.getDocument(sub.getDocId());
+			if (doc == null)
+				continue;
+			
 			// if the groups is empty in some way, then everyone has access.
 			if (groups == null || groups.size() == 0 || groups.get(0).equals(""))
-				content.add(ds.getDocument(sub.getDocId()));
+				content.add(doc);
 
 			else //iterate over each security group and see if the user is in one.
 				for(String role : sub.getSecurityGroups())
 					if(request.isUserInRole(role))
 					{// if the user is in one, then add the content and break the loop to avoid duplicates.
-						content.add(ds.getDocument(sub.getDocId()));
+						content.add(doc);
 						break;
 					}
 		}

@@ -16,7 +16,7 @@
 		</c:if>
 		<c:choose>
 			<c:when test="${val eq 'text'}">
-				<div data-control="text" data-required='${control.getString("required")}'><p>${control.getString("label")}</p><input type="text" class="form-control"></input></div>
+				<div data-control="text" data-required='${control.getString("required")}'><p>${s}${control.getString("label")}${e}</p><input type="text" class="form-control"></input></div>
 			</c:when>
 			<c:when test="${val eq 'select'}">
 				<div data-control="select" data-required='${control.getString("required")}'>
@@ -118,7 +118,7 @@ function submit(formId)
 	{
 		//alert("Child" + i + ":" + form.children[i].children[0].innerHTML);
 		if(form.children[i].innerHTML != "Submit")
-			item = form.children[i].children[0].innerHTML;
+			item = form.children[i].children[0].innerText.replace('*','');
 		else
 			item = "Submit";
 		if (form.children[i].dataset.control == 'text')

@@ -64,7 +64,6 @@
 		<c:forEach var="document" items="${content}">
 			<div id="${channelId}-${document.id}" style="display:none;" class="tabcontent">
 				${document.render()}
-				<!---This comment is necessary. Tabs are broken without it.--->
 			</div>
 		</c:forEach>
 	</div>

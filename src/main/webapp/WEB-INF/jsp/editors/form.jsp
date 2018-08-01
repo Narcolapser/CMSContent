@@ -81,9 +81,10 @@
 
 		<table id="responder_table" class="table table-striped">
 			<thead>
-				<th>Responder Type</th>
+				<th>Form Submission Action Type</th>
 				<th></th>
-				<th>Responder Configuration</th>
+				<th>Form Submission Action Configuration</th>
+				<th></th>
 			</thead>
 			<tbody id="responder_body">
 			</tbody>
@@ -126,6 +127,7 @@
 		<td>
 			<input id="formRespOption" class="form-control"/>
 		</td>
+		<td><button class="btn btn-danger" onclick="remove_responder(this);return false;">Remove</button></td>
 	</tr>
 </c:set>
 
@@ -191,6 +193,11 @@ $(document).ready(function()
 {
 	onSourceChange();
 });
+
+function remove_responder(responder)
+{
+	responder.parentNode.parentNode.parentNode.deleteRow(responder.parentNode.parentNode.rowIndex-1);
+}
 
 function remove_control(control)
 {
@@ -290,7 +297,7 @@ function load_resp(rtable,rtype,roption)
 {
 	var row = rtable.insertRow(rtable.length);
 	row.innerHTML = `${responder_row}`;
-	for(var i; i < row.cells[0].children[0].options.length; i ++)
+	for(var i = 0; i < row.cells[0].children[0].options.length; i ++)
 		if(row.cells[0].children[0].options[i].value == rtype)
 			row.cells[0].children[0].options[i].selected = true;
 	row.cells[2].children[0].value = roption;
@@ -385,12 +392,25 @@ function form_saved(data, textStatus, jqXHR)
 
 function delete_form()
 {
+	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
+	var doc_id = getNodePath(node);
+	if(node.data['type'] == "folder")
+		if(doc_id.length == 0)
+			doc_id = node.text;
+		else
+			doc_id += "/" + node.text;
 
-	var responder_table = document.getElementById("responder_table");
-	$.ajax({dataType:"json",
-		url:"/CMSContent/v1/api/delete.json",
-		data:{"sanitybit":31415,"id":responder_table.rows[0].cells[5].children[0].value},
-		success:form_deleted});
+	if(doc_id.length == 0)
+		doc_id = document.getElementById("doc_id").value;
+	else
+		doc_id += "/" + document.getElementById("doc_id").value;
+	console.log(doc_id);
+		
+	if(confirm('Are you sure you want to delete "'+doc_id+'"?'))
+		$.ajax({dataType:"json",
+			url:"/CMSContent/v2/document/delete",
+			data:{"source":"InternalForms","id":doc_id},
+			success:form_deleted});
 }
 function form_deleted(data,textStatus, jqXHR)
 {
