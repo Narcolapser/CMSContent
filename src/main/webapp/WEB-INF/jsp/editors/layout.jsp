@@ -168,13 +168,14 @@ div.col_content{
 											<th>Source</th>
 											<th>Security Groups</th>
 											<th></th>
+											<th></th>
 										</tr>
 									</thead>
 									<tbody>
 										<c:set var="index" value="1"/>
 										<c:forEach var="doc" items="${activeDocs[mode]}">
 											<tr class="${mode} ${index}">
-												<td class="pos_col" >
+												<td style="min-width: 100px;" class="pos_col" >
 													<div class="btn-group" role="group">
 														<button onclick="up_document('${mode}',this);return false" class="btn btn-default">
 															<i class="fa fa-arrow-up"></i>
@@ -207,7 +208,14 @@ div.col_content{
 														</c:forEach>
 													</select>
 												</td>
-												<td><button class="btn btn-danger" onclick="remove_document('${mode}',this);return false;">Remove</button></td>
+												<td style="min-width: 180px;">
+													<div class="btn-group" role="group">
+														<button class="btn btn-warning" onclick="quick_edit_document(this);return false;">
+															<i class="fa fa-edit"></i> Edit</button>
+														<button class="btn btn-danger" onclick="remove_document('${mode}',this);return false;">
+															<i class="fa fa-times"></i> Remove</button>
+													</div>
+												</td>
 											</tr>
 											<c:set var="index" value="${index + 1}"/>
 										</c:forEach>
@@ -260,10 +268,18 @@ div.col_content{
 			</c:forEach>
 		</select>
 	</td>
-	<td><button class="btn btn-danger" onclick="remove_document('%1$s',this);return false;">Remove</button></td>
+	<td style="min-width: 180px;">
+		<div class="btn-group" role="group">
+			<button class="btn btn-warning" onclick="quick_edit_document(this);return false;">
+				<i class="fa fa-edit"></i> Edit</button>
+			<button class="btn btn-danger" onclick="remove_document('${mode}',this);return false;">
+				<i class="fa fa-times"></i> Remove</button>
+		</div>
+	</td>
 </c:set>
 
 <SCRIPT LANGUAGE="javascript">
+
 
 $(".chosen-select").chosen({width: "100%"});
 $(".chosen-select-multi").chosen({width: "100%",no_results_text:"Security role not found."});
@@ -306,6 +322,16 @@ function edit_document(val)
 		window.location.href = "/uPortal/p/CMSForm.ctf2/max/render.uP?doc="+selected;
 	else
 		window.location.href = "/uPortal/p/cmseditor.ctf4/max/render.uP?doc="+selected+"&source="+source;
+}
+
+function quick_edit_document(edit_button)
+{
+	var source = edit_button.parentNode.parentNode.parentNode.children[3].innerText;
+	var doc_id = edit_button.parentNode.parentNode.parentNode.children[2].innerText
+	if(source == 'InternalForms')
+		window.location.href = "/uPortal/p/CMSForm.ctf2/max/render.uP?doc="+doc_id;
+	else
+		window.location.href = "/uPortal/p/cmseditor.ctf4/max/render.uP?doc="+doc_id+"&source="+source;
 }
 
 function new_document(val)
@@ -354,7 +380,7 @@ function new_doc_row(title,id,mode,source)
 function remove_document(mode,button)
 {
 	var table = document.getElementById(mode+"_docs_table")
-	var val = button.parentNode.parentNode.rowIndex;
+	var val = button.parentNode.parentNode.parentNode.rowIndex;
 	$.ajax({dataType:"json",
 		url:"${updateDocument}",
 		data:{"index":val,

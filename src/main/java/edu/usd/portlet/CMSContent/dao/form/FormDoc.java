@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Arrays;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +37,8 @@ public class FormDoc extends CMSDocument
 	protected final Log logger = LogFactory.getLog(this.getClass());
 	
 	private Map<String,Object> attributes;
+	
+	private String[] skip_fields = new String[]{"label","hr","p","respType"};
 
 	private SwallowingJspRenderer jspRenderer;
 
@@ -111,7 +114,7 @@ public class FormDoc extends CMSDocument
 			for(int i = 0; i < obj.length(); i++)
 			{
 				JSONObject val = obj.getJSONObject(i);
-				if(!(val.getString("type").equals("label") || val.getString("type").equals("hr") || val.getString("type").equals("p")))
+				if(!(Arrays.asList(skip_fields).contains(val.getString("type"))))
 				{
 					logger.debug("found a field with response");
 					fields.add(val.getString("label"));
