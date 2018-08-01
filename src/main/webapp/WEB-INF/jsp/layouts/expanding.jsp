@@ -2,8 +2,8 @@
 <!--expanding page view.-->
 <style>
 .collapsible {
-	background-color: #777;
-	color: white;
+	background-color: #f1f1f1;
+	color: black;
 	cursor: pointer;
 	padding: 18px;
 	width: 100%;
@@ -20,7 +20,7 @@
 
 .collapsible:after {
 	content: '\002B';
-	color: white;
+	color: black;
 	font-weight: bold;
 	float: right;
 	margin-left: 5px;
@@ -34,8 +34,7 @@
 	padding: 0 18px;
 	max-height: 0;
 	overflow: hidden;
-	transition: max-height 0.2s ease-out;
-	background-color: #f1f1f1;
+	transition: max-height 1.0s ease-out;
 }
 </style>
 
