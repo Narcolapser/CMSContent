@@ -412,6 +412,11 @@
 				<artifactId>dwr</artifactId>
 				<version>2.0.3</version>
 			</dependency>
+			<dependency>
+				<groupId>org.webjars.bowergithub.xdan</groupId>
+				<artifactId>datetimepicker</artifactId>
+				<version>2.5.20</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	
@@ -671,6 +676,10 @@
 		<dependency>
 			<groupId>org.directwebremoting</groupId>
 			<artifactId>dwr</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.bowergithub.xdan</groupId>
+			<artifactId>datetimepicker</artifactId>
 		</dependency>
 	</dependencies>
 
