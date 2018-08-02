@@ -81,6 +81,7 @@ SELECT * INTO [uPortal].[dbo].[CMSDocument] FROM [USD-SQL05\SQL01].uPortal.dbo.C
 * Layout doc source should default to internal
 * Document sources should have a seperate display name.
 * Reports don't show date time or user name.
+* Vertical tab's content has a box around it. remove this.
 
 # Fixed things:
 * Vertical tabs doesn't force content size effectively enough.
