@@ -117,7 +117,9 @@
 		<td>
 			<select id="formResp" OnChange="responder_change(this)" class="form-control">
 				<c:forEach var="res" items="${responders}">
-					<option value="${res.getName()}" data-option="${res.getOptionInfo()}">${res.getName()}</option>
+					<c:if test="${res.autoRespond() == false}">
+						<option value="${res.getName()}" data-option="${res.getOptionInfo()}">${res.getName()}</option>
+					</c:if>
 				</c:forEach>
 			</select>
 		</td>
@@ -148,21 +150,21 @@
 		</td>
 		<td>
 			<span>Type: </span>
-			<select name="type" class="form-control">
+			<select name="type" class="form-control" onChange="optionChange(this)">
 				<optgroup label="Informative/Structural">
-					<option value="label">Label</option>
-					<option value="hr">Horrizontal Line</option>
-					<option value="p">Paragraph</option>
+					<option value="label" data-reqable="false">Label</option>
+					<option value="hr" data-reqable="false">Horrizontal Line</option>
+					<option value="p" data-reqable="false">Paragraph</option>
 				</optgroup>
 				<optgroup label="Entry">
-					<option value="text">Text</option>
-					<option value="multi-text">Multi-line Text</option>
-					<option value="date">Date picker</option>
-					<option value="datetime">Date Time</option>
-					<option value="select">Drop Down</option>
-					<option value="multi-select">Multi-select</option>
-					<option value="checkbox">Checkbox</option>
-					<option value="radiobutton">Radio Button</option>
+					<option value="text" data-reqable="true">Text</option>
+					<option value="multi-text" data-reqable="true">Multi-line Text</option>
+					<option value="date" data-reqable="true">Date picker</option>
+					<option value="datetime" data-reqable="true">Date Time</option>
+					<option value="select" data-reqable="true">Drop Down</option>
+					<option value="multi-select" data-reqable="true">Multi-select</option>
+					<option value="checkbox" data-reqable="false">Checkbox</option>
+					<option value="radiobutton" data-reqable="true">Radio Button</option>
 				</optgroup>
 			</select>
 		</td>
@@ -193,6 +195,12 @@ $(document).ready(function()
 {
 	onSourceChange();
 });
+
+function optionChange(selector)
+{
+	console.log(selector.value.getAttribute("data-reqable"));
+}
+
 
 function remove_responder(responder)
 {

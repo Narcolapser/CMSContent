@@ -96,4 +96,6 @@ public class Email implements CMSResponder
 		}
 		return ret;
 	}
+	
+	public boolean autoRespond(){return false;}
 }

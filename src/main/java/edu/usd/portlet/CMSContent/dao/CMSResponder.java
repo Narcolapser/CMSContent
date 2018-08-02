@@ -25,4 +25,12 @@ public interface CMSResponder
 	
 	//respond to the form returned to the system.
 	public boolean respond(String json, String options);
+	
+	//auto responding responders get run regardless of whether they are in the
+	//forms configuration or not. These responders run and finish before the
+	//user gets confirmation. So only make auto responders that respond fast.
+	//And there is no way to provide per-form configuration, so only use an auto
+	//responder if you don't need per-form options. Really, you should just not
+	//use this and let the database responder be the only one.
+	public boolean autoRespond();
 }
