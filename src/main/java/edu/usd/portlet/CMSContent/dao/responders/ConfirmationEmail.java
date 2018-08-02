@@ -44,7 +44,7 @@ public class ConfirmationEmail implements CMSResponder
 		logger.debug("Processing response: " + json);
 		
 		
-		String to=options.split(",")[1];
+		String to=getUserEmail(json);
 		String from="noreply@usd.edu";
 		String host = "smtp.usd.edu";
 		Properties properties = System.getProperties();
@@ -81,4 +81,6 @@ public class ConfirmationEmail implements CMSResponder
 			return "Error processing form.";
 		}
 	}
+	
+	public boolean autoRespond(){return false;}
 }

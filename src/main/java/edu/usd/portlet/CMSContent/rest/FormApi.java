@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.lang.Thread;
+import java.lang.Runnable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,17 +73,24 @@ public final class FormApi {
 			//the json document from the form dbo. 
 			CMSDocument doc = dbo.getDocument(obj.getString("formId"));
 			ArrayList<JSONObject> jform = dbo.getDocJson(doc);
-			String options = "";
-			
-			//loop over the objects till we find the responders, and then call each responder.
-			for(JSONObject entry: jform)
-				if(entry.getString("type").equals("respType"))
-					//if the responder returns false, something went wrong.
-					if(!getCMSResponder(entry.getString("label")).respond(form,entry.getString("options")))
-					{
-						logger.error("Something went wrong when submitting form: " + form + " to responder: " + entry.getString("label"));
-						return "{\"result\":\"failure\"}";
-					}
+
+			//get what responder type it is.
+			for(CMSResponder resp: getAutoResponders())
+			{
+				logger.debug("Responding with: " + resp.getName());
+				//ask the responder to to respond to this form.
+				boolean result = resp.respond(form,"");
+				
+				//if the responder returns false, something went wrong.
+				if(result == false)
+				{
+					logger.error("Something went wrong when submitting form: " + form + " to responder: " + resp.getName());
+					return "{\"result\":\"failure\"}";
+				}
+			}
+			ResponderRunner rr = new ResponderRunner(form,jform,responders);
+			new Thread(rr).start();
+			logger.debug("End of responds reached.");
 		}
 		catch(JSONException e)
 		{
@@ -104,10 +113,21 @@ public final class FormApi {
 	{
 		String ret = "[";
 		for (CMSResponder resp:responders)
-			ret += responderAsJson(resp) + ",";
+			if (resp.autoRespond() == false) //auto responders don't get displayed.
+				ret += responderAsJson(resp) + ",";
 		
 		//remove the trailing comma and return with the closing bracket.
 		return ret.substring(0,ret.length()-1) + "]";
+	}
+	
+	
+	public List<CMSResponder> getAutoResponders()
+	{
+		List<CMSResponder> ret = new ArrayList<>();
+		for (CMSResponder resp:responders)
+			if (resp.autoRespond() == true)
+				ret.add(resp);
+		return ret;
 	}
 
 	//This is probably going to be removed, I don't blieve it is necessary.
@@ -132,6 +152,56 @@ public final class FormApi {
 		catch(JSONException e)
 		{
 			return "";
+		}
+	}
+	
+	private class ResponderRunner implements Runnable
+	{
+		private String form;
+		private ArrayList<JSONObject> jform;
+		private List<CMSResponder> responders;
+		
+		public ResponderRunner(String form, ArrayList<JSONObject> jform, List<CMSResponder> responders)
+		{
+			this.form = form;
+			this.jform = jform;
+			this.responders = responders;
+		}
+		public void run()
+		{
+			try
+			{
+				logger.info("Logging from responder thread!");
+				
+				//loop over the objects till we find the responders, and then call each responder.
+				for(JSONObject entry: jform)
+					if(entry.getString("type").equals("respType"))
+					{
+						//get what responder type it is.
+						CMSResponder resp = getCMSResponder(entry.getString("label"));
+						
+						//ask the responder to to respond to this form.
+						boolean result = resp.respond(form,entry.getString("options"));
+						
+						//if the responder returns false, something went wrong.
+						if(result == false)
+						{
+							logger.error("Something went wrong when submitting form: " + form + " to responder: " + entry.getString("label"));
+						}
+						logger.debug("responded with: " + entry.getString("label"));
+					}
+			}
+			catch (Exception e)
+			{
+				logger.error("Error in responder thread: " + e);
+			}
+		}
+		private CMSResponder getCMSResponder(String name)
+		{
+			for(CMSResponder re:responders)
+				if (name.equals(re.getName()))
+					return re;
+			return null;
 		}
 	}
 

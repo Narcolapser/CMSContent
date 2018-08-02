@@ -79,4 +79,6 @@ public class Database implements CMSResponder
 		}
 		return true;
 	}
+	
+	public boolean autoRespond(){return true;}
 }
