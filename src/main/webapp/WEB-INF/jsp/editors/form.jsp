@@ -198,7 +198,10 @@ $(document).ready(function()
 
 function optionChange(selector)
 {
-	console.log(selector.value.getAttribute("data-reqable"));
+	var reqable = selector.options[selector.selectedIndex].getAttribute("data-reqable") == 'true';
+	
+	selector.parentNode.parentNode.children[4].children[0].disabled = !reqable;
+	selector.parentNode.parentNode.children[4].children[0].checked = false;
 }
 
 

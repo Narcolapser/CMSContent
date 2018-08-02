@@ -13,3 +13,6 @@
 <%@ taglib prefix="cms" tagdir="/WEB-INF/tags/cms" %>
 
 <portlet:defineObjects/>
+
+<!--<script src="<c:url value='/webjars/datetimepicker/jquery.datetimepicker.js'/>" type="text/javascript"></script>-->
+<!--<link rel="stylesheet" href="<c:url value='/webjars/datetimepicker/jquery.datetimepicker.css'/>" />-->

@@ -1,6 +1,8 @@
 <%-- Author: Toben Archer | Version $Id$ --%>
 <%@ page contentType="text/html" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<script src="/CMSContent/webjars/datetimepicker/build/jquery.datetimepicker.full.min.js" type="text/javascript"></script>
+<link rel="stylesheet" href="/CMSContent/webjars/datetimepicker/jquery.datetimepicker.css" />
 <p>* marks required fields</p>
 <form id="${id}">
 	<div data-control="formInfo"><input data-control="formId" type="hidden" class="form-control" value="${id}"/></div>
@@ -70,7 +72,7 @@
 				<div data-control="date" data-required='${control.getString("required")}'><p>${s}${control.getString("label")}${e}</p><input type="date" class="form-control"></input></div>
 			</c:when>
 			<c:when test="${val eq 'datetime'}">
-				<div data-control="datetime" data-required='${control.getString("required")}'><p>${s}${control.getString("label")}${e}</p><input type="datetime-local" class="form-control"></input></div>
+				<div data-control="datetime" data-required='${control.getString("required")}'><p>${s}${control.getString("label")}${e}</p><input type="text" class="form-control datetimepicker"></input></div>
 			</c:when>
 			<c:when test="${val eq 'multi-text'}">
 				<div data-control="multi-text" data-required='${control.getString("required")}'><p>${s}${control.getString("label")}${e}</p><textarea class="form-control"></textarea></div>
@@ -107,6 +109,9 @@ var ${n} = ${n} || {};
 	</c:otherwise>
 </c:choose>
 var $ = ${n}.jQuery;
+$(document).ready(function(){
+	$('.datetimepicker').datetimepicker();
+});
 
 function submit(formId)
 {

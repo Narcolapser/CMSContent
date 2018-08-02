@@ -149,7 +149,9 @@ div.col_content{
 									<label for="${mode}_source">Document Source</label>
 									<select id="${mode}_source" class="form-control" OnChange="OnChange('${mode}_source','${mode}_doc_select');">
 										<c:forEach var="source" items="${sources}">
-											<option value="${source.getDaoName()}">${source.getDaoName()}</option>
+											<c:set var="selected"></c:set>
+											<c:if test="${source.getDaoName() eq 'Internal'}"><c:set var="selected">selected="selected"</c:set></c:if>
+											<option value="${source.getDaoName()}" ${selected}>${source.getDaoName()}</option>
 										</c:forEach>
 									</select>
 								</div>
