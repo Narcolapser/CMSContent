@@ -1,8 +1,6 @@
 <%-- Author: Toben Archer | Version $Id$ --%>
 <%@ page contentType="text/html" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<script src="/CMSContent/webjars/datetimepicker/build/jquery.datetimepicker.full.min.js" type="text/javascript"></script>
-<link rel="stylesheet" href="/CMSContent/webjars/datetimepicker/jquery.datetimepicker.css" />
 <p>* marks required fields</p>
 <form id="${id}">
 	<div data-control="formInfo"><input data-control="formId" type="hidden" class="form-control" value="${id}"/></div>
@@ -72,7 +70,40 @@
 				<div data-control="date" data-required='${control.getString("required")}'><p>${s}${control.getString("label")}${e}</p><input type="date" class="form-control"></input></div>
 			</c:when>
 			<c:when test="${val eq 'datetime'}">
-				<div data-control="datetime" data-required='${control.getString("required")}'><p>${s}${control.getString("label")}${e}</p><input type="text" class="form-control datetimepicker"></input></div>
+				<div data-control="datetime" data-required='${control.getString("required")}'>
+					<p>${s}${control.getString("label")}${e}</p>
+					<div class="input-group">
+						<select type="text" class="form-control month-picker" style="min-width: 106px;" onChange="monthChange(this);">
+							<option value="01">January</option>
+							<option value="02">February</option>
+							<option value="03">March</option>
+							<option value="04">April</option>
+							<option value="05">May</option>
+							<option value="06">June</option>
+							<option value="07">July</option>
+							<option value="08">August</option>
+							<option value="09">September</option>
+							<option value="10">October</option>
+							<option value="11">November</option>
+							<option value="12">December</option>
+						</select>
+						<span class="input-group-addon">/</span>
+						<select type="text" class="form-control day-picker" disabled="true" title="Select month first"></select>
+						<span class="input-group-addon">/</span>
+						<select type="text" class="form-control year-picker" onChange="leapYearCheck(this);"/></select>
+						<span class="input-group-addon"> </span>
+						<select type="text" class="form-control hour-picker"></select>
+						<span class="input-group-addon">:</span>
+						<select type="text" class="form-control minute-picker"></select>
+						<span class="input-group-addon"> </span>
+						<select type="text" class="form-control ampm-picker" style="min-width: 75px;">
+							<option value="am">AM</option>
+							<option value="pm">PM</option>
+						</select>
+					</div>
+				</div>
+				<!-- this is how I want to do it. but until it's universally supported we cant. -->
+				<!--<div data-control="datetime" data-required='${control.getString("required")}'><p>${s}${control.getString("label")}${e}</p><input type="datetime-local" class="form-control"></input></div>-->
 			</c:when>
 			<c:when test="${val eq 'multi-text'}">
 				<div data-control="multi-text" data-required='${control.getString("required")}'><p>${s}${control.getString("label")}${e}</p><textarea class="form-control"></textarea></div>
@@ -109,9 +140,58 @@ var ${n} = ${n} || {};
 	</c:otherwise>
 </c:choose>
 var $ = ${n}.jQuery;
-$(document).ready(function(){
-	$('.datetimepicker').datetimepicker();
-});
+
+window.onload = function() {
+	var yps = document.getElementsByClassName("year-picker");
+	date = new Date();
+	year = date.getFullYear() -2;
+	for(var i = 0; i<yps.length; i++)
+		for(var j = 0; j <= 10; j++)
+			yps[i].options[j] = new Option(year+j,year+j,false,false);
+	
+	var hps = document.getElementsByClassName("hour-picker");
+	var mps = document.getElementsByClassName("minute-picker");
+	
+	for(var i = 0; i < hps.length; i++)
+		for(var j = 0; j < 12; j++)
+			hps[i].options[j] = new Option(j+1,j+1,false,false);
+	
+	for(var i = 0; i < mps.length; i++)
+		for(var j = 0; j < 60; j++)
+			if(j<10)
+				mps[i].options[j] = new Option("0"+j,"0"+j,false,false);
+			else
+				mps[i].options[j] = new Option(j,j,false,false);
+};
+
+function monthChange(selector)
+{
+	var dayInput = selector.parentNode.children[2];
+	dayInput.disabled=false;
+	var days = 30;
+	if (['01','03','05','07','08','10','12'].includes(selector.value))
+		days=31;
+	else if (selector.value == '02')
+		days=28;
+	dayInput.options.length=0;
+	dayInput.options[0] = new Option(1,1,true,false);
+	for(var i = 2; i <= days; i++)
+		dayInput.options[i-1] = new Option(i,i,false,false);
+	dayInput.title="Day selector";
+	leapYearCheck(selector);
+}
+
+function leapYearCheck(caller)
+{
+	var month = caller.parentNode.children[0];
+	var day = caller.parentNode.children[2];
+	var year = caller.parentNode.children[4];
+	if (month.value == '02')
+		if (year.value%4 == 0)
+			day.options[day.options.length] = new Option("29","29",false,false);
+		else if (day.options.length == 29)
+			day.remove(28);
+}
 
 function submit(formId)
 {
@@ -151,12 +231,21 @@ function submit(formId)
 			
 		if (form.children[i].dataset.control == 'datetime')
 		{
-			value = form.children[i].children[1].value;
+			var div = form.children[i];
+			var day = div.getElementsByClassName("day-picker")[0].value;
+			var month = div.getElementsByClassName("month-picker")[0].value;
+			var year = div.getElementsByClassName("year-picker")[0].value;
+			var hour = div.getElementsByClassName("hour-picker")[0].value;
+			var minute = div.getElementsByClassName("minute-picker")[0].value;
+			var ampm = div.getElementsByClassName("ampm-picker")[0].value;
+			
+			var value = month + '/' + day + '/' + year + ' ' + hour + ':' + minute + ' ' + ampm;
+			
 			if(form.children[i].dataset.required == 'true')
-				if(value == '')
+				if(day == '')
 					missed_reqs.push(form.children[i].children[0].innerText)
 		}
-			
+
 		if (form.children[i].dataset.control == 'select')
 		{
 			value = form.children[i].children[1].options[form.children[i].children[1].selectedIndex].value;
@@ -169,7 +258,6 @@ function submit(formId)
 			value = [];
 			for(var j = 0; j < form.children[i].children[1].length; j++)
 				if(form.children[i].children[1].options[j].selected) value.push(form.children[i].children[1].options[j].value);
-			console.log(value);
 			if(form.children[i].dataset.required == 'true')
 				if(value == [undefined])
 					missed_reqs.push(form.children[i].children[0].innerText)

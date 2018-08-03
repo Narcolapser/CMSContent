@@ -91,6 +91,8 @@ public class InternalDaoImpl implements CMSDocumentDao, DisposableBean
 		return "Internal";
 	}
 	
+	public String getDisplayName(){return "Internal Documents";}
+	
 	public boolean deleteDocument(String Id)
 	{
 		logger.info("Preparing to delete: " + Id);

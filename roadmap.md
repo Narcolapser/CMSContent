@@ -77,7 +77,6 @@ SELECT * INTO [uPortal].[dbo].[CMSDocument] FROM [USD-SQL05\SQL01].uPortal.dbo.C
 ## Other things I've noticed that need fixing:
 * Vertical tabs kind of breaks on smaller displays, should probably turn into expanding on smaller displays.
 * Compond keys with document id and document type.
-* Document sources should have a seperate display name.
 * Reports don't show date time or user name.
 * Vertical tab's content has a box around it. remove this.
 * Saving without selecting a document in CMSForm causes the page to break.
@@ -99,3 +98,4 @@ SELECT * INTO [uPortal].[dbo].[CMSDocument] FROM [USD-SQL05\SQL01].uPortal.dbo.C
 * CMSEditor/CMSForm delete double check.
 * disable required box on controls it doesn't make sense on. 
 * Layout doc source should default to internal
+* Document sources should have a seperate display name.

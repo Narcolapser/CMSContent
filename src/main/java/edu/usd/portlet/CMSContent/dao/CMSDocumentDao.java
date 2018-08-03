@@ -33,6 +33,9 @@ public interface CMSDocumentDao
 	public String getDaoName();
 	// return the name of this DAO for choosing it in controllers.
 	
+	public String getDisplayName();
+	// a pretty user readable form of the dao name. 
+	
 	public void saveDocument(CMSDocument val);
 	
 	public boolean saveEnabled();

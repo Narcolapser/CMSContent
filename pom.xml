@@ -13,7 +13,7 @@
 	<packaging>war</packaging>
 	
 	<name>CMS Content</name>
-	<version>1.0.12</version>
+	<version>1.0.13</version>
 	<description>USD's portlet for displaying external CMS content.</description>
 	<url>https://bitbucket.org/usd/cms-content/</url>
 
@@ -412,11 +412,6 @@
 				<artifactId>dwr</artifactId>
 				<version>2.0.3</version>
 			</dependency>
-			<dependency>
-				<groupId>org.webjars.bowergithub.xdan</groupId>
-				<artifactId>datetimepicker</artifactId>
-				<version>2.5.20</version>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	
@@ -676,10 +671,6 @@
 		<dependency>
 			<groupId>org.directwebremoting</groupId>
 			<artifactId>dwr</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bowergithub.xdan</groupId>
-			<artifactId>datetimepicker</artifactId>
 		</dependency>
 	</dependencies>
 
