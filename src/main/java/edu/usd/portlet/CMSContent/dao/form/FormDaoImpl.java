@@ -71,6 +71,8 @@ public class FormDaoImpl implements CMSDocumentDao, DisposableBean
 	{
 		return "InternalForms";
 	}
+	
+	public String getDisplayName(){return "Internal Forms";}
 
 	public void destroy() throws Exception {
 	}

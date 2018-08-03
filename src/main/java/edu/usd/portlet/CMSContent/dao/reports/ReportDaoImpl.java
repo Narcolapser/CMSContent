@@ -80,6 +80,8 @@ public class ReportDaoImpl implements CMSDocumentDao, DisposableBean
 		return "InternalReports";
 	}
 
+	public String getDisplayName(){return "Internal Reports";}
+
 	public void destroy() throws Exception {
 	}
 

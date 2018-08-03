@@ -151,7 +151,7 @@ div.col_content{
 										<c:forEach var="source" items="${sources}">
 											<c:set var="selected"></c:set>
 											<c:if test="${source.getDaoName() eq 'Internal'}"><c:set var="selected">selected="selected"</c:set></c:if>
-											<option value="${source.getDaoName()}" ${selected}>${source.getDaoName()}</option>
+											<option value="${source.getDaoName()}" ${selected}>${source.getDisplayName()}</option>
 										</c:forEach>
 									</select>
 								</div>
