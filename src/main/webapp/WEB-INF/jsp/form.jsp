@@ -74,6 +74,7 @@
 					<p>${s}${control.getString("label")}${e}</p>
 					<div class="input-group">
 						<select type="text" class="form-control month-picker" style="min-width: 106px;" onChange="monthChange(this);">
+							<option value="" disabled selected>Month</option>
 							<option value="01">January</option>
 							<option value="02">February</option>
 							<option value="03">March</option>
@@ -88,15 +89,24 @@
 							<option value="12">December</option>
 						</select>
 						<span class="input-group-addon">/</span>
-						<select type="text" class="form-control day-picker" disabled="true" title="Select month first"></select>
+						<select type="text" class="form-control day-picker" disabled="true" title="Select month first">
+							<option value="" disabled selected>Day</option>
+						</select>
 						<span class="input-group-addon">/</span>
-						<select type="text" class="form-control year-picker" onChange="leapYearCheck(this);"/></select>
+						<select type="text" class="form-control year-picker" onChange="leapYearCheck(this);"/>
+							<option value="" disabled selected>Year</option>
+						</select>
 						<span class="input-group-addon"> </span>
-						<select type="text" class="form-control hour-picker"></select>
+						<select type="text" class="form-control hour-picker">
+							<option value="" disabled selected>Hour</option>
+						</select>
 						<span class="input-group-addon">:</span>
-						<select type="text" class="form-control minute-picker"></select>
+						<select type="text" class="form-control minute-picker">
+							<option value="" disabled selected>Minute</option>
+						</select>
 						<span class="input-group-addon"> </span>
 						<select type="text" class="form-control ampm-picker" style="min-width: 75px;">
+							<option value="" disabled selected>AM/PM</option>
 							<option value="am">AM</option>
 							<option value="pm">PM</option>
 						</select>
@@ -147,21 +157,21 @@ window.onload = function() {
 	year = date.getFullYear() -2;
 	for(var i = 0; i<yps.length; i++)
 		for(var j = 0; j <= 10; j++)
-			yps[i].options[j] = new Option(year+j,year+j,false,false);
+			yps[i].options[j+1] = new Option(year+j,year+j,false,false);
 	
 	var hps = document.getElementsByClassName("hour-picker");
 	var mps = document.getElementsByClassName("minute-picker");
 	
 	for(var i = 0; i < hps.length; i++)
 		for(var j = 0; j < 12; j++)
-			hps[i].options[j] = new Option(j+1,j+1,false,false);
+			hps[i].options[j+1] = new Option(j+1,j+1,false,false);
 	
 	for(var i = 0; i < mps.length; i++)
 		for(var j = 0; j < 60; j++)
 			if(j<10)
-				mps[i].options[j] = new Option("0"+j,"0"+j,false,false);
+				mps[i].options[j+1] = new Option("0"+j,"0"+j,false,false);
 			else
-				mps[i].options[j] = new Option(j,j,false,false);
+				mps[i].options[j+1] = new Option(j,j,false,false);
 };
 
 function monthChange(selector)
@@ -211,14 +221,14 @@ function submit(formId)
 			value = form.children[i].children[1].value;
 			if(form.children[i].dataset.required == 'true')
 				if(value == '')
-					missed_reqs.push(form.children[i].children[0].innerText)
+					missed_reqs.push(form.children[i].children[0].innerText.replace("*",""))
 		}
 		if (form.children[i].dataset.control == 'multi-text')
 		{
 			value = form.children[i].children[1].value;
 			if(form.children[i].dataset.required == 'true')
 				if(value == '')
-					missed_reqs.push(form.children[i].children[0].innerText)
+					missed_reqs.push(form.children[i].children[0].innerText.replace("*",""))
 		}
 			
 		if (form.children[i].dataset.control == 'date')
@@ -226,7 +236,7 @@ function submit(formId)
 			value = form.children[i].children[1].value;
 			if(form.children[i].dataset.required == 'true')
 				if(value == '')
-					missed_reqs.push(form.children[i].children[0].innerText)
+					missed_reqs.push(form.children[i].children[0].innerText.replace("*",""))
 		}
 			
 		if (form.children[i].dataset.control == 'datetime')
@@ -242,8 +252,24 @@ function submit(formId)
 			var value = month + '/' + day + '/' + year + ' ' + hour + ':' + minute + ' ' + ampm;
 			
 			if(form.children[i].dataset.required == 'true')
+			{
+				var missing = [];
+				if(month == '')
+					missing.push('Month');
 				if(day == '')
-					missed_reqs.push(form.children[i].children[0].innerText)
+					missing.push('Day');
+				if(year == '')
+					missing.push('Year');
+				if(hour == '')
+					missing.push('Hour');
+				if(minute == '')
+					missing.push('Minute');
+				if(ampm == '')
+					missing.push('AM/PM');
+				
+				if(missing.length != 0)
+					missed_reqs.push(form.children[i].children[0].innerText.replace("*","") + ' is missing: ' + missing.join(", "));
+			}
 		}
 
 		if (form.children[i].dataset.control == 'select')
@@ -251,7 +277,7 @@ function submit(formId)
 			value = form.children[i].children[1].options[form.children[i].children[1].selectedIndex].value;
 			if(form.children[i].dataset.required == 'true')
 				if(value == '')
-					missed_reqs.push(form.children[i].children[0].innerText)
+					missed_reqs.push(form.children[i].children[0].innerText.replace("*",""))
 		}
 		if (form.children[i].dataset.control == 'multi-select')
 		{
@@ -259,8 +285,8 @@ function submit(formId)
 			for(var j = 0; j < form.children[i].children[1].length; j++)
 				if(form.children[i].children[1].options[j].selected) value.push(form.children[i].children[1].options[j].value);
 			if(form.children[i].dataset.required == 'true')
-				if(value == [undefined])
-					missed_reqs.push(form.children[i].children[0].innerText)
+				if(value == "unselected")
+					missed_reqs.push(form.children[i].children[0].innerText.replace("*",""))
 		}
 		if (form.children[i].dataset.control == 'checkbox')
 		{
@@ -273,7 +299,7 @@ function submit(formId)
 			}
 			if(form.children[i].dataset.required == 'true')
 				if(value == [])
-					missed_reqs.push(form.children[i].children[0].innerText)
+					missed_reqs.push(form.children[i].children[0].innerText.replace("*",""))
 		}
 		if (form.children[i].dataset.control == 'radiobutton')
 		{
@@ -285,7 +311,7 @@ function submit(formId)
 			}
 			if(form.children[i].dataset.required == 'true')
 				if(value == '')
-					missed_reqs.push(form.children[i].children[0].innerText)
+					missed_reqs.push(form.children[i].children[0].innerText.replace("*",""))
 		}
 		if (form.children[i].dataset.control == 'label')
 		{
@@ -316,7 +342,9 @@ function submit(formId)
 	if(missed_reqs.length > 0)
 	{
 		console.log("Missed some requirements.");
-		alert("You missed some required fields: " + JSON.stringify(missed_reqs));
+		var outs = missed_reqs.join('\n');
+		console.log(outs);
+		alert("You missed some required fields:\n" + outs);
 	}
 	else
 	{
