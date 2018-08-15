@@ -32,6 +32,9 @@ public class Email implements CMSResponder
 {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
+	@Autowired
+	private InternalDocumentDao internalDocumentDao;
+
 	//get the name of the responder.
 	public String getName(){return "Email";}
 	
@@ -55,7 +58,7 @@ public class Email implements CMSResponder
 			message.setFrom(new InternetAddress(from));
 			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
 			message.setSubject("Form response.");
-			message.setText(formMessage(json));
+			message.setText(formMessage(json),"utf-8", "html");
 			Transport.send(message);
 			logger.debug("Message sent sucessfully");
 		}
@@ -73,8 +76,10 @@ public class Email implements CMSResponder
 		try
 		{
 			JSONObject obj = new JSONObject(json);
-			ret = "The user " + obj.getString("username") + " submitted the form " + obj.getString("formId") + " with the following: \n";
-			for(String key:obj.getNames(obj))
+			String[] val = new FormDoc(this.internalDocumentDao.getDocumentById(obj.getString("formId"))).getFields();
+			//ret = "The user " + obj.getString("username") + " submitted the form " + obj.getString("formId") + " with the following: \n";
+			ret = "<table class=\"table table-striped\">\n<thead><tr><th width=\"200px\">Field</th><th width=\"400px\">Answer</th></tr></thead><tbody>";
+			for(String key:val)
 			{
 				if (key.equals("Submit"))
 					continue;
@@ -84,10 +89,14 @@ public class Email implements CMSResponder
 					continue;
 				if (key.equals("formId"))
 					continue;
-					
-				ret += key + "\t: " + obj.getString(key) + "\n";
+				
+				if(key.length() > 20)
+					ret += "<tr><td>" + key.substring(0,20) + "</td><td>" + obj.getString(key) + "</td></tr>\n";
+				else
+					ret += "<tr><td>" + key + "</td><td>" + obj.getString(key) + "</td></tr>\n";
 				logger.debug("Key: " + key + " Value: " + obj.getString(key) + "\n");
 			}
+			ret += "</tbody></table>";
 		}
 		catch (JSONException e)
 		{
