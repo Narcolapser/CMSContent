@@ -84,20 +84,24 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 		Query query = session.createQuery(hql);
 		
 		List<CMSDocument> docList = new ArrayList<CMSDocument>();
-		List<Object[]> list = query.list();
-		for(Object[] obj: list)
+		try
 		{
-			CMSDocument doc = new CMSDocument();
-			doc.setId((String)obj[0]);
-			doc.setTitle((String)obj[1]);
-			doc.setKeyTerms((String)obj[2]);
-			doc.setDocType((String)obj[3]);
-			
-			doc.setSource("Internal");
-			doc.setRemoved(false);
-			doc.setContent("");
-			docList.add(doc);
+			List<Object[]> list = query.list();
+			for(Object[] obj: list)
+			{
+				CMSDocument doc = new CMSDocument();
+				doc.setId((String)obj[0]);
+				doc.setTitle((String)obj[1]);
+				doc.setKeyTerms((String)obj[2]);
+				doc.setDocType((String)obj[3]);
+				
+				doc.setSource("Internal");
+				doc.setRemoved(false);
+				doc.setContent("");
+				docList.add(doc);
+			}
 		}
+		catch(Exception e){logger.error(e);}
 		return docList;
 	}
 	

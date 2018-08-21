@@ -89,7 +89,7 @@ $(document).ready(function(){
 		//alert("Page updated.");
 	});
 	var ret_button = document.getElementById("return_btn");
-	ret_button.href=document.referrer;
+	//ret_button.href=document.referrer;
 	
 	//Setup docTree
 	$('#doc_tree').on('changed.jstree', function (e, data)

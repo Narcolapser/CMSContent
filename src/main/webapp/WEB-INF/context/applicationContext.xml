@@ -36,10 +36,14 @@
 		location="classpath:datasource.properties" />
 
 	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="${hibernate.connection.driver_class}" />
-		<property name="url" value="${hibernate.connection.url}" />
-		<property name="username" value="${hibernate.connection.username}" />
-		<property name="password" value="${hibernate.connection.password}" />
+<!--		<property name="driverClassName" value="${hibernate.connection.driver_class}" />-->
+<!--		<property name="url" value="${hibernate.connection.url}" />-->
+<!--		<property name="username" value="${hibernate.connection.username}" />-->
+<!--		<property name="password" value="${hibernate.connection.password}" />-->
+		<property name="driverClassName" value="org.hsqldb.jdbc.JDBCDriver" />
+		<property name="url" value="jdbc:hsqldb:hsql://localhost:8887/uPortal" />
+		<property name="username" value="sa" />
+		<property name="password" value="" />
 	</bean>
 	
 	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
@@ -62,11 +66,6 @@
 	<tx:annotation-driven transaction-manager="transactionManager"/>
 
 	<!-- ============================== Internal Autowirings ============================== -->
-<!--	<bean id="cmsDataDaoImpl" class="edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl"></bean>-->
-
-<!--	<bean id="cmsDataDaoImpl" class="edu.usd.portlet.cmscontent.dao.DNNDaoImpl"></bean>-->
-
-<!--	<bean id="cmsDataDaoImpl" class="edu.usd.portlet.cmscontent.dao.InternalDaoImpl"></bean>-->
 
 	<bean id="cmsConfigDaoImpl" class="edu.usd.portlet.cmscontent.dao.PropertiesDaoImpl"></bean>
 	

@@ -1,9 +1,9 @@
-<link rel="import" href="/CMSContent/js/polymer.html">
+<link rel="import" href="/ResourceServingWebapp/webjars/polymer__polymer/3.0.2/bower_components/polymer/polymer.html">
+<!--<link rel="import" href="/ResourceServingWebapp/webjars/polymer/polymer.html">-->
+<!--<link rel="import" href="/CMSContent/js/polymer.html">-->
 <link rel="import" href="/CMSContent/components/doc-selector.html">
-
-<script src="<c:url value='/webjars/jquery/3.3.1-1/jquery.min.js'/>" type="text/javascript"></script>
-<script src="<c:url value='/webjars/jquery-ui/1.12.1/jquery-ui.min.js'/>" type="text/javascript"></script>
-<script src="<c:url value='/webjars/jquery-form/4.2.1/jquery.form.min.js'/>" type="text/javascript"></script>
+<link rel="import" href="/CMSContent/components/doc-tree-node.html">
+<!--<link rel="import" href="/ResourceServingWebapp/webjars/iron-ajax/iron-ajax.html">-->
 
 <dom-module id="doc-tree">
 	<template>
@@ -16,7 +16,14 @@
 				<doc-selector id="selector" onChange="update_source(this);" ></doc-selector>
 			</div>
 			<input type="search" id="doc_tree_search" class="form-control" value="[[sources]]" placeholder="Search..."></input>
-			<div id="doc_tree" style="height: 250px;overflow: hidden;overflow-y: scroll;"></div>
+			<div id="doc_tree" style="height: 250px;overflow: hidden;overflow-y: scroll;">
+<!--				<iron-ajax-->
+<!--				auto-->
+<!--				url="/CMSContent/v2/document/list"-->
+<!--				params='{"source":"Internal"}'-->
+<!--				handle-as="json"-->
+<!--				on-response="_handleDocumentList">-->
+			</div>
 			<div class="form-group" style="display: none;">
 				<label for="doc_loc">Selected Path:</label>
 				<input id="doc_loc" type="text" class="form-control" name="doc_loc" disabled="disabled">
@@ -53,6 +60,11 @@
 			ready: function () {
 				console.log("Preparing Doc Tree");
 			},
+			_handleDocumentList: function(event){
+				console.log("Handling document list");
+				console.log(event);
+				console.log(event.detail.response);
+			},
 		});
 		function update_source(selector)
 		{
@@ -62,6 +74,11 @@
 			request.onload = function()
 			{
 				console.log(request.responseText);
+				for(var i in JSON.parse(request.responseText))
+				{
+					console.log(i["title"]);
+					
+				}
 			}
 			request.send();
 		};
