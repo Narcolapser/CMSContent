@@ -274,7 +274,7 @@ div.col_content{
 		<div class="btn-group" role="group">
 			<button class="btn btn-warning" onclick="quick_edit_document(this);return false;">
 				<i class="fa fa-edit"></i> Edit</button>
-			<button class="btn btn-danger" onclick="remove_document('${mode}',this);return false;">
+			<button class="btn btn-danger" onclick="remove_document('%1$s',this);return false;">
 				<i class="fa fa-times"></i> Remove</button>
 		</div>
 	</td>
