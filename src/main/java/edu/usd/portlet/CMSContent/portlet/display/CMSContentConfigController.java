@@ -170,6 +170,11 @@ public class CMSContentConfigController
 		@RequestParam(value = "mode", required = false, defaultValue = "normal") String mode)
 	{
 		logger.info("attempting to set page uri #" + index_str + " to: '" + document + "' from: '" + source + "' is max: " + mode);
+		if(mode.equals(""))
+		{
+			logger.warn("No information was provided on which layout was to be updated. This request will be ignored.");
+			return;
+		}
 		CMSSubscription sub = null;
 		//if the document is null, we are removing the specified index.
 		if(document != null)
