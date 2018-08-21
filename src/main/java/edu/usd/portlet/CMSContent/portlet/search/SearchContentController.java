@@ -157,7 +157,7 @@ public class SearchContentController implements PortletConfigAware
 				if(fname != null)
 					searchResult.setExternalUrl("https://" + request.getServerName() + "/uPortal/max/render.uP?pCt="+fname);
 
-				searchResult.setRank(rank);
+				//searchResult.setRank(rank);
 				searchResults.getSearchResult().add(searchResult);
 				long end = System.currentTimeMillis();
 				logger.debug("Search completed in: " + (end - start));
