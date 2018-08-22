@@ -211,6 +211,10 @@ function submit(formId)
 	var missed_reqs = []
 	for(var i = 0; i < form.children.length ; i++)
 	{
+		//set defaults
+		value = "";
+		item = "";
+		
 		//alert("Child" + i + ":" + form.children[i].children[0].innerHTML);
 		if(form.children[i].innerHTML != "Submit")
 			item = form.children[i].children[0].innerText.replace('*','');
