@@ -78,7 +78,7 @@ public class Email implements CMSResponder
 			JSONObject obj = new JSONObject(json);
 			String[] val = new FormDoc(this.internalDocumentDao.getDocumentById(obj.getString("formId"))).getFields();
 			//ret = "The user " + obj.getString("username") + " submitted the form " + obj.getString("formId") + " with the following: \n";
-			ret = "<table class=\"table table-striped\">\n<thead><tr><th width=\"200px\">Field</th><th width=\"400px\">Answer</th></tr></thead><tbody>";
+			ret = "<table style=\"border: 1px solid black\">\n<thead><tr><th width=\"200px\">Field</th><th width=\"400px\">Answer</th></tr></thead><tbody>";
 			for(String key:val)
 			{
 				if (key.equals("Submit"))
@@ -90,18 +90,27 @@ public class Email implements CMSResponder
 				if (key.equals("formId"))
 					continue;
 				
-				if(key.length() > 20)
-					ret += "<tr><td>" + key.substring(0,20) + "</td><td>" + obj.getString(key) + "</td></tr>\n";
+//				if(key.length() > 20)
+//					ret += "<tr><td>" + key.substring(0,20) + "</td><td>" + obj.getString(key) + "</td></tr>\n";
+//				else
+				if(obj.has(key))
+				{
+					ret += "<tr><td style=\"border: 1px solid black\">" + key + "</td><td style=\"border: 1px solid black\">" + obj.getString(key) + "</td></tr>\n";
+					logger.debug("Key: " + key + " Value: " + obj.getString(key) + "\n");
+				}
 				else
-					ret += "<tr><td>" + key + "</td><td>" + obj.getString(key) + "</td></tr>\n";
-				logger.debug("Key: " + key + " Value: " + obj.getString(key) + "\n");
+				{
+					ret += "<tr><td style=\"border: 1px solid black\">" + key + "</td><td style=\"border: 1px solid black\"></td></tr>\n";
+					logger.debug("Key: " + key + " Value does not exist.\n");
+				}
 			}
 			ret += "</tbody></table>";
 		}
 		catch (JSONException e)
 		{
 			logger.error("Error processing user's response: " + e);
-			return "Error processing form.";
+			logger.error(json);
+			return "Error processing user's response: " + e + "\n" + json;
 		}
 		return ret;
 	}
