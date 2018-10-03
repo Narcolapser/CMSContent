@@ -65,7 +65,10 @@ public class FormDaoImpl implements CMSDocumentDao, DisposableBean
 		return docs;
 	}
 	
-	public void saveDocument(CMSDocument val){}
+	public void saveDocument(CMSDocument val)
+	{
+		this.internalDocumentDao.insertDocument(val);
+	}
 	
 	public String getDaoName()
 	{

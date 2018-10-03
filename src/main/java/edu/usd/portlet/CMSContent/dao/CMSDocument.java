@@ -87,7 +87,7 @@ public class CMSDocument
 		this.removed = true;
 		try
 		{
-			JSONObject obj = new JSONObject();
+			JSONObject obj = new JSONObject(json);
 			this.title = obj.getString("title");
 			this.id = obj.getString("id");
 			this.source = obj.getString("source");

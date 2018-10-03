@@ -331,10 +331,8 @@ function add_responder()
 function save()
 {
 	//assemble document information:
-	var doc_info = {};
-	doc_info['id'] = get_doc_id();
 	var form_title = document.getElementById("formTitle");
-	doc_info['title'] = form_title.value;
+	form_title = form_title.value;
 	
 	//assemble document json body
 	var table = document.getElementById("control_table");
@@ -347,9 +345,16 @@ function save()
 	for (var i=1,row; row = responder_table.rows[i]; i++)
 		form_json.push(get_responder_config(row));
 
+	//get key terms:
+	var keyterms = "";
+
+	data = JSON.stringify({"content":form_json,"id":get_doc_id(),'title':form_title,'source':'InternalForms','docType':'form','keyTerms':keyterms,'removed':false})
+	while (data.includes('  '))
+		data = data.replace('  ',' ');
+		
 	$.ajax({dataType:"json",
-		url:"/CMSContent/v1/api/saveForm.json",
-		data:{"form":JSON.stringify({"form":form_json,"doc":doc_info})},
+		url:"/CMSContent/v2/document/save.json",
+		data:{"document":data},
 		success:form_saved});
 }
 function get_doc_id()

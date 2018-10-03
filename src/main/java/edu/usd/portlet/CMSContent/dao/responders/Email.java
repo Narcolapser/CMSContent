@@ -57,7 +57,7 @@ public class Email implements CMSResponder
 			MimeMessage message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(from));
 			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-			message.setSubject("Form response.");
+			message.setSubject(getSubject(json));
 			message.setText(formMessage(json),"utf-8", "html");
 			Transport.send(message);
 			logger.debug("Message sent sucessfully");
@@ -100,11 +100,28 @@ public class Email implements CMSResponder
 				}
 				else
 				{
-					ret += "<tr><td style=\"border: 1px solid black\">" + key + "</td><td style=\"border: 1px solid black\"></td></tr>\n";
+					ret += "<tr><td style=\"border: 1px solid black\">" + key + "</td><td style=\"border: 1px solid black\">Error processing value. Mismatch between form spec and form response.</td></tr>\n";
 					logger.debug("Key: " + key + " Value does not exist.\n");
 				}
 			}
 			ret += "</tbody></table>";
+		}
+		catch (JSONException e)
+		{
+			logger.error("Error processing user's response: " + e);
+			logger.error(json);
+			return "Error processing user's response: " + e + "\n" + json;
+		}
+		return ret;
+	}
+	
+	private String getSubject(String json)
+	{
+		String ret = "Form Submission";
+		try
+		{
+			JSONObject obj = new JSONObject(json);
+			ret = "Form Submission for: " + new FormDoc(this.internalDocumentDao.getDocumentById(obj.getString("formId"))).getTitle();
 		}
 		catch (JSONException e)
 		{

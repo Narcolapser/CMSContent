@@ -100,6 +100,7 @@ public final class DocumentApi {
 		try
 		{
 			dbo.saveDocument(doc);
+			logger.debug("Save succesful");
 			return "{\"result\":\"success\"}";
 		}
 		catch(Exception e)
