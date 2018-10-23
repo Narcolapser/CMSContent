@@ -7,6 +7,23 @@ import java.util.HashMap;
 
 import javax.portlet.PortletRequest;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Transient;
+import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.CascadeType;
+import javax.persistence.MapKey;
+import javax.persistence.ElementCollection;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.CollectionTable;
+import javax.persistence.UniqueConstraint;
+
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -20,17 +37,43 @@ import org.springframework.web.portlet.ModelAndView;
  * @version $Id$
  */
 
+@Entity
+@Table(name = "CMSLayout", uniqueConstraints= @UniqueConstraint(columnNames = {"fname"}))
 public class CMSLayout
 {
+	@Transient
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	public String view;
-	public String name;
-	public String description;
-	public Map<String,String> properties;
-	public List<CMSSubscription> subscriptions;
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name = "layout_id")
+	public int layout_id = -1;
 	
-	public CMSLayout(){}
+	@Column(name = "fname")
+	public String fname;
+
+	@Column(name = "cms_view")
+	public String view;
+	
+	@Column(name = "name")
+	public String name;
+	
+	//@Column(name = "description")
+	public String description;
+	
+	@OneToMany(mappedBy="layout", cascade = CascadeType.ALL)
+	public List<CMSSubscription> subscriptions;
+
+//	@ElementCollection // this is a collection of primitives
+//	@MapKeyColumn(name="key") // column name for map "key"
+//	@Column(name="value") // column name for map "value"
+	@ElementCollection(targetClass = String.class)
+	@CollectionTable(name = "CMSProperties")
+	@MapKeyColumn(name="CMSPropKey")
+	@Column(name="CMSPropValue")
+	public Map<String,String> properties;
+	
+	public CMSLayout(){this.view = "layouts/single";}
 	
 	public CMSLayout(CMSLayout val)
 	{
@@ -48,6 +91,16 @@ public class CMSLayout
 		this.description = description;
 		this.properties = properties;
 		this.subscriptions = subscriptions;
+	}
+	
+	public int getLayoutId()
+	{
+		return this.layout_id;
+	}
+	
+	public void setLayoutId(int val)
+	{
+		this.layout_id = val;
 	}
 	
 	public String getView()

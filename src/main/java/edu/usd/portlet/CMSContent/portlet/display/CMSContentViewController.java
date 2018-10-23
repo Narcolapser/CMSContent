@@ -23,6 +23,7 @@ import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSLayout;
 import edu.usd.portlet.cmscontent.dao.CMSSubscription;
+import edu.usd.portlet.cmscontent.dao.DBConfigImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,11 +63,7 @@ public class CMSContentViewController {
 	List<CMSLayout> layouts;
 
 	@Autowired
-	private CMSConfigDao conf = null;
-	public void setConf(CMSConfigDao conf)
-	{
-		this.conf = conf;
-	}
+	DBConfigImpl conf;
 
 	@RequestMapping
 	public ModelAndView viewContent(RenderRequest request, RenderResponse response)

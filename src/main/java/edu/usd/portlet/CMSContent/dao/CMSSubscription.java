@@ -3,6 +3,23 @@ package edu.usd.portlet.cmscontent.dao;
 import java.util.List;
 import java.util.ArrayList;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Transient;
+import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.JoinColumn;
+import javax.persistence.CascadeType;
+import javax.persistence.MapKey;
+import javax.persistence.ElementCollection;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.CollectionTable;
+
+
 /**
  * The many-to-many connector between CMSDocuments and CMSLayouts.
  * 
@@ -10,11 +27,34 @@ import java.util.ArrayList;
  * @version $Id$
  */
 
+@Entity
+@Table(name = "CMSSubscription")
 public class CMSSubscription
 {
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name = "cms_subscription_id")
+	protected int id;
+
+	@Column(name = "doc_id")
 	private String docId;
+	
+	@Column(name = "doc_source")
 	private String docSource;
+	
+	@Column(name = "doc_title")
 	private String docTitle;
+	
+	@Column(name = "doc_order")
+	public int order;
+	
+	@ManyToOne
+	@JoinColumn(name="layout_id", nullable=false)
+	private CMSLayout layout;
+	
+	@ElementCollection
+	@CollectionTable(name="CMSSecurityGroups", joinColumns=@JoinColumn(name="cms_subscription_id"))
+	@Column(name="securityGroups")
 	private List<String> securityGroups;
 	
 	public CMSSubscription()
@@ -68,6 +108,24 @@ public class CMSSubscription
 	public void setDocTitle(String val)
 	{
 		this.docTitle = val;
+	}
+	public int getId()
+	{
+		return this.id;
+	}
+	
+	public void setId(int val)
+	{
+		this.id = val;
+	}
+	public CMSLayout getLayout()
+	{
+		return this.layout;
+	}
+	
+	public void setLayout(CMSLayout val)
+	{
+		this.layout = val;
 	}
 	public CMSDocumentDao getDao(List<CMSDocumentDao> dataSources)
 	{

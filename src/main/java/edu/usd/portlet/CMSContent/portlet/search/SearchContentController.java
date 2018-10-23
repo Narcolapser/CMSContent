@@ -77,6 +77,7 @@ import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSLayout;
 import edu.usd.portlet.cmscontent.dao.CMSSubscription;
 import edu.usd.portlet.cmscontent.service.CMSSearchIndex;
+import edu.usd.portlet.cmscontent.dao.DBConfigImpl;
 
 
 
@@ -109,11 +110,7 @@ public class SearchContentController implements PortletConfigAware
 	}
 
 	@Autowired
-	private CMSConfigDao conf = null;
-	public void setConf(CMSConfigDao conf)
-	{
-		this.conf = conf;
-	}
+	DBConfigImpl conf;
 
 	@EventMapping(SearchConstants.SEARCH_REQUEST_QNAME_STRING)
 	public void searchContent(EventRequest request, EventResponse response)

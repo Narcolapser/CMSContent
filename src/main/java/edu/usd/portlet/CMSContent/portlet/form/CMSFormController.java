@@ -49,6 +49,7 @@ import edu.usd.portlet.cmscontent.dao.CMSDocumentDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 import edu.usd.portlet.cmscontent.dao.CMSResponder;
+import edu.usd.portlet.cmscontent.dao.DBConfigImpl;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -72,11 +73,7 @@ public class CMSFormController {
 	List<CMSResponder> responders;
 
 	@Autowired
-	private CMSConfigDao conf = null;
-	public void setConf(CMSConfigDao conf)
-	{
-		this.conf = conf;
-	}
+	DBConfigImpl conf;
 
 	@RequestMapping
 	public ModelAndView viewContent(RenderRequest request, RenderResponse response)

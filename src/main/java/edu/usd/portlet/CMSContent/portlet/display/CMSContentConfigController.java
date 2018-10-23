@@ -43,6 +43,7 @@ import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 import edu.usd.portlet.cmscontent.dao.CMSLayout;
 import edu.usd.portlet.cmscontent.dao.CMSSubscription;
 import edu.usd.portlet.cmscontent.dao.security.Role;
+import edu.usd.portlet.cmscontent.dao.DBConfigImpl;
 
 import edu.usd.portlet.cmscontent.service.PortletXMLGroupService;
 import edu.usd.portlet.cmscontent.service.IGroupService;
@@ -70,7 +71,7 @@ public class CMSContentConfigController
 	List<CMSLayout> layouts;
 
 	@Autowired
-	CMSConfigDao conf = null;
+	DBConfigImpl conf = null;
 	
 	@Autowired
 	IGroupService groupService;

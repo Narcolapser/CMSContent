@@ -64,14 +64,14 @@
 	<!-- ============================== Internal Autowirings ============================== -->
 <!--	<bean id="cmsDataDaoImpl" class="edu.usd.portlet.cmscontent.dao.CommonSpotDaoImpl"></bean>-->
 
-<!--	<bean id="cmsDataDaoImpl" class="edu.usd.portlet.cmscontent.dao.DNNDaoImpl"></bean>-->
-
 <!--	<bean id="cmsDataDaoImpl" class="edu.usd.portlet.cmscontent.dao.InternalDaoImpl"></bean>-->
 
-	<bean id="cmsConfigDaoImpl" class="edu.usd.portlet.cmscontent.dao.PropertiesDaoImpl"></bean>
-	
+	<bean id="cmsConfigDaoImpl" class="edu.usd.portlet.cmscontent.dao.DBConfigImpl"></bean>
+
+	<bean id="cmsPropertiesImpl" class="edu.usd.portlet.cmscontent.dao.PropertiesDaoImpl"></bean>
+
 	<bean id="cmsSearchIndex" class="edu.usd.portlet.cmscontent.service.CMSSearchIndex"></bean>
-	
+
 	<bean id="groupService" class="edu.usd.portlet.cmscontent.service.PortletXMLGroupService"></bean>
 
 
