@@ -157,6 +157,8 @@ public class CMSContentConfigController
 			userRoleNames.add(roleName);
 		}
 		refData.put("securityRoles",userRoleNames);
+		
+		refData.put("isDev",request.isUserInRole("Web Developers"));
 
 		return new ModelAndView("editors/layout",refData);
 	}

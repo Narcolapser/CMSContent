@@ -8,233 +8,24 @@
 
 <script src="<c:url value='/webjars/sprintf.js/1.0.0/sprintf.min.js'/>" type="text/javascript"></script>
 
+<script src="https://vuejs.org/js/vue.js"></script>
+<!--<script src="https://vuejs.org/js/vue.min.js"></script>-->
+<script src="/CMSContent/components/config-bar.js"></script>
+<script src="/CMSContent/components/config-layout-selector.js"></script>
+
 <c:set var="n"><portlet:namespace/></c:set>
 <portlet:actionURL var="getPages" name="getPages"></portlet:actionURL>
-
-<style type="text/css">
-#content-wrapper{
-	display:table;
-	width: 100%;
-}
-
-#content{
-	display:table-row;
-}
-
-#content>div{
-	display:table-cell;
-	width:50%;
-	padding: 10px;
-}
-
-div.col_content{
-	width: 100%;
-}
-
-.form-group{
-	padding: 0px 0px 10px 0px;
-}
-.pos_col{
-	min-width: 93px;
-}
-</style>
-
-
+<portlet:renderURL var="config_done" portletMode="VIEW" windowState="NORMAL"/>
+<!--${isDev}-->
 <div class="usdChannel" id="content-wrapper">
-	<c:set var="mode" value="normal"/>
-	<c:set var="modes" value = "${['normal','maximized']}"/>
-	
-	<ul class="nav nav-tabs">
-		<c:forEach var="mode" items="${modes}">
-			<c:set var="classes"></c:set>
-			<c:if test="${mode eq 'normal'}">
-				<c:set var="classes">class="active"</c:set>
-			</c:if>
-			<li ${classes}>
-				<a href="#cms-${mode}" data-toggle="tab">${mode}</a>
-			</li>
-		</c:forEach>
-	</ul>
-
-	<div class="tab-content">
-		<c:forEach var="mode" items="${modes}">
-			<c:choose>
-				<c:when test="${mode == maximized}"> 
-					<c:set var="currentView" value="${maximized}"/>
-				</c:when>
-				<c:otherwise>
-					<c:set var="currentView" value="${normal}"/>
-				</c:otherwise>
-			</c:choose>
-			<c:set var="classes">class="tab-pane"</c:set>
-			<c:if test="${mode eq 'normal'}">
-				<c:set var="classes">class="tab-pane active"</c:set>
-			</c:if>
-			<div id="cms-${mode}" ${classes}>
-				<div id="content">
-					<div id="left_col">
-						<h2>Portlet layout type:</h2>
-						<div class="form-group">
-							<select id="${mode}_view_type" name="view_type" class="form-control" OnChange="viewChange('${mode}')">
-								<c:forEach var="view" items="${availableViews}">
-									<c:choose>
-										<c:when test="${view.view == activeViews[mode].view}">
-											<option value="${view.view}" selected="selected">${view.name}</option>
-										</c:when>
-										<c:otherwise>
-											<option value="${view.view}">${view.name}</option>
-										</c:otherwise>
-									</c:choose>
-								</c:forEach>
-							</select>
-							<button class="btn btn-default" onclick="update_view('${mode}');return false"/>Update layout</button>
-						</div>
-						<div class="col_content">
-							<c:forEach var="view" items="${availableViews}">
-								<!-- View: ${view} v.v: ${view.view} current view:${activeViews[mode]} c.v:${activeViews[mode].view} -->
-								<c:choose>
-									<c:when test="${view.view == activeViews[mode].view}">
-										<div id="${mode}_${view.view}" class="${mode}_desc show">
-											<h3>Layout Description:</h3>
-											<p>${view.description}</p>
-										</div>
-									</c:when>
-									<c:otherwise>
-										<div id="${mode}_${view.view}" class="${mode}_desc hide">
-											<h3>Layout Description:</h3>
-											<p>${view.description}</p>
-										</div>
-									</c:otherwise>
-								</c:choose>
-							</c:forEach>
-						</div>
-						<div>
-							<table class="table table-striped">
-								<thead>
-									<tr>
-										<th>Property</th>
-										<th>Value</th>
-									</tr>
-								</thead>
-								<tbody>
-									<c:forEach var="property" items="${activeViews[mode].properties.keySet()}">
-									<tr>
-										<c:set var="prop">${mode}_${property.replace(" ","_")}</c:set>
-										<td>${property}</td>
-										<td><input id="${prop}" type="text" value="${activeViews[mode].properties.get(property)}"></input></td>
-										<td><a class="btn btn-default" onclick="update_property('${prop}');return false">Update</a></td>
-									</tr>
-									</c:forEach>
-								</tbody>
-							</table>
-						</div>
-					</div>
-
-
-					<div id="right_col">
-						<h2>Documents</h2>
-						<div name="${mode}_doc_pane">
-							<div name="${mode}_controls" class="form-inline">
-								<div class="form-group">
-									<div class="btn-group" role="group">
-										<button onclick="new_document('${mode}_doc_select')" class="btn btn-info" title="Open new document on ${hostname}.usd.edu">
-											<i class="fa fa-plus-square-o"></i> New Doc</button>
-										<button onclick="new_form('${mode}')" class="btn btn-info" title="Open new form on ${hostname}.usd.edu">
-											<i class="fa fa-code-fork"></i> New Form</button>
-										<button onclick="edit_document('${mode}')" class="btn btn-warning" title="Open editor for selected doc on ${hostname}.usd.edu">
-											<i class="fa fa-edit"></i> Edit</button>
-										<button onclick="add_document('${mode}')" class="btn btn-primary">
-											<i class="fa fa-link"></i> Add to Layout</button>
-									</div>
-									<label for="${mode}_source">Document Source</label>
-									<select id="${mode}_source" class="form-control" OnChange="OnChange('${mode}_source','${mode}_doc_select');">
-										<c:forEach var="source" items="${sources}">
-											<c:set var="selected"></c:set>
-											<c:if test="${source.getDaoName() eq 'Internal'}"><c:set var="selected">selected="selected"</c:set></c:if>
-											<option value="${source.getDaoName()}" ${selected}>${source.getDisplayName()}</option>
-										</c:forEach>
-									</select>
-								</div>
-								<div id="${mode}_doc_selector">
-									<select id="${mode}_doc_select" class="chosen-select">
-									</select>
-								</div>
-							</div>
-							<div>
-								<table class="table table-striped" id="${mode}_docs_table">
-									<thead>
-										<tr>
-											<th class="pos_col" >Position</th>
-											<th>Title</th>
-											<th>Id</th>
-											<th>Source</th>
-											<th>Security Groups</th>
-											<th></th>
-											<th></th>
-										</tr>
-									</thead>
-									<tbody>
-										<c:set var="index" value="1"/>
-										<c:forEach var="doc" items="${activeDocs[mode]}">
-											<tr class="${mode} ${index}">
-												<td style="min-width: 100px;" class="pos_col" >
-													<div class="btn-group" role="group">
-														<button onclick="up_document('${mode}',this);return false" class="btn btn-default">
-															<i class="fa fa-arrow-up"></i>
-														</button>
-														<button onclick="down_document('${mode}',this);return false" class="btn btn-default">
-															<i class="fa fa-arrow-down"></i>
-														</button>
-													</div>
-												</td>
-												<td>${doc.docTitle}</td>
-												<td>${doc.docId}</td>
-												<td>${doc.docSource}</td>
-												<td>
-													<select id="security_select_${mode}_${fn:replace(doc.docId,'/','-')}" class="chosen-select-multi" multiple="" data-placeholder="Everyone" OnChange="sec_change('security_select_${mode}_${fn:replace(doc.docId,'/','-')}','${mode}','${doc.docId}');">
-														<c:forEach var="role" items="${securityRoles}">
-															<c:set var="contains" value="false"/>
-															<c:forEach var="irole" items="${doc.securityGroups}">
-																<c:if test="${irole eq role}">
-																	<c:set var="contains" value="true"/>
-																</c:if>
-															</c:forEach>
-															<c:choose>
-																<c:when test="${contains}">
-																	<option value="${role}" data-title="${role}" selected="selected">${role}</option>
-																</c:when>
-																<c:otherwise>
-																	<option value="${role}" data-title="${role}">${role}</option>
-																</c:otherwise>
-															</c:choose>
-														</c:forEach>
-													</select>
-												</td>
-												<td style="min-width: 180px;">
-													<div class="btn-group" role="group">
-														<button class="btn btn-warning" onclick="quick_edit_document(this);return false;">
-															<i class="fa fa-edit"></i> Edit</button>
-														<button class="btn btn-danger" onclick="remove_document('${mode}',this);return false;">
-															<i class="fa fa-times"></i> Remove</button>
-													</div>
-												</td>
-											</tr>
-											<c:set var="index" value="${index + 1}"/>
-										</c:forEach>
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</c:forEach>
+	<div id="app">
+		<div id="${n}_config_bar">
+			<config-bar></config-bar>
+		</div>
+		<div id="${n}_preview">
+		
+		</div>
 	</div>
-
-
-	</br></br>
-	<portlet:renderURL var="formDoneAction" portletMode="VIEW" windowState="NORMAL"/>
-	<a type="button" href="${formDoneAction}" class="btn btn-default">Done</a>
 </div>
 
 <portlet:actionURL var="updateDocument">
@@ -252,33 +43,6 @@ div.col_content{
 <portlet:actionURL var="reorderDocs">
 	<portlet:param name="action" value="reorder" />
 </portlet:actionURL>
-
-<c:set var="doc_row">
-	<td>
-		<div class="btn-group" role="group">
-			<button onclick="up_document('%1$s',this);return false" class="btn btn-default"><i class="fa fa-arrow-up"></i></button>
-			<button onclick="down_document('%1$s',this);return false" class="btn btn-default"><i class="fa fa-arrow-down"></i></button>
-		</div>
-	</td>
-	<td>%3$s</td>
-	<td>%2$s</td>
-	<td>%4$s</td>
-	<td>
-		<select id="security_select_%1$s_%2$s" class="chosen-select-multi" multiple="" data-placeholder="Everyone" OnChange="sec_change('security_select_%1$s_%2$s','%1$s','%2$s');">
-			<c:forEach var="role" items="${securityRoles}">
-				<option value="${role}" data-title="${role}">${role}</option>
-			</c:forEach>
-		</select>
-	</td>
-	<td style="min-width: 180px;">
-		<div class="btn-group" role="group">
-			<button class="btn btn-warning" onclick="quick_edit_document(this);return false;">
-				<i class="fa fa-edit"></i> Edit</button>
-			<button class="btn btn-danger" onclick="remove_document('%1$s',this);return false;">
-				<i class="fa fa-times"></i> Remove</button>
-		</div>
-	</td>
-</c:set>
 
 <SCRIPT LANGUAGE="javascript">
 
@@ -508,8 +272,14 @@ function populate_pages(data, textStatus, jqXHR)
 	}
 	$("#"+CID).trigger("chosen:updated");
 }
-$(document).ready(function(){
-	OnChange("normal_source","normal_doc_select");
-	OnChange("maximized_source","maximized_doc_select");
+//$(document).ready(function(){
+//	OnChange("normal_source","normal_doc_select");
+//	OnChange("maximized_source","maximized_doc_select");
+//});
+var app = new Vue({
+  el: '#app',
+  data: {
+    message: 'Hello Vue!'
+  }
 });
 </SCRIPT>
