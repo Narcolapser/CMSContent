@@ -13,7 +13,7 @@
 	<packaging>war</packaging>
 	
 	<name>CMS Content</name>
-	<version>1.0.16</version>
+	<version>1.0.17</version>
 	<description>USD's portlet for displaying external CMS content.</description>
 	<url>https://bitbucket.org/usd/cms-content/</url>
 

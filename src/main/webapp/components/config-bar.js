@@ -5,6 +5,7 @@ Vue.component('config-bar', {
 			status: "collapse"
 		}
 	},
+	props: ['return_url'],
 	template: `<div>
 	<table style="width: 100%;">
 		<tr>
@@ -12,30 +13,22 @@ Vue.component('config-bar', {
 				Layout: 
 			</td>
 			<td>
-				<config-layout-selector selected="layouts/expanding"></config-layout-selector>
+				<config-layout-selector selected="layouts/expanding" v-on:layoutChanged="layoutChanged"></config-layout-selector>
 			</td>
 			<td>
 				Document Source:
 			</td>
 			<td>
-				<Select>
-					<option>Internal Document</option>
-					<option>Internal Form</option>
-					<option>Internal Report</option>
-				</select>
+				<config-document-source selected="Internal" v-on:sourceChanged="sourceChanged"></config-document-source>
 			</td>
 			<td>
 				Document:
 			</td>
 			<td>
-				<select>
-					<option>Doc 1</option>
-					<option>Doc 2</option>
-					<option>Doc 3</option>
-				</select>
+				<config-document source="Internal"></config-document>
 			</td>
 			<td>
-				<a type="button" href="return_url" class="btn btn-default">Done</a>
+				<a type="button" :href="return_url" class="btn btn-default">Done</a>
 			</td>
 		</tr>
 	</table>
@@ -47,6 +40,14 @@ Vue.component('config-bar', {
 	},
 	methods:
 	{
+		layoutChanged: function(layout)
+		{
+			console.log("Layout has changed: " + layout);
+		},
+		sourceChanged: function(source)
+		{
+			console.log("Source has changed: " + source);
+		}
 	}
 })
 

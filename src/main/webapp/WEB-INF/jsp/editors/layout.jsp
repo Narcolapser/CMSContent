@@ -12,6 +12,8 @@
 <!--<script src="https://vuejs.org/js/vue.min.js"></script>-->
 <script src="/CMSContent/components/config-bar.js"></script>
 <script src="/CMSContent/components/config-layout-selector.js"></script>
+<script src="/CMSContent/components/config-document-source.js"></script>
+<script src="/CMSContent/components/config-document.js"></script>
 
 <c:set var="n"><portlet:namespace/></c:set>
 <portlet:actionURL var="getPages" name="getPages"></portlet:actionURL>
@@ -20,7 +22,7 @@
 <div class="usdChannel" id="content-wrapper">
 	<div id="app">
 		<div id="${n}_config_bar">
-			<config-bar></config-bar>
+			<config-bar return_url="${config_done}"></config-bar>
 		</div>
 		<div id="${n}_preview">
 		

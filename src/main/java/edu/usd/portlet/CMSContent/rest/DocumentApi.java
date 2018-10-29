@@ -143,6 +143,7 @@ public final class DocumentApi {
 		{
 			JSONObject obj = new JSONObject();
 			obj.put("name",val.getDaoName());
+			obj.put("disp_name",val.getDisplayName());
 			obj.put("save",val.saveEnabled());
 			obj.put("delete",val.deleteEnabled());
 			obj.put("type",val.getSourceType());
