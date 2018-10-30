@@ -346,8 +346,7 @@ function save()
 		form_json.push(get_responder_config(row));
 
 	//get key terms:
-	var keyterms = "";
-
+	var keyterms = document.getElementById("doc_search").value;
 	data = JSON.stringify({"content":form_json,"id":get_doc_id(),'title':form_title,'source':'InternalForms','docType':'form','keyTerms':keyterms,'removed':false})
 	while (data.includes('  '))
 		data = data.replace('  ',' ');

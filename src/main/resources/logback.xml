@@ -90,7 +90,7 @@
    | Turn up logging for portlet specific package
    +-->
 
-  <logger name="edu.usd.portlet.cmscontent" additivity="false" level="DEBUG">
+  <logger name="edu.usd.portlet.cmscontent" additivity="false" level="INFO">
     <appender-ref ref="LOG" />
   </logger>
 
