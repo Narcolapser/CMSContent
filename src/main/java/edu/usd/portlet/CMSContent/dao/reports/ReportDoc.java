@@ -33,6 +33,8 @@ public class ReportDoc extends CMSDocument
 	private List<DatabaseResponse> responses;
 	
 	private String[] fields;
+	
+	private int rowCount;
 
 	public SwallowingJspRenderer getJspRenderer()
 	{
@@ -69,6 +71,8 @@ public class ReportDoc extends CMSDocument
 			Map<String,Object> model = new HashMap<String,Object>();
 			model.put("responses",this.responses);
 			model.put("fields",this.fields);
+			model.put("report",this.id);
+			model.put("rowCount",this.rowCount);
 			
 			if (this.attributes != null)
 				model.put("username",this.attributes.get("username"));
@@ -100,5 +104,15 @@ public class ReportDoc extends CMSDocument
 	public void setFields(String[] val)
 	{
 		this.fields = val;
+	}
+	
+	public int getRowCount()
+	{
+		return this.rowCount;
+	}
+	
+	public void setRowCount(int val)
+	{
+		this.rowCount = val;
 	}
 }

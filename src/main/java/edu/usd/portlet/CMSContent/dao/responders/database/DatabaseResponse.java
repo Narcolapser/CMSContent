@@ -124,6 +124,13 @@ public class DatabaseResponse
 				return answer.getAnswer();
 		return "";
 	}
+	public String json()
+	{
+		String ret = "{";
+		for (DatabaseAnswer ans:this.answers)
+		{
+			ret += "\"" + ans.getField()+"\":\""+ans.getAnswer()+"\",";
+		}
+		return ret.substring(0,ret.length()-1) + "}";
+	}
 }
-
-//{"formId":"testingtext","username":"Toben.Archer","Da label yo":"tetss","The drop down":"unselected","replyType":"Database","Submit":"Database"}

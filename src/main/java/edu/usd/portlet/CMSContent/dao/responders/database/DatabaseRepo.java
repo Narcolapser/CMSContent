@@ -1,5 +1,6 @@
 package edu.usd.portlet.cmscontent.dao;
 
+import java.lang.Math;
 import java.util.List;
 import java.util.ArrayList;
 import org.hibernate.Session;
@@ -57,5 +58,26 @@ public class DatabaseRepo
 		Query query = session.createQuery(hql);
 		List<DatabaseResponse> ret = query.list();
 		return ret;
+	}
+	
+	@Transactional(readOnly = true)
+	public List<DatabaseResponse> getResponsesPaged(String formId, int start, int end)
+	{
+		Session session = sessionFactory.openSession();
+		String hql = "FROM DatabaseResponse WHERE form = '" + formId + "'";
+		Query query = session.createQuery(hql);
+		query.setFirstResult(start);
+		query.setMaxResults(end);
+		List<DatabaseResponse> ret = query.list();
+		return ret;
+	}
+	
+	@Transactional(readOnly = true)
+	public int getResponseCount(String formId)
+	{
+		Session session = sessionFactory.openSession();
+		String hql = "SELECT Count(*) FROM DatabaseResponse WHERE form = '" + formId + "'";
+		Query query = session.createQuery(hql);
+		return Math.toIntExact((long)query.uniqueResult());
 	}
 }
