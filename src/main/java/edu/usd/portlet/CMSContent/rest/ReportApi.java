@@ -20,11 +20,13 @@ import org.json.JSONException;
 import org.json.JSONArray;
 
 import edu.usd.portlet.cmscontent.dao.FormDaoImpl;
+import edu.usd.portlet.cmscontent.dao.FormDoc;
 import edu.usd.portlet.cmscontent.dao.ReportDaoImpl;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSResponder;
 import edu.usd.portlet.cmscontent.dao.DatabaseResponse;
 import edu.usd.portlet.cmscontent.dao.DatabaseRepo;
+import edu.usd.portlet.cmscontent.dao.InternalDocumentDao;
 
 /**
  * This class provides a REST API for the CMS Reports 
@@ -46,6 +48,9 @@ public final class ReportApi {
 	
 	@Autowired
 	private DatabaseRepo databaseRepo;
+	
+	@Autowired
+	private InternalDocumentDao internalDocumentDao;
 
 	@RequestMapping("pagination")
 	public String pagination(
@@ -60,6 +65,27 @@ public final class ReportApi {
 		String ret = "[ ";
 		for(DatabaseResponse resp:responses)
 			ret += resp.json() + ",";
+		return ret.substring(0,ret.length()-1) + "]";
+	}
+
+	@RequestMapping("rows")
+	public String rows(
+		@RequestParam(value="report") String report
+		)
+	{
+		String ret = "{\"rowCount\":"+databaseRepo.getResponseCount(report)+"}";
+		return ret;
+	}
+
+	@RequestMapping("fields")
+	public String fields(
+		@RequestParam(value="report") String report
+		)
+	{
+		String[] fields = new FormDoc(this.internalDocumentDao.getDocumentById(report)).getFields();
+		String ret = "[ ";
+		for(String field:fields)
+			ret += "\"" + field + "\",";
 		return ret.substring(0,ret.length()-1) + "]";
 	}
 }

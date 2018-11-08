@@ -3,27 +3,31 @@ Vue.component('report-display', {
 		return {
 			start:0,
 			end:25,
-			loadAmount:25
+			loadAmount:25,
+			rows:0,
+			fields:[]
 		}
 	},
-	props: ["fields","report","rows","token"],
+	props: ["report","token"],
 	template: `<div>
 	<table id="reportTable" class="table table-striped">
 		<tr id="headerRow" style="background: #f9f9f9;border-top: 1px solid lightgray;">
 		</tr>
 	</table>
 	<div style="text-align:center;">
-		<button class="btn btn-default" id="loadButton" v-on:click="loadMore()">Load more</button>
+		<button class="btn btn-default" id="loadButton" v-on:click="loadRows()">Load more</button>
 	</div>
 </div>
 	`,
 	mounted: function() {
-			this.end = this.rows;
-			this.start = this.rows - this.loadAmount;
-			console.log(this.token);
-			if (this.start < 0)
-				this.start = 0;
-			var f = this.fields;
+		var report = this.report;
+		self = this;
+		var request = new XMLHttpRequest();
+		request.open('GET','/CMSContent/v2/report/fields?report='+report,true);
+		request.onload = function()
+		{
+			var f = JSON.parse(request.responseText);
+			self.fields = f;
 			var row = document.getElementById("headerRow");
 			for(i = 0; i < f.length; i++)
 			{
@@ -35,16 +39,14 @@ Vue.component('report-display', {
 				cell.setAttribute("style","padding: 8px;");
 				cell.title = f[i];
 			}
-			this.loadRows();
+			self.getRows();
+		}
+		request.send();
 	},
 	updated: function() {
 	},
 	methods:
 	{
-		loadMore()
-		{
-			this.loadRows();
-		},
 		loadRows()
 		{
 			var report = this.report;
@@ -85,6 +87,25 @@ Vue.component('report-display', {
 				if (this.start < 0)
 					this.start = 0;
 			}
-		}
+		},
+		getRows()
+		{
+			var request = new XMLHttpRequest();
+			var report = this.report;
+			var self = this;
+			request.open('GET','/CMSContent/v2/report/rows?report='+report,true);
+			request.onload = function()
+			{
+				var response = JSON.parse(request.responseText);
+				this.rows = response['rowCount'];
+				this.end = this.rows;
+				this.start = this.rows - this.loadAmount;
+				console.log(this.token);
+				if (this.start < 0)
+					this.start = 0;
+				self.loadRows();
+			}
+			request.send();
+		},
 	}
 })

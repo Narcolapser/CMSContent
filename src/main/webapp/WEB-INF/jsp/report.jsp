@@ -7,17 +7,13 @@
 <script src="/CMSContent/components/report-display.js"></script>
 
 	<div id="app">
-		<report-display :fields="fields" report="${report}" rows="${rowCount}" token="${token.hash}">
+		<report-display report="${report}" token="${token.hash}">
 		</report-display>
 	</div>
 
 <script>
 var app = new Vue({
 	el: '#app',
-	data:
-	{
-		fields: [<c:forEach var="field" items="${fields}">"${fn:replace(field,'\"','\\\"')}",</c:forEach>]
-	}
 });
 </SCRIPT>
 
