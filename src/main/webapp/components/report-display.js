@@ -13,7 +13,7 @@ Vue.component('report-display', {
 		</tr>
 	</table>
 	<div style="text-align:center;">
-		<button id="loadButton" v-on:click="loadMore()">Load more</button>
+		<button class="btn btn-default" id="loadButton" v-on:click="loadMore()">Load more</button>
 	</div>
 </div>
 	`,
@@ -28,9 +28,10 @@ Vue.component('report-display', {
 			{
 				var cell = row.insertCell();
 				var snippet = f[i];
-				if (snippet.length > 20);
+				if (snippet.length > 20)
 					snippet = snippet.substring(0,20) + "...";
-				cell.innerHTML = snippet;
+				cell.innerHTML = "<strong>" + snippet + "</strong>";
+				cell.setAttribute("style","padding: 8px;");
 				cell.title = f[i];
 			}
 			this.loadRows();
@@ -49,7 +50,6 @@ Vue.component('report-display', {
 			var f = this.fields;
 			var request = new XMLHttpRequest();
 			request.open('GET','/CMSContent/v2/report/pagination?report='+report+"&start="+this.start+"&end="+this.end,true);
-			console.log('/CMSContent/v2/report/pagination?report='+report+"&start="+this.start+"&end="+this.end);
 			request.onload = function()
 			{
 				var responses = JSON.parse(request.responseText);
@@ -61,8 +61,9 @@ Vue.component('report-display', {
 					{
 						var cell = row.insertCell();
 						cell.innerHTML = responses[j][f[i]];
-						var rcount = table.getElementsByTagName("tr").length;
+						cell.setAttribute("style","padding: 8px;");
 					}
+					var rcount = table.getElementsByTagName("tr").length;
 					var style = "border-top: 1px solid lightgray;";
 					if(rcount%2 == 1)
 						style = "border-top: 1px solid lightgray;background: #f9f9f9;";
