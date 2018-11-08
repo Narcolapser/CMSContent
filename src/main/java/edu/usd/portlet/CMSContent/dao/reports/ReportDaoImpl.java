@@ -43,6 +43,9 @@ public class ReportDaoImpl implements CMSDocumentDao, DisposableBean
 
 	@Autowired
 	private DatabaseRepo databaseRepo;
+	
+	@Autowired
+	private TokenRepo tokenRepo;
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
@@ -53,9 +56,8 @@ public class ReportDaoImpl implements CMSDocumentDao, DisposableBean
 		try
 		{
 			doc = new ReportDoc(this.internalDocumentDao.getDocumentById(Id));
-			//List<DatabaseResponse> responses = databaseRepo.getResponses(Id);
-			//doc.setResponses(responses);
-			doc.setRowCount(databaseRepo.getResponseCount(Id));
+			//doc.setRowCount(databaseRepo.getResponseCount(Id));
+			doc.setToken(tokenRepo.getToken("reportApi"));
 			doc.setJspRenderer(jspRenderer);
 			doc.setFields(new FormDoc(this.internalDocumentDao.getDocumentById(Id)).getFields());
 		}

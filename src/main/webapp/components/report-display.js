@@ -6,7 +6,7 @@ Vue.component('report-display', {
 			loadAmount:25
 		}
 	},
-	props: ["fields","report","rows"],
+	props: ["fields","report","rows","token"],
 	template: `<div>
 	<table id="reportTable" class="table table-striped">
 		<tr id="headerRow" style="background: #f9f9f9;border-top: 1px solid lightgray;">
@@ -20,6 +20,7 @@ Vue.component('report-display', {
 	mounted: function() {
 			this.end = this.rows;
 			this.start = this.rows - this.loadAmount;
+			console.log(this.token);
 			if (this.start < 0)
 				this.start = 0;
 			var f = this.fields;

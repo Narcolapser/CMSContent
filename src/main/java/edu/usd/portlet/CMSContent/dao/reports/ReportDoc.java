@@ -34,7 +34,7 @@ public class ReportDoc extends CMSDocument
 	
 	private String[] fields;
 	
-	private int rowCount;
+	private Token token;
 
 	public SwallowingJspRenderer getJspRenderer()
 	{
@@ -72,7 +72,7 @@ public class ReportDoc extends CMSDocument
 			model.put("responses",this.responses);
 			model.put("fields",this.fields);
 			model.put("report",this.id);
-			model.put("rowCount",this.rowCount);
+			model.put("token",this.token);
 			
 			if (this.attributes != null)
 				model.put("username",this.attributes.get("username"));
@@ -105,14 +105,13 @@ public class ReportDoc extends CMSDocument
 	{
 		this.fields = val;
 	}
-	
-	public int getRowCount()
+	public Token getToken()
 	{
-		return this.rowCount;
+		return this.token;
 	}
 	
-	public void setRowCount(int val)
+	public void setToken(Token val)
 	{
-		this.rowCount = val;
+		this.token = val;
 	}
 }

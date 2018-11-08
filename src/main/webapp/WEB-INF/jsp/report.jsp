@@ -7,7 +7,7 @@
 <script src="/CMSContent/components/report-display.js"></script>
 
 	<div id="app">
-		<report-display :fields="fields" report="${report}" rows="${rowCount}">
+		<report-display :fields="fields" report="${report}" rows="${rowCount}" token="${token.hash}">
 		</report-display>
 	</div>
 
