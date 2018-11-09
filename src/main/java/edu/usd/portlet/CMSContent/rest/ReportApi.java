@@ -27,6 +27,7 @@ import edu.usd.portlet.cmscontent.dao.CMSResponder;
 import edu.usd.portlet.cmscontent.dao.DatabaseResponse;
 import edu.usd.portlet.cmscontent.dao.DatabaseRepo;
 import edu.usd.portlet.cmscontent.dao.InternalDocumentDao;
+import edu.usd.portlet.cmscontent.dao.TokenRepo;
 
 /**
  * This class provides a REST API for the CMS Reports 
@@ -51,6 +52,9 @@ public final class ReportApi {
 	
 	@Autowired
 	private InternalDocumentDao internalDocumentDao;
+	
+	@Autowired
+	private TokenRepo tokenRepo;
 
 	@RequestMapping("pagination")
 	public String pagination(
@@ -62,13 +66,19 @@ public final class ReportApi {
 	{
 		int iStart = Integer.parseInt(start);
 		int iEnd = Integer.parseInt(end);
-		logger.debug("Start: " + iStart + " End: " + iEnd);
-		List<DatabaseResponse> responses = databaseRepo.getResponsesPaged(report,iStart,iEnd);
-		logger.debug("Number of responses: " + responses.size());
-		String ret = "[ ";
-		for(DatabaseResponse resp:responses)
-			ret += resp.json() + ",";
-		return ret.substring(0,ret.length()-1) + "]";
+		logger.debug("Token: " + token);
+		if(tokenRepo.validateToken(token,report))
+		{
+			logger.debug("End token");
+			List<DatabaseResponse> responses = databaseRepo.getResponsesPaged(report,iStart,iEnd);
+			logger.debug("Number of responses: " + responses.size());
+			String ret = "[ ";
+			for(DatabaseResponse resp:responses)
+				ret += resp.json() + ",";
+			return ret.substring(0,ret.length()-1) + "]";
+		}
+		else
+			return "{\"result\":\"failure\",\"reason\":\"Invalid token\"}";
 	}
 
 	@RequestMapping("rows")

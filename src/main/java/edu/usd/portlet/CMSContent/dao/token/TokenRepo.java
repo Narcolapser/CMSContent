@@ -34,26 +34,46 @@ public class TokenRepo
 	}
 	
 	@Transactional(readOnly = false)
-	public Token getToken(String username)
+	public Token getToken(String permissions)
 	{
 		Session session = sessionFactory.openSession();
 		Token token = new Token();
 		token.setTime(System.currentTimeMillis() + 3600000);
-		token.setHash(username + System.currentTimeMillis());
+		token.setHash(getHash());
+		token.setPermissions(permissions);
 		session.saveOrUpdate(token);
 		session.flush();
-		logger.debug("Inserted a new token.============================================================");
 		return token;
 	}
 	
 	@Transactional(readOnly = true)
-	public boolean validateToken(String token_hash)
+	public boolean validateToken(String token_hash, String item)
 	{
 		Session session = sessionFactory.openSession();
-		String hql = "SELECT token_time FROM Token WHERE token_hash = '" + token_hash + "'";
-		Query query = session.createQuery(hql);
-		long token_time = (long)query.uniqueResult();
-		logger.info("token time is: " + token_time);
-		return token_time > System.currentTimeMillis();
+		String hql = "FROM Token WHERE token_hash = '" + token_hash + "'";
+		try
+		{
+			Query query = session.createQuery(hql);
+			//long token_time = (long)query.uniqueResult();
+			Token token = (Token)query.uniqueResult();
+			boolean valid = true;
+			valid &= token.getTime() > System.currentTimeMillis();
+			valid &= token.getPermissions().contains(item);
+			return token.getTime() > System.currentTimeMillis();
+		}
+		catch(NullPointerException e)
+		{
+			return false;
+		}
+		catch(Exception e)
+		{
+			logger.error(e);
+			return false;
+		}
+	}
+	
+	public static String getHash()
+	{
+		return "reportApi" + System.currentTimeMillis();
 	}
 }

@@ -38,6 +38,9 @@ public class Token
 	@Column(name = "token_time")
 	protected long time;
 	
+	@Column(name = "token_permissions")
+	protected String permissions;
+	
 	public String getHash()
 	{
 		return this.hash;
@@ -56,5 +59,15 @@ public class Token
 	public void setTime(long val)
 	{
 		this.time = val;
+	}
+	
+	public String getPermissions()
+	{
+		return this.permissions;
+	}
+	
+	public void setPermissions(String val)
+	{
+		this.permissions = val;
 	}
 }

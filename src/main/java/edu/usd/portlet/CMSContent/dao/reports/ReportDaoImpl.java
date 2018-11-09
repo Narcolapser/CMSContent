@@ -56,8 +56,7 @@ public class ReportDaoImpl implements CMSDocumentDao, DisposableBean
 		try
 		{
 			doc = new ReportDoc(this.internalDocumentDao.getDocumentById(Id));
-			//doc.setRowCount(databaseRepo.getResponseCount(Id));
-			doc.setToken(tokenRepo.getToken("reportApi"));
+			doc.setToken(tokenRepo.getToken(Id));
 			doc.setJspRenderer(jspRenderer);
 			doc.setFields(new FormDoc(this.internalDocumentDao.getDocumentById(Id)).getFields());
 		}

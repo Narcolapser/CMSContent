@@ -20,7 +20,6 @@ Vue.component('report-display', {
 </div>
 	`,
 	mounted: function() {
-		console.log(this.token);
 		var report = this.report;
 		self = this;
 		var request = new XMLHttpRequest();
@@ -55,26 +54,32 @@ Vue.component('report-display', {
 			var token = this.token
 			var request = new XMLHttpRequest();
 			request.open('GET','/CMSContent/v2/report/pagination?report='+report+"&start="+this.start+"&end="+this.end+"&token="+token,true);
-			console.log('/CMSContent/v2/report/pagination?report='+report+"&start="+this.start+"&end="+this.end+"&token="+token);
 			request.onload = function()
 			{
-				console.log(request.responseText);
 				var responses = JSON.parse(request.responseText);
-				var table = document.getElementById("reportTable");
-				for(j = responses.length - 1; j >= 0; j--)
+				if ("reason" in responses)
 				{
-					var row = table.insertRow();
-					for(i = 0; i < f.length; i++)
+					if(responses['reason'] == 'Invalid token')
+						alert("Error fetching more rows. Refresh page and try again.");
+				}
+				else
+				{
+					var table = document.getElementById("reportTable");
+					for(j = responses.length - 1; j >= 0; j--)
 					{
-						var cell = row.insertCell();
-						cell.innerHTML = responses[j][f[i]];
-						cell.setAttribute("style","padding: 8px;");
+						var row = table.insertRow();
+						for(i = 0; i < f.length; i++)
+						{
+							var cell = row.insertCell();
+							cell.innerHTML = responses[j][f[i]];
+							cell.setAttribute("style","padding: 8px;");
+						}
+						var rcount = table.getElementsByTagName("tr").length;
+						var style = "border-top: 1px solid lightgray;";
+						if(rcount%2 == 1)
+							style = "border-top: 1px solid lightgray;background: #f9f9f9;";
+						row.setAttribute("style",style);
 					}
-					var rcount = table.getElementsByTagName("tr").length;
-					var style = "border-top: 1px solid lightgray;";
-					if(rcount%2 == 1)
-						style = "border-top: 1px solid lightgray;background: #f9f9f9;";
-					row.setAttribute("style",style);
 				}
 			}
 			request.send();
