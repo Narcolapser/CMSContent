@@ -112,6 +112,9 @@ public class DatabaseResponse
 	public List<String> getFields()
 	{
 		List<String> ret = new ArrayList<>();
+		ret.add("Response Number");
+		ret.add("Date Time");
+		ret.add("Username");
 		for(DatabaseAnswer answer:answers)
 			if(!ret.contains(answer.getField()))
 				ret.add(answer.getField());
@@ -129,8 +132,12 @@ public class DatabaseResponse
 		String ret = "{";
 		for (DatabaseAnswer ans:this.answers)
 		{
-			ret += "\"" + ans.getField()+"\":\""+ans.getAnswer()+"\",";
+			ret += "\"" + ans.getField().replace("\"","\\\"")+"\":\""+ans.getAnswer().replace("\"","\\\"")+"\",";
 		}
+		ret += "\"Response Number\":\""+this.id+"\",";
+		ret += "\"Date Time\":\""+this.responseTime.replace("\"","\\\"")+"\",";
+		ret += "\"Username\":\""+this.username.replace("\"","\\\"")+"\",";
+		ret = ret.replace("\t","");
 		return ret.substring(0,ret.length()-1) + "}";
 	}
 }

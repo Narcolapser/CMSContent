@@ -55,13 +55,16 @@ public final class ReportApi {
 	@RequestMapping("pagination")
 	public String pagination(
 		@RequestParam(value="start", defaultValue = "0") String start,
-		@RequestParam(value="end", defaultValue = "5") String end,
-		@RequestParam(value="report") String report
+		@RequestParam(value="end", defaultValue = "25") String end,
+		@RequestParam(value="report") String report,
+		@RequestParam(value="token") String token
 		)
 	{
 		int iStart = Integer.parseInt(start);
 		int iEnd = Integer.parseInt(end);
+		logger.debug("Start: " + iStart + " End: " + iEnd);
 		List<DatabaseResponse> responses = databaseRepo.getResponsesPaged(report,iStart,iEnd);
+		logger.debug("Number of responses: " + responses.size());
 		String ret = "[ ";
 		for(DatabaseResponse resp:responses)
 			ret += resp.json() + ",";
@@ -83,9 +86,10 @@ public final class ReportApi {
 		)
 	{
 		String[] fields = new FormDoc(this.internalDocumentDao.getDocumentById(report)).getFields();
-		String ret = "[ ";
+		String ret = "[\"Response Number\",\"Username\",\"Date Time\",";
 		for(String field:fields)
 			ret += "\"" + field + "\",";
+		
 		return ret.substring(0,ret.length()-1) + "]";
 	}
 }

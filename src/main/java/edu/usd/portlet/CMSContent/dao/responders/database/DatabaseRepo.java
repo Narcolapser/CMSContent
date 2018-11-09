@@ -67,7 +67,7 @@ public class DatabaseRepo
 		String hql = "FROM DatabaseResponse WHERE form = '" + formId + "'";
 		Query query = session.createQuery(hql);
 		query.setFirstResult(start);
-		query.setMaxResults(end);
+		query.setMaxResults(end-start);
 		List<DatabaseResponse> ret = query.list();
 		return ret;
 	}

@@ -20,6 +20,7 @@ Vue.component('report-display', {
 </div>
 	`,
 	mounted: function() {
+		console.log(this.token);
 		var report = this.report;
 		self = this;
 		var request = new XMLHttpRequest();
@@ -51,10 +52,13 @@ Vue.component('report-display', {
 		{
 			var report = this.report;
 			var f = this.fields;
+			var token = this.token
 			var request = new XMLHttpRequest();
-			request.open('GET','/CMSContent/v2/report/pagination?report='+report+"&start="+this.start+"&end="+this.end,true);
+			request.open('GET','/CMSContent/v2/report/pagination?report='+report+"&start="+this.start+"&end="+this.end+"&token="+token,true);
+			console.log('/CMSContent/v2/report/pagination?report='+report+"&start="+this.start+"&end="+this.end+"&token="+token);
 			request.onload = function()
 			{
+				console.log(request.responseText);
 				var responses = JSON.parse(request.responseText);
 				var table = document.getElementById("reportTable");
 				for(j = responses.length - 1; j >= 0; j--)
@@ -97,12 +101,11 @@ Vue.component('report-display', {
 			request.onload = function()
 			{
 				var response = JSON.parse(request.responseText);
-				this.rows = response['rowCount'];
-				this.end = this.rows;
-				this.start = this.rows - this.loadAmount;
-				console.log(this.token);
-				if (this.start < 0)
-					this.start = 0;
+				self.rows = response['rowCount'];
+				self.end = self.rows;
+				self.start = self.rows - self.loadAmount;
+				if (self.start < 0)
+					self.start = 0;
 				self.loadRows();
 			}
 			request.send();
