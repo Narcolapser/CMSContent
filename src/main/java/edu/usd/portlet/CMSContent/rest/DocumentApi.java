@@ -94,11 +94,11 @@ public final class DocumentApi {
 		)
 	{
 		logger.debug("Recieved request to update document: " + json);
-		CMSDocument doc = new CMSDocument(json);
-		CMSDocumentDao dbo = getDbo(doc.getSource());
-		logger.debug(doc);
 		try
 		{
+			CMSDocument doc = new CMSDocument(json);
+			CMSDocumentDao dbo = getDbo(doc.getSource());
+			logger.debug(doc);
 			dbo.saveDocument(doc);
 			logger.debug("Save succesful");
 			return "{\"result\":\"success\"}";

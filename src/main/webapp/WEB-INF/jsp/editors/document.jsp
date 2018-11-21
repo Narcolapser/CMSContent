@@ -213,31 +213,35 @@ function update()
 function save()
 {
 	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
-	var doc_title = document.getElementById("doc_title").value;
-	var doc_source = document.getElementById("doc_source").value;
-	var doc_search = document.getElementById("doc_search").value;
-	var doc_id = getNodePath(node);
+	var path = getNodePath(node);
 	if(node.data['type'] == "folder")
-		if(doc_id.length == 0)
-			doc_id = node.text;
+		if(path.length == 0)
+			path = node.text;
 		else
-			doc_id += "/" + node.text;
+			path += "/" + node.text;
 
-	if(doc_id.length == 0)
-		doc_id = document.getElementById("doc_id").value;
+	var id = path;
+	if(id.length == 0)
+		id = document.getElementById("doc_id").value;
 	else
-		doc_id += "/" + document.getElementById("doc_id").value;
-	console.log(doc_id);
+		id += "/" + document.getElementById("doc_id").value;
+	console.log(id);
 	
+	var doc = {
+		id: id,
+		path: path,
+		title: document.getElementById("doc_title").value,
+		source: document.getElementById("doc_source").value,
+		docType: "html",
+		content: CKEDITOR.instances["${n}content"].getData(),
+		keyTerms: document.getElementById("doc_search").value,
+		removed: false
+		};//work now. Hey now.
 	
 	${n}.jQuery.ajax({dataType:"json",
 		type: "POST",
-		url:"/CMSContent/v1/api/saveDoc.json",
-		data:{"content":CKEDITOR.instances["${n}content"].getData(),
-			"doc_id":doc_id,
-			"doc_title":doc_title,
-			"doc_source":doc_source,
-			"doc_search":doc_search},
+		url:"/CMSContent/v2/document/save",
+		data:{"document":JSON.stringify(doc)},
 		success:doc_saved});
 }
 function doc_saved(data, textStatus, jqXHR)
@@ -327,7 +331,7 @@ function populate_documents(data, textStatus, jqXHR)
 	var paths = [];
 	for( i = 0; i < data["pages"].length; i++ )
 	{
-		var val = data["pages"][i]['id'];
+		var val = data["pages"][i]['path'];
 		if(val.charAt(0) == '/')
 			val = val.substring(1);
 		paths.push(val);

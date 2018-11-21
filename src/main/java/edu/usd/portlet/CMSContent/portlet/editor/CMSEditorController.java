@@ -106,25 +106,4 @@ public class CMSEditorController {
 
 		return new ModelAndView("editors/document",refData);
 	}
-	
-	//Quasi AJAX request. This method saves a document.
-	@RequestMapping(params = {"action=Update"})
-	public void updatePage(ActionRequest request, ActionResponse response,
-		@RequestParam(value = "content", required = true) String content,
-		@RequestParam(value = "doc_id", required = true) String id,
-		@RequestParam(value = "doc_title", required = true) String title,
-		@RequestParam(value = "doc_source", required = false) String source)
-	{
-		//create the document. Right now we can only work with HTML.
-		CMSDocument doc = new CMSDocument(title, id, source, "html", content);
-		
-		//get the datasource.
-		CMSDocumentDao dbo = dataSources.get(0);
-		for(CMSDocumentDao ds:dataSources)
-			if (ds.getDaoName() == source)
-				dbo = ds;
-				
-		//Save document to datasource.
-		dbo.saveDocument(doc);
-	}
 }
