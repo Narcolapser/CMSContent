@@ -42,19 +42,7 @@ div.col_content{
 
 <div class="usdChannel" id="content-wrapper">
 	<c:set var="mode" value="normal"/>
-	<c:set var="modes" value = "${['normal','maximized']}"/>
-	
-	<ul class="nav nav-tabs">
-		<c:forEach var="mode" items="${modes}">
-			<c:set var="classes"></c:set>
-			<c:if test="${mode eq 'normal'}">
-				<c:set var="classes">class="active"</c:set>
-			</c:if>
-			<li ${classes}>
-				<a href="#cms-${mode}" data-toggle="tab">${mode}</a>
-			</li>
-		</c:forEach>
-	</ul>
+	<c:set var="modes" value = "${['normal']}"/>
 
 	<div class="tab-content">
 		<c:forEach var="mode" items="${modes}">
