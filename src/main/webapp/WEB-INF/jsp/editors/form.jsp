@@ -252,8 +252,7 @@ function load()
 	var source_id = source_selector.options[source_index].value;
 	
 	${n}.jQuery.ajax({dataType:"json",
-		url:"/CMSContent/v1/api/getDocument.json",
-		data:{"source":source_id,"id":doc_id},
+		url:"/CMSContent/v2/documents/"+source_id+"/"+doc_id,
 		success:update_content});
 }
 function update_content(data, textStatus, jqXHR)
@@ -439,11 +438,9 @@ function onSourceChange()
 	var source_id = source_selector.options[myindex].value;
 	console.log("Changing source to: " + source_id + " can save: " + source_selector.options[myindex].getAttribute("data-saveEnabled"));
 
-	var index = "doc_tree";
 	${n}.jQuery("#doc_source").trigger("chosen:updated");
 	${n}.jQuery.ajax({dataType:"json",
-		url:"/CMSContent/v1/api/getPagesWithIndex.json",
-		data:{"source":source_id,"index":index},
+		url:"/CMSContent/v2/documents/"+source_id,
 		success:populate_documents});
 	
 	if(source_selector.options[myindex].getAttribute("data-saveEnabled") == 'true')
@@ -601,8 +598,7 @@ $(document).ready(function(){
 	ret_button.href=document.referrer;
 	<c:if test="${not empty parameters.get('doc')[0]}">
 	${n}.jQuery.ajax({dataType:"json",
-		url:"/CMSContent/v1/api/getDocument.json",
-		data:{"source":"InternalForms","id":"${parameters.get('doc')[0]}"},
+		url:"/CMSContent/v2/documents/InternalForms/${parameters.get('doc')[0]}",
 		success:update_content});
 	</c:if>
 });

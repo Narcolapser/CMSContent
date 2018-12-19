@@ -147,7 +147,7 @@ div.col_content{
 											<i class="fa fa-link"></i> Add to Layout</button>
 									</div>
 									<label for="${mode}_source">Document Source</label>
-									<select id="${mode}_source" class="form-control" OnChange="OnChange('${mode}_source','${mode}_doc_select');">
+									<select id="${mode}_source" class="form-control" OnChange="OnChange();">
 										<c:forEach var="source" items="${sources}">
 											<c:set var="selected"></c:set>
 											<c:if test="${source.getDaoName() eq 'Internal'}"><c:set var="selected">selected="selected"</c:set></c:if>
@@ -477,39 +477,37 @@ function viewChange(mode)
 	
 }
 
-function OnChange(sources_id,doc_selector_id)
+function OnChange()
 {
-	var sources = document.getElementById(sources_id);
-	var pages = document.getElementById(doc_selector_id);
+	var sources = document.getElementById("normal_source");
+	var pages = document.getElementById("normal_doc_select");
 	var myindex = sources.selectedIndex;
 	var SelValue = sources.options[myindex].value;
 	pages.options.length=0;
 	pages.options[0] = new Option("Loading...","");
 	$.ajax({dataType:"json",
-		url:"/CMSContent/v1/api/getPagesWithIndex.json",
-		data:{"source":SelValue,"index":doc_selector_id},
+		url:"/CMSContent/v2/documents/"+SelValue,
 		success:populate_pages});
 }
 
 function populate_pages(data, textStatus, jqXHR)
 {
-	CID = data["index"]
-	var pages = document.getElementById(CID);
+	var pages = document.getElementById("normal_doc_select");
 
 	pages.options.length=0;
-	for (i = 0; i < data["pages"].length; i++)
+	for (i = 0; i < data.length; i++)
 	{
 		pages.options[i] = new Option(
-			"Title: " + data["pages"][i]["title"] + 
-			", Full Id: " + data["pages"][i]["id"],
-			data["pages"][i]["id"]);
-		pages.options[i].setAttribute("data-type",data["pages"][i]["docType"]);
-		pages.options[i].setAttribute("data-title",data["pages"][i]["title"]);
+			"Title: " + data[i]["title"] + 
+			", Full Id: " + data[i]["id"],
+			data[i]["id"]);
+		pages.options[i].setAttribute("data-type",data[i]["docType"]);
+		pages.options[i].setAttribute("data-title",data[i]["title"]);
 	}
-	$("#"+CID).trigger("chosen:updated");
+	$("#normal_doc_select").trigger("chosen:updated");
 }
 $(document).ready(function(){
-	OnChange("normal_source","normal_doc_select");
-	OnChange("maximized_source","maximized_doc_select");
+	OnChange();
+	OnChange();
 });
 </SCRIPT>
