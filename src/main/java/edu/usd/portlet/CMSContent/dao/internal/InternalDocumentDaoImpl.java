@@ -52,7 +52,7 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 		
 		//First create and execute a query that selects only the interesting columns.
 		Session session = sessionFactory.openSession();
-		String hql = "SELECT id, title, keyTerms, docType, source FROM CMSDocument WHERE removed = 0 and docType = '"+docType+"'";
+		String hql = "SELECT id, title, keyTerms, docType, source, path FROM CMSDocument WHERE removed = 0 and docType = '"+docType+"'";
 		Query query = session.createQuery(hql);
 		
 		//Next prepare the datastructures we will need to deal with the results.
@@ -69,6 +69,7 @@ public class InternalDocumentDaoImpl implements InternalDocumentDao
 			doc.setKeyTerms((String)obj[2]);
 			doc.setDocType((String)obj[3]);
 			doc.setSource((String)obj[4]);
+			doc.setPath((String)obj[5]);
 			
 			//Finally set the other fields to defaults so that we have no null value issues. Since
 			//our where clause exclused removed documents, we can assume the value of removed to be

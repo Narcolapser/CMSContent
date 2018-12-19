@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMethod;
 import javax.xml.bind.annotation.XmlElement;
@@ -33,7 +34,7 @@ import edu.usd.portlet.cmscontent.dao.CMSResponder;
  * @author Toben Archer (Toben.Archer@usd.edu)
  */
 @RestController
-@RequestMapping("/v2/document")
+@RequestMapping("/v2/documents")
 public final class DocumentApi {
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
@@ -53,10 +54,10 @@ public final class DocumentApi {
 		return dbo;
 	}
 
-	@RequestMapping("get")
+	@RequestMapping(value="/{source}/{id}", method=RequestMethod.GET)
 	public String getDocument(
-		@RequestParam(value="source", defaultValue = "Internal") String source,
-		@RequestParam(value="id", defaultValue = "") String id
+		@PathVariable(value="source") String source,
+		@PathVariable(value="id") String id
 		)
 	{
 		logger.debug("Recieved request to get a document from: " + source + " with path: " + id);
@@ -75,8 +76,8 @@ public final class DocumentApi {
 		}
 	}
 	
-	@RequestMapping("list")
-	public List<CMSDocument> listDocuments(@RequestParam(value="source", defaultValue = "Internal") String source)
+	@RequestMapping(value="/{source}")
+	public List<CMSDocument> listDocuments(@PathVariable(value="source") String source)
 	{
 		logger.debug("Recieved request to list documents for: " + source);
 
@@ -88,7 +89,7 @@ public final class DocumentApi {
 	}
 	
 	
-	@RequestMapping("save")
+	@RequestMapping(value="save")
 	public String saveDocument(
 		@RequestParam(value="document", defaultValue = "") String json
 		)
@@ -111,7 +112,7 @@ public final class DocumentApi {
 	}
 
 
-	@RequestMapping("delete")
+	@RequestMapping(value="delete")
 	public String deleteDoc(
 		@RequestParam(value="source", defaultValue = "Internal") String source,
 		@RequestParam(value="id", defaultValue = "") String id
@@ -126,7 +127,7 @@ public final class DocumentApi {
 		return "{\"result\":\"success\"}";
 	}
 	
-	@RequestMapping("sources")
+	@RequestMapping(value="/sources")
 	public String getSources()
 	{
 		String ret = "[";

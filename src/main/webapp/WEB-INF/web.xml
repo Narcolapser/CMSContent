@@ -90,7 +90,7 @@
 
 	<servlet-mapping>
 		<servlet-name>document</servlet-name>
-		<url-pattern>/v2/document/*</url-pattern>
+		<url-pattern>/v2/documents/*</url-pattern>
 	</servlet-mapping>
 
 	<servlet>

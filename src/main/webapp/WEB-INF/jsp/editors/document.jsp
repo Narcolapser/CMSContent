@@ -71,7 +71,7 @@
 		</div>
 		<div class="form-group">
 			<label for="doc_id">Document Name/ID:</label>
-			<input id="doc_id" type="text" class="form-control" name="doc_id">
+			<input id="doc_id" type="text" class="form-control" name="doc_id" disabled="disabled">
 		</div>
 		<div class="form-group">
 			<label for="doc_search">Search Terms:</label>
@@ -168,17 +168,9 @@ function OnChange()
 }
 function load()
 {
-	//var selector = document.getElementById("docselector");
-	//var myindex = selector.selectedIndex;
-	//var doc_id = selector.options[myindex].value;
-	
 	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
-	var doc_id = getNodePath(node);
-	if(doc_id.length == 0)
-		doc_id = node.text;
-	else
-		doc_id += "/" + node.text;
-	console.log(doc_id);
+	var doc_id = node.id;
+	console.log(node);
 	setText("<p>Loading...</p>");
 	
 	var source_selector = document.getElementById("doc_source");
@@ -186,25 +178,22 @@ function load()
 	var source_id = source_selector.options[source_index].value;
 	
 	${n}.jQuery.ajax({dataType:"json",
-		url:"/CMSContent/v1/api/getDocument.json",
-		data:{"source":source_id,"id":doc_id},
+		url:"/CMSContent/v2/documents/"+source_id+"/"+doc_id,
 		success:update_text});
 }
 function update_text(data, textStatus, jqXHR)
 {
-	setText(data.doc.content);
+	console.log(data);
+	setText(data.content);
 	var doc_title = document.getElementById("doc_title");
 	var doc_id = document.getElementById("doc_id");
 	var doc_source = document.getElementById("doc_source");
 	var doc_search = document.getElementById("doc_search");
-	doc_title.value=data.doc.title;
+	doc_title.value=data.title;
 	var idsplit = data.doc.id.split('/');
-	var filename = idsplit[idsplit.length-1];
-	if (filename.substring(filename.length-4) == '.cfm')
-		filename = filename.substring(0,filename.length-4);
-	doc_id.value=filename;
-	doc_source.value=data.doc.source;
-	doc_search.value=data.doc.keyTerms;
+	doc_id.value=data.id;
+	doc_source.value=data.source;
+	doc_search.value=data.keyTerms;
 }
 function update()
 {
@@ -288,11 +277,9 @@ function onSourceChange()
 	var source_id = source_selector.options[myindex].value;
 	console.log("Changing source to: " + source_id + " can save: " + source_selector.options[myindex].getAttribute("data-saveEnabled"));
 
-	var index = "doc_tree";
 	${n}.jQuery("#doc_source").trigger("chosen:updated");
 	${n}.jQuery.ajax({dataType:"json",
-		url:"/CMSContent/v1/api/getPagesWithIndex.json",
-		data:{"source":source_id,"index":index},
+		url:"/CMSContent/v2/documents/"+source_id,
 		success:populate_documents});
 	
 	if(source_selector.options[myindex].getAttribute("data-saveEnabled") == 'true')
@@ -324,17 +311,22 @@ function onSourceChange()
 
 function populate_documents(data, textStatus, jqXHR)
 {
-	CID = data["index"]
 	${n}.jQuery('#doc_tree').jstree("destroy").empty();
-	var doc_tree = document.getElementById(CID);
+	var doc_tree = document.getElementById("doc_tree");
 	var nodes = [];
 	var paths = [];
-	for( i = 0; i < data["pages"].length; i++ )
+	for( i = 0; i < data.length; i++ )
 	{
-		var val = data["pages"][i]['path'];
-		if(val.charAt(0) == '/')
-			val = val.substring(1);
-		paths.push(val);
+		var val = data[i]['path'];
+		if (val == null)
+		{
+			console.log(data[i]);
+			val = '';
+		}
+		else
+			if(val.charAt(0) == '/')
+				val = val.substring(1);
+		paths.push({'path':val,'title':data[i]['title'],'id':data[i]['id']});
 	}
 	
 	var source_selector = document.getElementById("doc_source");
@@ -355,7 +347,12 @@ function populate_documents(data, textStatus, jqXHR)
 		
 		var doc_id = document.getElementById("doc_id");
 		if(data.instance.get_node(data.selected[0]).data['type']=='document')
-			doc_id.value = data.instance.get_node(data.selected[0]).text;
+		{
+			console.log(data.instance.get_node(data.selected[0]));
+			doc_id.value = data.instance.get_node(data.selected[0]).id;
+		}
+		else
+			doc_id.value = "";
 	})
 	var to = false;
 	${n}.jQuery('#doc_tree_search').keyup(function () {
@@ -370,30 +367,38 @@ function populate_documents(data, textStatus, jqXHR)
 }
 function getNodes(val,name,parent)
 {
-	var keys = {}
-	var nodes = []
-	var files = []
+	var keys = {};
+	var nodes = [];
+	var files = [];
+	console.log("Getting nodes");
 	for(i = 0; i < val.length; i++)
 	{
-		var parts = val[i].split('/');
-		if (parts.length > 1)
+		console.log(val[i]);
+		try
 		{
-			if (parts[0] in keys)
+			var parts = val[i]['path'].split('/');
+			if (parts.length > 1)
 			{
-				keys[parts[0]].push(val[i].substring(val[i].indexOf('/')+1));
+				if (parts[0] in keys)
+				{
+					keys[parts[0]].push({'path':val[i]['path'].substring(val[i]['path'].indexOf('/')+1),
+						'id':val[i]['id'],'title':val[i]['title']});
+				}
+				else
+				{
+					keys[parts[0]] = [{'path':val[i]['path'].substring(val[i]['path'].indexOf('/')+1),
+						'id':val[i]['id'],'title':val[i]['title']}];
+				}
 			}
 			else
 			{
-				keys[parts[0]] = [val[i].substring(val[i].indexOf('/')+1)];
+				files.push({"text":val[i]['title'],
+							"icon":"fa fa-file",
+							"data":{"type":"document","path":parent+'/'+val[i]},"id":val[i]['id']});
 			}
 		}
-		else
-		{
-			//strip .cfm from files:
-			var filename = val[i];
-			if (filename.substring(filename.length-4) == '.cfm')
-				filename = filename.substring(0,filename.length-4);
-			files.push({"text":filename,"icon":"fa fa-file","data":{"type":"document","path":parent+'/'+val[i]},"id":parent+val[i]});
+		catch{
+			console.log(val[i]);
 		}
 	}
 	for(key in keys)
@@ -440,9 +445,18 @@ function newFolder()
 CKEDITOR.on("instanceReady", function(event)
 {
 	${n}.jQuery.ajax({dataType:"json",
-		url:"/CMSContent/v1/api/getDocument.json",
-		data:{"source":"${parameters.get('source')[0]}","id":"${parameters.get('doc')[0]}"},
+		url:"/CMSContent/v2/documents/${parameters.get('source')[0]}/${parameters.get('doc')[0]}",
 		success:update_text});
 });
 </c:if>
+
+// Setup the Vuew app.
+var app = new Vue({
+	el: '#app',
+	data: {
+		message: 'Hello Vue!'
+	}
+});
+
+
 </script>

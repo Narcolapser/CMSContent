@@ -221,6 +221,7 @@ public class CMSDocument
 			obj.put("content",this.content);
 			obj.put("keyTerms",this.keyTerms);
 			obj.put("removed",this.removed);
+			obj.put("docPath",this.path);
 			return obj.toString();
 		}
 		catch(JSONException e)
