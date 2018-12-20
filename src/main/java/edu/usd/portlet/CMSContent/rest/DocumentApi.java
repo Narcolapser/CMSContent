@@ -76,7 +76,7 @@ public final class DocumentApi {
 		}
 	}
 	
-	@RequestMapping(value="/{source}")
+	@RequestMapping(value="/{source}", method=RequestMethod.GET)
 	public List<CMSDocument> listDocuments(@PathVariable(value="source") String source)
 	{
 		logger.debug("Recieved request to list documents for: " + source);
@@ -89,8 +89,10 @@ public final class DocumentApi {
 	}
 	
 	
-	@RequestMapping(value="save")
+	@RequestMapping(value="/{source}/{id}", method=RequestMethod.POST)
 	public String saveDocument(
+		@PathVariable(value="source") String source,
+		@PathVariable(value="id") String id,
 		@RequestParam(value="document", defaultValue = "") String json
 		)
 	{
@@ -98,7 +100,8 @@ public final class DocumentApi {
 		try
 		{
 			CMSDocument doc = new CMSDocument(json);
-			CMSDocumentDao dbo = getDbo(doc.getSource());
+			doc.setId(id);
+			CMSDocumentDao dbo = getDbo(source);
 			logger.debug(doc);
 			dbo.saveDocument(doc);
 			logger.debug("Save succesful");
@@ -112,10 +115,10 @@ public final class DocumentApi {
 	}
 
 
-	@RequestMapping(value="delete")
+	@RequestMapping(value="/{source}/{id}", method=RequestMethod.DELETE)
 	public String deleteDoc(
-		@RequestParam(value="source", defaultValue = "Internal") String source,
-		@RequestParam(value="id", defaultValue = "") String id
+		@PathVariable(value="source") String source,
+		@PathVariable(value="id") String id
 		)
 	{
 		logger.debug("Recieved delete request for: " + id + " from: " + source);

@@ -240,12 +240,7 @@ function load()
 	//var doc_id = selector.options[myindex].value;
 	
 	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
-	var doc_id = getNodePath(node);
-	if(doc_id.length == 0)
-		doc_id = node.text;
-	else
-		doc_id += "/" + node.text;
-	console.log(doc_id);
+	var doc_id = node.id;
 	
 	var source_selector = document.getElementById("doc_source");
 	var source_index = source_selector.selectedIndex;
@@ -262,16 +257,16 @@ function update_content(data, textStatus, jqXHR)
 	var form_search = document.getElementById("doc_search");
 	var form_resp = document.getElementById("formResp");
 
-	form_title.value=data.doc.title;
-	var idsplit = data.doc.id.split('/');
+	form_title.value=data.title;
+	var idsplit = data.id.split('/');
 	var filename = idsplit[idsplit.length-1];
 	if (filename.substring(filename.length-4) == '.cfm')
 		filename = filename.substring(0,filename.length-4);
 	form_id.value=filename;
 
-	form_search.value=data.doc.keyTerms;
+	form_search.value=data.keyTerms;
 	
-	var form = JSON.parse(data.doc.content);
+	var form = JSON.parse(data.content);
 	//alert("Form: " + form);
 	var new_tbody = document.createElement('tbody');
 	var rtable = document.createElement('tbody');
@@ -344,37 +339,26 @@ function save()
 	for (var i=1,row; row = responder_table.rows[i]; i++)
 		form_json.push(get_responder_config(row));
 
+	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
+	var path = getNodePath(node);
+
 	//get key terms:
 	var keyterms = document.getElementById("doc_search").value;
-	data = JSON.stringify({"content":form_json,"id":get_doc_id(),'title':form_title,'source':'InternalForms','docType':'form','keyTerms':keyterms,'removed':false})
+	data = JSON.stringify({"content":form_json,"id":get_doc_id(),'title':form_title,
+							'source':'InternalForms','docType':'form',
+							'keyTerms':keyterms,'removed':false,'path':path})
 	while (data.includes('  '))
 		data = data.replace('  ',' ');
-		
-	$.ajax({dataType:"json",
-		url:"/CMSContent/v2/document/save.json",
+	
+	${n}.jQuery.ajax({dataType:"json",
+		type: "POST",
+		url:"/CMSContent/v2/documents/InternalForms/"+get_doc_id(),
 		data:{"document":data},
 		success:form_saved});
 }
 function get_doc_id()
 {
-	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
-	var doc_id = getNodePath(node);
-	if(node.data['type'] == "folder")
-		if(doc_id.length == 0)
-			doc_id = node.text;
-		else
-			doc_id += "/" + node.text;
-
-	if (doc_id == "InternalForms")
-		doc_id = "";
-
-	var path = doc_id;
-	if(doc_id.length == 0)
-		doc_id = document.getElementById("doc_id").value;
-	else
-		doc_id += "/" + document.getElementById("doc_id").value;
-	console.log(doc_id);
-	return doc_id;
+	return document.getElementById("doc_id").value;
 }
 function get_form_entry(row)
 {
@@ -406,29 +390,22 @@ function form_saved(data, textStatus, jqXHR)
 
 function delete_form()
 {
+	var doc_source = document.getElementById("doc_source").value;
 	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
-	var doc_id = getNodePath(node);
-	if(node.data['type'] == "folder")
-		if(doc_id.length == 0)
-			doc_id = node.text;
-		else
-			doc_id += "/" + node.text;
-
-	if(doc_id.length == 0)
-		doc_id = document.getElementById("doc_id").value;
-	else
-		doc_id += "/" + document.getElementById("doc_id").value;
-	console.log(doc_id);
-		
+	var doc_id = document.getElementById("doc_id").value;
+	
 	if(confirm('Are you sure you want to delete "'+doc_id+'"?'))
-		$.ajax({dataType:"json",
-			url:"/CMSContent/v2/document/delete",
-			data:{"source":"InternalForms","id":doc_id},
+		${n}.jQuery.ajax({dataType:"json",
+			type:"DELETE",
+			url:"/CMSContent/v2/documents/"+doc_source+"/"+doc_id,
 			success:form_deleted});
 }
+
 function form_deleted(data,textStatus, jqXHR)
 {
-	alert("form Deleted");
+	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
+	document.getElementById(node.id).style.display = 'none';
+	console.log("Deleted node");
 }
 
 function onSourceChange()
@@ -472,17 +449,22 @@ function onSourceChange()
 
 function populate_documents(data, textStatus, jqXHR)
 {
-	CID = data["index"]
 	${n}.jQuery('#doc_tree').jstree("destroy").empty();
-	var doc_tree = document.getElementById(CID);
+	var doc_tree = document.getElementById("doc_tree");
 	var nodes = [];
 	var paths = [];
-	for( i = 0; i < data["pages"].length; i++ )
+	for( i = 0; i < data.length; i++ )
 	{
-		var val = data["pages"][i]['id'];
-		if(val.charAt(0) == '/')
-			val = val.substring(1);
-		paths.push(val);
+		var val = data[i]['path'];
+		if (val == null)
+		{
+			console.log(data[i]);
+			val = '';
+		}
+		else
+			if(val.charAt(0) == '/')
+				val = val.substring(1);
+		paths.push({'path':val,'title':data[i]['title'],'id':data[i]['id']});
 	}
 	
 	var source_selector = document.getElementById("doc_source");
@@ -503,7 +485,12 @@ function populate_documents(data, textStatus, jqXHR)
 		
 		var doc_id = document.getElementById("doc_id");
 		if(data.instance.get_node(data.selected[0]).data['type']=='document')
-			doc_id.value = data.instance.get_node(data.selected[0]).text;
+		{
+			console.log(data.instance.get_node(data.selected[0]));
+			doc_id.value = data.instance.get_node(data.selected[0]).id;
+		}
+		else
+			doc_id.value = "";
 	})
 	var to = false;
 	${n}.jQuery('#doc_tree_search').keyup(function () {
@@ -514,35 +501,43 @@ function populate_documents(data, textStatus, jqXHR)
 			${n}.jQuery('#doc_tree').jstree(true).search(v);
 		}, 250);
 	});
-}
 
+}
 
 function getNodes(val,name,parent)
 {
-	var keys = {}
-	var nodes = []
-	var files = []
+	var keys = {};
+	var nodes = [];
+	var files = [];
+	console.log("Getting nodes");
 	for(i = 0; i < val.length; i++)
 	{
-		var parts = val[i].split('/');
-		if (parts.length > 1)
+		console.log(val[i]);
+		try
 		{
-			if (parts[0] in keys)
+			var parts = val[i]['path'].split('/');
+			if (parts.length > 1)
 			{
-				keys[parts[0]].push(val[i].substring(val[i].indexOf('/')+1));
+				if (parts[0] in keys)
+				{
+					keys[parts[0]].push({'path':val[i]['path'].substring(val[i]['path'].indexOf('/')+1),
+						'id':val[i]['id'],'title':val[i]['title']});
+				}
+				else
+				{
+					keys[parts[0]] = [{'path':val[i]['path'].substring(val[i]['path'].indexOf('/')+1),
+						'id':val[i]['id'],'title':val[i]['title']}];
+				}
 			}
 			else
 			{
-				keys[parts[0]] = [val[i].substring(val[i].indexOf('/')+1)];
+				files.push({"text":val[i]['title'],
+							"icon":"fa fa-file",
+							"data":{"type":"document","path":parent+'/'+val[i]},"id":val[i]['id']});
 			}
 		}
-		else
-		{
-			//strip .cfm from files:
-			var filename = val[i];
-			if (filename.substring(filename.length-4) == '.cfm')
-				filename = filename.substring(0,filename.length-4);
-			files.push({"text":filename,"icon":"fa fa-file","data":{"type":"document","path":parent+'/'+val[i]},"id":parent+val[i]});
+		catch{
+			console.log(val[i]);
 		}
 	}
 	for(key in keys)
@@ -558,6 +553,7 @@ function getNodes(val,name,parent)
 	}
 	return {"text":name,"children":nodes,"data":{"type":"folder"}};
 }
+
 function getNodePath(node)
 {
 	//var parents = data.instance.get_node(data.selected[i]).parents;

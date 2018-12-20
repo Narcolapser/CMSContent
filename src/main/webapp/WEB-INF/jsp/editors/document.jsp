@@ -190,7 +190,6 @@ function update_text(data, textStatus, jqXHR)
 	var doc_source = document.getElementById("doc_source");
 	var doc_search = document.getElementById("doc_search");
 	doc_title.value=data.title;
-	var idsplit = data.doc.id.split('/');
 	doc_id.value=data.id;
 	doc_source.value=data.source;
 	doc_search.value=data.keyTerms;
@@ -209,12 +208,8 @@ function save()
 		else
 			path += "/" + node.text;
 
-	var id = path;
-	if(id.length == 0)
-		id = document.getElementById("doc_id").value;
-	else
-		id += "/" + document.getElementById("doc_id").value;
-	console.log(id);
+	var id = document.getElementById("doc_id").value;
+
 	
 	var doc = {
 		id: id,
@@ -225,11 +220,11 @@ function save()
 		content: CKEDITOR.instances["${n}content"].getData(),
 		keyTerms: document.getElementById("doc_search").value,
 		removed: false
-		};//work now. Hey now.
+		};
 	
 	${n}.jQuery.ajax({dataType:"json",
 		type: "POST",
-		url:"/CMSContent/v2/document/save",
+		url:"/CMSContent/v2/documents/"+doc['source']+"/"+doc['id'],
 		data:{"document":JSON.stringify(doc)},
 		success:doc_saved});
 }
@@ -242,27 +237,15 @@ function delete_doc()
 {
 	var doc_source = document.getElementById("doc_source").value;
 	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
-	var doc_id = getNodePath(node);
-	if(node.data['type'] == "folder")
-		if(doc_id.length == 0)
-			doc_id = node.text;
-		else
-			doc_id += "/" + node.text;
-
-	if(doc_id.length == 0)
-		doc_id = document.getElementById("doc_id").value;
-	else
-		doc_id += "/" + document.getElementById("doc_id").value;
-	console.log(doc_id);
+	var doc_id = document.getElementById("doc_id").value;
 	
 	if(confirm('Are you sure you want to delete "'+doc_id+'"?'))
 		${n}.jQuery.ajax({dataType:"json",
-			url:"/CMSContent/v2/document/delete",
-			data:{"source":doc_source,"id":doc_id},
+			type:"DELETE",
+			url:"/CMSContent/v2/documents/"+doc_source+"/"+doc_id,
 			success:doc_deleted});
-
-
 }
+
 function doc_deleted(data,textStatus, jqXHR)
 {
 	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
@@ -365,6 +348,7 @@ function populate_documents(data, textStatus, jqXHR)
 	});
 
 }
+
 function getNodes(val,name,parent)
 {
 	var keys = {};
