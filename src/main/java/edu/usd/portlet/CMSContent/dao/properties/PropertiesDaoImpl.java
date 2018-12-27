@@ -65,7 +65,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 		//Iterate over the available layouts and grab the approparite class.
 		for(CMSLayout layout:layouts)
 		{
-			logger.debug("Comparing " + layout.getView() + " to " + view);
+			//logger.debug("Comparing " + layout.getView() + " to " + view);
 			if (layout.getView().equals(view))
 			{
 				//make a copy of that class so that we can get the benefits of polymorphism.
@@ -97,6 +97,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			csub.setSecurityGroups(Arrays.asList(groups));
 			
 			subscriptions.add(csub);
+			logger.info(csub);
 		}
 		logger.debug("Total subscriptions: " + subscriptions.size());
 		ret.setSubscriptions(subscriptions);
@@ -114,7 +115,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			}
 			catch (Exception e)
 			{
-				logger.debug("Error while trying to load property: " + prop + " Error: " + e);
+				//logger.debug("Error while trying to load property: " + prop + " Error: " + e);
 			}
 		}
 

@@ -68,7 +68,7 @@
 
 	<servlet-mapping>
 		<servlet-name>form</servlet-name>
-		<url-pattern>/v2/form/*</url-pattern>
+		<url-pattern>/v2/forms/*</url-pattern>
 	</servlet-mapping>
 
 	<servlet>
@@ -90,6 +90,6 @@
 
 	<servlet-mapping>
 		<servlet-name>report</servlet-name>
-		<url-pattern>/v2/report/*</url-pattern>
+		<url-pattern>/v2/reports/*</url-pattern>
 	</servlet-mapping>
 </web-app>

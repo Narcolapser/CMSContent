@@ -44,7 +44,7 @@ public class FormDaoImpl implements CMSDocumentDao, DisposableBean
 
 	public CMSDocument getDocument(String Id)
 	{
-		logger.debug("Fetching document with ID of: " + Id);
+		logger.trace("Fetching document with ID of: " + Id);
 		FormDoc doc;
 		try
 		{

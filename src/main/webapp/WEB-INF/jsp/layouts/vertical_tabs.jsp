@@ -70,7 +70,7 @@ body {font-family: "Lato", sans-serif;}
 					<c:set var="aclass">id="defaultOpen"</c:set>
 				</c:if>
 				<button class="tablinks" onclick="openTab(event,'${channelId}-${document.id}',this)" ${aclass}
-					data-docid="${document.id}" data-doctitle="${document.title}">${document.title}</button>
+					data-docid="${document.id}" data-doctitle="${document.title}" data-docsource="${document.source}">${document.title}</button>
 			</c:forEach>
 		</div>
 		<c:forEach var="document" items="${content}">

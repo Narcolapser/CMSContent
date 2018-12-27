@@ -2,7 +2,6 @@ Vue.component('report-display', {
 	data: function () {
 		return {
 			start:0,
-			end:25,
 			loadAmount:25,
 			rows:0,
 			fields:[]
@@ -23,7 +22,7 @@ Vue.component('report-display', {
 		var report = this.report;
 		self = this;
 		var request = new XMLHttpRequest();
-		request.open('GET','/CMSContent/v2/report/fields?report='+report,true);
+		request.open('GET','/CMSContent/v2/reports/'+report+'/fields',true);
 		request.onload = function()
 		{
 			var f = JSON.parse(request.responseText);
@@ -53,9 +52,11 @@ Vue.component('report-display', {
 			var f = this.fields;
 			var token = this.token
 			var request = new XMLHttpRequest();
-			request.open('GET','/CMSContent/v2/report/pagination?report='+report+"&start="+this.start+"&end="+this.end+"&token="+token,true);
+			//request.open('GET','/CMSContent/v2/reports/pagination?report='+report+"&start="+this.start+"&end="+this.end+"&token="+token,true);
+			request.open('GET','/CMSContent/v2/reports/'+report+"?offset="+this.start+"&limit="+this.loadAmount+"&token="+token,true);
 			request.onload = function()
 			{
+				console.log(request.responseText);
 				var responses = JSON.parse(request.responseText);
 				if ("reason" in responses)
 				{
@@ -92,7 +93,6 @@ Vue.component('report-display', {
 			else
 			{
 				this.start = this.start - this.loadAmount;
-				this.end = this.end - this.loadAmount;
 				if (this.start < 0)
 					this.start = 0;
 			}
@@ -102,12 +102,11 @@ Vue.component('report-display', {
 			var request = new XMLHttpRequest();
 			var report = this.report;
 			var self = this;
-			request.open('GET','/CMSContent/v2/report/rows?report='+report,true);
+			request.open('GET','/CMSContent/v2/reports/'+report+'/rows',true);
 			request.onload = function()
 			{
 				var response = JSON.parse(request.responseText);
 				self.rows = response['rowCount'];
-				self.end = self.rows;
 				self.start = self.rows - self.loadAmount;
 				if (self.start < 0)
 					self.start = 0;
