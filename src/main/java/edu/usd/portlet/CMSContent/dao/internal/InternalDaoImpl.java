@@ -106,9 +106,7 @@ public class InternalDaoImpl implements CMSDocumentDao, DisposableBean
 	public void destroy() throws Exception {
 	}
 	
-	public boolean saveEnabled(){return true;}
-	
-	public boolean deleteEnabled(){return true;}
+	public boolean writeEnabled(){return true;}
 	
 	public String getSourceType(){return "html";}
 }

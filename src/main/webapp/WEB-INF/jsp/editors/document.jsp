@@ -36,7 +36,7 @@
 </style>
 
 <div style="width:100%;">
-	<div style="width:400px; float: left;">
+	<div style="width:450px; float: left;">
 
 		<div class="form-group">
 			<label for="doc_title">Title:</label>
@@ -63,6 +63,16 @@
 				</c:forEach>
 			</select>
 		</div>
+		<div id="move_div" class="form-group" style="display: none;">
+			<label for="move_from">Moving from:</label>
+			<div>
+				<input id="move_from" type="text" disabled="disabled" style="width: 301px;"></input>
+				<div class="btn-group" role="group">
+					<button id="move_confirm" class="btn btn-warning" onclick="confirm_move();return false" title="Click to move">Confirm</button>
+					<button id="move_cancel" class="btn btn-danger" onclick="cancel_move();return false" title="Click to cancel">Cancel</button>
+				</div>
+			</div>
+		</div>
 		<input type="search" id="doc_tree_search" class="form-control" value="${search}" placeholder="Search..."></input>
 		<div id="doc_tree" style="height: 250px;overflow: hidden;overflow-y: scroll;"></div>
 		<div class="form-group" style="display: none;">
@@ -80,15 +90,16 @@
 		<p>
 			<div class="btn-group" role="group" aria-label="Editor actions">
 				<button id="load_btn" onclick="load();return false" class="btn btn-default" title="Load Selected Document">Load</button>
-				<button id="save_btn" onclick="save();return false" class="btn btn-success" title="save document" disabled="disabled">Save</button>
-				<button id="delete_btn" onclick="delete_doc();return false" class="btn btn-danger" title="delete document">Delete</button>
+				<button id="save_btn" onclick="save();return false" class="btn btn-success" title="Save Document" disabled="disabled">Save</button>
+				<button id="move_btn" onclick="move_doc();return false" class="btn btn-warning" title="Move Document" >Move</button>
+				<button id="delete_btn" onclick="delete_doc();return false" class="btn btn-danger" title="Delete Document" disabled="disabled">Delete</button>
 				<button id="new_btn" onclick="newFolder();return false" class="btn btn-info" title="New Folder">New Folder</button>
 				<a id="return_btn" href="/uPortal/p/cmseditor" class="btn btn-primary">Return</a>
 				<a id="att_btn" href="/uPortal/p/attman" class="btn btn-default" title="Go to attachments manager"><i class="fa fa-paperclip"></i></a>
 			</div>
 		</p>
 	</div>
-	<div style="margin-left: 410px;">
+	<div style="margin-left: 460px;">
 		<textarea id="${n}content" name="content">put content here.</textarea>
 	</div>
 </div>
@@ -209,7 +220,12 @@ function save()
 			path += "/" + node.text;
 
 	var id = document.getElementById("doc_id").value;
-
+	
+	if (id == "")
+	{
+		id = get_random_id(document.getElementById("doc_title").value);
+		document.getElementById("doc_id").value = id;
+	}
 	
 	var doc = {
 		id: id,
@@ -230,7 +246,92 @@ function save()
 }
 function doc_saved(data, textStatus, jqXHR)
 {
+	onSourceChange();
 	alert("document saved");
+}
+
+function get_random_id(title)
+{
+	var ret = "";
+	for(var i= 0; i<5; i++)
+		ret += Math.floor(Math.random() * 10)
+	ret += title.toLowerCase().replace(/[^a-zA-Z0-9-_]/g, '');
+	return ret;
+}
+
+function move_doc()
+{
+	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
+	if(node.data['type'] == "folder")
+	{
+		alert("Cannot move folders");
+	}
+	else
+	{
+		var path = getNodePath(node);
+
+		var buttons = ["load_btn","save_btn","move_btn","delete_btn","new_btn"]
+		for(var i=0; i < buttons.length; i++)
+		{
+			var btn = document.getElementById(buttons[i]);
+			var was_disabled = btn.getAttribute("disabled");
+			console.log(was_disabled);
+			if (was_disabled == null || was_disabled == "")
+				btn.setAttribute("data-was_disabled","false");
+			else
+				btn.setAttribute("data-was_disabled","true");
+			btn.setAttribute("disabled","disabled");
+		}
+		var move_div = document.getElementById("move_div");
+		move_div.removeAttribute("style");
+		var move_from = document.getElementById("move_from");
+		move_from.value = path;
+		move_from.setAttribute("data-doc_id",document.getElementById("doc_id").value);
+	}
+}
+
+function confirm_move()
+{
+	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
+	var path = getNodePath(node);
+	if(node.data['type'] == "folder")
+		if(path.length == 0)
+			path = node.text;
+		else
+			path += "/" + node.text;
+	path += "/";
+
+	var id = move_from.getAttribute("data-doc_id");
+	var source = document.getElementById("doc_source").value;
+	
+	${n}.jQuery.ajax({dataType:"json",
+		type: "POST",
+		url:"/CMSContent/v2/documents/"+source+"/"+id,
+		data:{"path":path},
+		success:doc_moved});
+}
+function doc_moved(data, textStatus, jqXHR)
+{
+	onSourceChange();
+	cancel_move();
+	alert("document moved");
+}
+
+function cancel_move()
+{
+	var buttons = ["load_btn","save_btn","move_btn","delete_btn","new_btn"]
+	for(var i=0; i < buttons.length; i++)
+	{
+		var btn = document.getElementById(buttons[i]);
+		var was_disabled = btn.getAttribute("data-was_disabled");
+		console.log(was_disabled);
+		if (was_disabled == "true")
+			btn.setAttribute("disabled","disabled");
+		else
+			btn.removeAttribute("disabled");
+	}
+	var move_div = document.getElementById("move_div");
+	move_div.setAttribute("style","display: none");
 }
 
 function delete_doc()
@@ -354,10 +455,8 @@ function getNodes(val,name,parent)
 	var keys = {};
 	var nodes = [];
 	var files = [];
-	console.log("Getting nodes");
 	for(i = 0; i < val.length; i++)
 	{
-		console.log(val[i]);
 		try
 		{
 			var parts = val[i]['path'].split('/');
@@ -435,12 +534,12 @@ CKEDITOR.on("instanceReady", function(event)
 </c:if>
 
 // Setup the Vuew app.
-var app = new Vue({
-	el: '#app',
-	data: {
-		message: 'Hello Vue!'
-	}
-});
+//var app = new Vue({
+//	el: '#app',
+//	data: {
+//		message: 'Hello Vue!'
+//	}
+//});
 
 
 </script>

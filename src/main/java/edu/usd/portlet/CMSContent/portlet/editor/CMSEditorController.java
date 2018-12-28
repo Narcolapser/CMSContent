@@ -93,8 +93,8 @@ public class CMSEditorController {
 			if(ds.getSourceType().equals("html"))
 			{
 				sources.add(ds.getDaoName());
-				saveEnabled.put(ds.getDaoName(),ds.saveEnabled());
-				deleteEnabled.put(ds.getDaoName(),ds.deleteEnabled());
+				saveEnabled.put(ds.getDaoName(),ds.writeEnabled());
+				deleteEnabled.put(ds.getDaoName(),ds.writeEnabled());
 			}
 		}
 		refData.put("sources",sources.toArray());

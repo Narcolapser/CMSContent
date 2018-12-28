@@ -38,16 +38,13 @@ public interface CMSDocumentDao
 	
 	public void saveDocument(CMSDocument val);
 	
-	public boolean saveEnabled();
-	//return whether or not this Dao has the ability to save or if it is a
-	//read only Dao.
+	
+	public boolean writeEnabled();
+	//return whether or not this Dao has the ability to save/delete/move or if 
+	//it is a read only Dao.
 	
 	public boolean deleteDocument(String Id);
 	//delete's a document if such can be done.
-	
-	public boolean deleteEnabled();
-	//returns whether or not this Dao has the ability to delete documents from
-	//it's source. 
 	
 	public String getSourceType();
 	//returns the type of document that this source provides. Used to determine

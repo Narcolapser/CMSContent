@@ -89,7 +89,7 @@ public final class DocumentApi {
 	}
 	
 	
-	@RequestMapping(value="/{source}/{id}", method=RequestMethod.POST)
+	@RequestMapping(value="/{source}/{id}", method=RequestMethod.POST, params = "document")
 	public String saveDocument(
 		@PathVariable(value="source") String source,
 		@PathVariable(value="id") String id,
@@ -113,6 +113,30 @@ public final class DocumentApi {
 			return "{\"result\":\"failure\"}";
 		}
 	}
+	
+	@RequestMapping(value="/{source}/{id}", method=RequestMethod.POST, params = "path")
+	public String moveDocument(
+		@PathVariable(value="source") String source,
+		@PathVariable(value="id") String id,
+		@RequestParam(value="path", defaultValue = "") String path
+		)
+	{
+		logger.debug("Recieved request to change document path: " + path);
+		try
+		{
+			CMSDocumentDao dbo = getDbo(source);
+			CMSDocument doc = dbo.getDocument(id);
+			doc.setPath(path);
+			dbo.saveDocument(doc);
+			logger.debug("Save succesful");
+			return "{\"result\":\"success\"}";
+		}
+		catch(Exception e)
+		{
+			logger.error("Error moving document: " + path);
+			return "{\"result\":\"failure\"}";
+		}
+	}
 
 
 	@RequestMapping(value="/{source}/{id}", method=RequestMethod.DELETE)
@@ -124,7 +148,7 @@ public final class DocumentApi {
 		logger.debug("Recieved delete request for: " + id + " from: " + source);
 		CMSDocumentDao dbo = getDbo(source);
 		logger.debug("Deleting from DBO: " + dbo.getDaoName());
-		if (dbo.deleteEnabled())
+		if (dbo.writeEnabled())
 			dbo.deleteDocument(id);
 
 		return "{\"result\":\"success\"}";
@@ -147,8 +171,8 @@ public final class DocumentApi {
 		{
 			JSONObject obj = new JSONObject();
 			obj.put("name",val.getDaoName());
-			obj.put("save",val.saveEnabled());
-			obj.put("delete",val.deleteEnabled());
+			obj.put("save",val.writeEnabled());
+			obj.put("delete",val.writeEnabled());
 			obj.put("type",val.getSourceType());
 			return obj.toString();
 		}
