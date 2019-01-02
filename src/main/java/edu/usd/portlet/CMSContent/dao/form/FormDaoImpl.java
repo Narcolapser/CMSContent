@@ -49,6 +49,7 @@ public class FormDaoImpl implements CMSDocumentDao, DisposableBean
 		try
 		{
 			doc = new FormDoc(this.internalDocumentDao.getDocumentById(Id));
+			doc.setSource("InternalForms");
 			doc.setJspRenderer(jspRenderer);
 		}
 		catch (Exception e)
@@ -67,7 +68,7 @@ public class FormDaoImpl implements CMSDocumentDao, DisposableBean
 	
 	public void saveDocument(CMSDocument val)
 	{
-		this.internalDocumentDao.insertDocument(val);
+		this.internalDocumentDao.insertDocument(new CMSDocument(val));
 	}
 	
 	public String getDaoName()

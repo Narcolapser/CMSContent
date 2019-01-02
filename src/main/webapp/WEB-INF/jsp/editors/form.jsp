@@ -36,7 +36,7 @@
 </style>
 
 <div style="width:100%;">
-	<div style="width:400px; float: left;">
+	<div style="width:450px; float: left;">
 
 		<div class="form-group">
 			<label for="doc_title">Title:</label>
@@ -48,6 +48,16 @@
 				<option class="form-control" id="doc_source_InternalForms" value="InternalForms" data-saveEnabled="true" data-deleteEnabled="true" selected="selected">InternalForms</option>
 			</select>
 		</div>
+		<div id="move_div" class="form-group" style="display: none;">
+			<label for="move_from">Moving from:</label>
+			<div>
+				<input id="move_from" type="text" disabled="disabled" style="width: 301px;"></input>
+				<div class="btn-group" role="group">
+					<button id="move_confirm" class="btn btn-warning" onclick="confirm_move();return false" title="Click to move">Confirm</button>
+					<button id="move_cancel" class="btn btn-danger" onclick="cancel_move();return false" title="Click to cancel">Cancel</button>
+				</div>
+			</div>
+		</div>
 		<input type="search" id="doc_tree_search" class="form-control" value="${search}" placeholder="Search..."></input>
 		<div id="doc_tree" style="height: 250px;overflow: hidden;overflow-y: scroll;"></div>
 		<div class="form-group" style="display: none;">
@@ -55,8 +65,8 @@
 			<input id="doc_loc" type="text" class="form-control" name="doc_loc" disabled="disabled">
 		</div>
 		<div class="form-group">
-			<label for="doc_id">Document Name/ID:</label>
-			<input id="doc_id" type="text" class="form-control" name="doc_id">
+			<label for="doc_id">Document ID:</label>
+			<input id="doc_id" type="text" class="form-control" name="doc_id" disabled="disabled">
 		</div>
 		<div class="form-group">
 			<label for="doc_search">Search Terms:</label>
@@ -66,13 +76,14 @@
 			<div class="btn-group" role="group" aria-label="Editor actions">
 				<button id="load_btn" onclick="load();return false" class="btn btn-default" title="Load Selected Document">Load</button>
 				<button id="save_btn" onclick="save();return false" class="btn btn-success" title="save document">Save</button>
-				<button id="delete_btn" onclick="delete_form();return false" class="btn btn-danger" title="delete document">Delete</button>
+				<button id="move_btn" onclick="move_doc();return false" class="btn btn-warning" title="Move Document" >Move</button>
+				<button id="delete_btn" onclick="delete_doc();return false" class="btn btn-danger" title="delete document">Delete</button>
 				<button id="new_btn" onclick="newFolder();return false" class="btn btn-info" title="New Folder">New Folder</button>
 				<a id="return_btn" href="/uPortal/p/cmseditor" class="btn btn-primary">Return</a>
 			</div>
 		</p>
 	</div>
-	<div style="margin-left: 410px;">
+	<div style="margin-left: 460px;">
 		<c:set var="n"><portlet:namespace/></c:set>
 		<c:set var="selected" value=""/>
 		<c:if test="${not empty parameters.get('doc')[0]}">
@@ -354,11 +365,19 @@ function save()
 		type: "POST",
 		url:"/CMSContent/v2/documents/InternalForms/"+get_doc_id(),
 		data:{"document":data},
-		success:form_saved});
+		success:doc_saved});
 }
 function get_doc_id()
 {
-	return document.getElementById("doc_id").value;
+	var id = document.getElementById("doc_id").value;
+	
+	if (id == "")
+	{
+		id = get_random_id(document.getElementById("doc_title").value);
+		document.getElementById("doc_id").value = id;
+	}
+	
+	return id;
 }
 function get_form_entry(row)
 {
@@ -383,12 +402,98 @@ function get_responder_config(resp_row)
 	resp['options'] = resp_row.cells[2].children[0].value;
 	return resp;
 }
-function form_saved(data, textStatus, jqXHR)
+function doc_saved(data, textStatus, jqXHR)
 {
 	alert("form saved");
 }
 
-function delete_form()
+
+
+function get_random_id(title)
+{
+	var ret = "";
+	for(var i= 0; i<5; i++)
+		ret += Math.floor(Math.random() * 10)
+	ret += title.toLowerCase().replace(/[^a-zA-Z0-9-_]/g, '');
+	return ret;
+}
+
+function move_doc()
+{
+	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
+	if(node.data['type'] == "folder")
+	{
+		alert("Cannot move folders");
+	}
+	else
+	{
+		var path = getNodePath(node);
+
+		var buttons = ["load_btn","save_btn","move_btn","delete_btn","new_btn"]
+		for(var i=0; i < buttons.length; i++)
+		{
+			var btn = document.getElementById(buttons[i]);
+			var was_disabled = btn.getAttribute("disabled");
+			console.log(was_disabled);
+			if (was_disabled == null || was_disabled == "")
+				btn.setAttribute("data-was_disabled","false");
+			else
+				btn.setAttribute("data-was_disabled","true");
+			btn.setAttribute("disabled","disabled");
+		}
+		var move_div = document.getElementById("move_div");
+		move_div.removeAttribute("style");
+		var move_from = document.getElementById("move_from");
+		move_from.value = path;
+		move_from.setAttribute("data-doc_id",document.getElementById("doc_id").value);
+	}
+}
+
+function confirm_move()
+{
+	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
+	var path = getNodePath(node);
+	if(node.data['type'] == "folder")
+		if(path.length == 0)
+			path = node.text;
+		else
+			path += "/" + node.text;
+	path += "/";
+
+	var id = move_from.getAttribute("data-doc_id");
+	var source = "InternalForms";
+	
+	${n}.jQuery.ajax({dataType:"json",
+		type: "POST",
+		url:"/CMSContent/v2/documents/"+source+"/"+id,
+		data:{"path":path},
+		success:doc_moved});
+}
+function doc_moved(data, textStatus, jqXHR)
+{
+	onSourceChange();
+	cancel_move();
+	alert("document moved");
+}
+
+function cancel_move()
+{
+	var buttons = ["load_btn","save_btn","move_btn","delete_btn","new_btn"]
+	for(var i=0; i < buttons.length; i++)
+	{
+		var btn = document.getElementById(buttons[i]);
+		var was_disabled = btn.getAttribute("data-was_disabled");
+		console.log(was_disabled);
+		if (was_disabled == "true")
+			btn.setAttribute("disabled","disabled");
+		else
+			btn.removeAttribute("disabled");
+	}
+	var move_div = document.getElementById("move_div");
+	move_div.setAttribute("style","display: none");
+}
+
+function delete_doc()
 {
 	var doc_source = document.getElementById("doc_source").value;
 	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
@@ -398,10 +503,10 @@ function delete_form()
 		${n}.jQuery.ajax({dataType:"json",
 			type:"DELETE",
 			url:"/CMSContent/v2/documents/"+doc_source+"/"+doc_id,
-			success:form_deleted});
+			success:doc_deleted});
 }
 
-function form_deleted(data,textStatus, jqXHR)
+function doc_deleted(data,textStatus, jqXHR)
 {
 	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
 	document.getElementById(node.id).style.display = 'none';

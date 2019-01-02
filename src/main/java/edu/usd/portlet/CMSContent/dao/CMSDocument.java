@@ -58,6 +58,18 @@ public class CMSDocument
 	protected boolean removed;
 
 	public CMSDocument(){}
+	
+	public CMSDocument(CMSDocument val)
+	{
+		this.id = val.id;
+		this.path = val.path;
+		this.title = val.title;
+		this.source = val.source;
+		this.docType = val.docType;
+		this.content = val.content;
+		this.keyTerms = val.keyTerms;
+		this.removed = val.removed;
+	}
 
 	public CMSDocument(String title, String path, String id, String source, String docType, String content, String keyTerms, boolean removed)
 	{

@@ -80,7 +80,7 @@
 			<input id="doc_loc" type="text" class="form-control" name="doc_loc" disabled="disabled">
 		</div>
 		<div class="form-group">
-			<label for="doc_id">Document Name/ID:</label>
+			<label for="doc_id">Document ID:</label>
 			<input id="doc_id" type="text" class="form-control" name="doc_id" disabled="disabled">
 		</div>
 		<div class="form-group">

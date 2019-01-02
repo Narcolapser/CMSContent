@@ -133,7 +133,7 @@ public final class DocumentApi {
 		}
 		catch(Exception e)
 		{
-			logger.error("Error moving document: " + path);
+			logger.error("Error moving document: " + path + e);
 			return "{\"result\":\"failure\"}";
 		}
 	}
