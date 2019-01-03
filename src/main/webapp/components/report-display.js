@@ -16,6 +16,9 @@ Vue.component('report-display', {
 	</table>
 	<div style="text-align:center;">
 		<button class="btn btn-default" id="loadButton" v-on:click="loadRows()">Load more</button>
+		<a class="btn btn-info" id="downloadButton" v-bind:href="'/CMSContent/v2/report/'+ report +'.xlsx?token='+token">
+			<i class="fa fa-file-excel-o" aria-hidden="true"></i> Download Spreadsheet
+		</a>
 	</div>
 </div>
 	`,

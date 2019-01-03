@@ -131,10 +131,12 @@ public final class ReportApi {
 	public void getCSV(
 		@PathVariable("file_name") String file_name,
 		@RequestParam(value="report") String report,
-		//@RequestParam(value="token") String token,
+//		@RequestParam(value="token") String token,
 		HttpServletResponse response)
 	{
 		//report = "academics/registrar/diploma-order-form";
+//		if(!tokenRepo.validateToken(token,report))
+//			return;
 		try
 		{
 			OutputStream os = response.getOutputStream();
@@ -154,17 +156,23 @@ public final class ReportApi {
 	}
 
 
-	@RequestMapping(value = "/export/{file_name}.xlsx", method = RequestMethod.GET)
+	@RequestMapping(value = "/{file_name}.xlsx", method = RequestMethod.GET)
 	public void getXLSX(
 		@PathVariable("file_name") String file_name,
-		@RequestParam(value="report") String report,
-		//@RequestParam(value="token") String token,
-		HttpServletResponse response)
+		@RequestParam(value="token") String token,
+		HttpServletResponse response) throws IOException
 	{
+	
+		if(!tokenRepo.validateToken(token,file_name))
+		{
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized. Please go to report page and try again.");
+			return;
+		}
 		try
 		{
 			OutputStream os = response.getOutputStream();
-			String[] fields = new FormDoc(this.internalDocumentDao.getDocumentById(report)).getFields();
+			logger.debug(file_name);
+			String[] fields = new FormDoc(this.internalDocumentDao.getDocumentById(file_name)).getFields();
 			
 			Workbook workbook = new XSSFWorkbook();
 			Sheet sheet = workbook.createSheet("Responses");
@@ -188,7 +196,7 @@ public final class ReportApi {
 			row.createCell(0).setCellValue("1");
 			row.createCell(1).setCellValue("John Doe");
 			
-			List<DatabaseResponse> responses = databaseRepo.getResponses(report);
+			List<DatabaseResponse> responses = databaseRepo.getResponses(file_name);
 			index = 1;
 			for(DatabaseResponse resp:responses)
 			{
@@ -220,7 +228,7 @@ public final class ReportApi {
 			workbook.close();
 		} catch(IOException ex)
 		{
-			logger.info("error writing file to output stream. File was:" + report);
+			logger.info("error writing file to output stream. File was:" + file_name);
 			throw new RuntimeException("IOError writing file to output stream");
 		}
 	}

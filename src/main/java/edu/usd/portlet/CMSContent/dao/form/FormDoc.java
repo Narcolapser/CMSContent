@@ -56,6 +56,7 @@ public class FormDoc extends CMSDocument
 
 	public FormDoc(CMSDocument val)
 	{
+		logger.debug(val);
 		this.title = val.title;
 		this.id = val.id;
 		this.source = val.source;
