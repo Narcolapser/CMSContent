@@ -56,6 +56,7 @@ public class FormDoc extends CMSDocument
 
 	public FormDoc(CMSDocument val)
 	{
+		logger.debug(val);
 		this.title = val.title;
 		this.id = val.id;
 		this.source = val.source;
@@ -116,7 +117,6 @@ public class FormDoc extends CMSDocument
 				JSONObject val = obj.getJSONObject(i);
 				if(!(Arrays.asList(skip_fields).contains(val.getString("type"))))
 				{
-					logger.debug("found a field with response");
 					fields.add(val.getString("label"));
 				}
 			}
