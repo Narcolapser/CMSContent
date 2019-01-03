@@ -112,50 +112,6 @@ public final class ReportApi {
 		
 		return ret.substring(0,ret.length()-1) + "]";
 	}
-	
-	@RequestMapping("csv")
-	public String csv(
-		@RequestParam(value="report") String report,
-		@RequestParam(value="token") String token
-		)
-	{
-		String sheet = "\"Response Number\",\"Username\",\"Date Time\",";
-		String[] fields = new FormDoc(this.internalDocumentDao.getDocumentById(report)).getFields();
-		sheet += String.join("\",\"",Arrays.asList(fields));
-		List<DatabaseResponse> responses = databaseRepo.getResponses(report);
-		for(DatabaseResponse resp:responses)
-			sheet += "\n"+ resp.csvRow();
-		return sheet;
-	}
-
-	@RequestMapping(value = "/export/{file_name}.csv", method = RequestMethod.GET)
-	public void getCSV(
-		@PathVariable("file_name") String file_name,
-		@RequestParam(value="report") String report,
-//		@RequestParam(value="token") String token,
-		HttpServletResponse response)
-	{
-		//report = "academics/registrar/diploma-order-form";
-//		if(!tokenRepo.validateToken(token,report))
-//			return;
-		try
-		{
-			OutputStream os = response.getOutputStream();
-			String sheet = "\"Response Number\",\"Username\",\"Date Time\",";
-			String[] fields = new FormDoc(this.internalDocumentDao.getDocumentById(report)).getFields();
-			sheet += String.join("\",\"",Arrays.asList(fields));
-			List<DatabaseResponse> responses = databaseRepo.getResponses(report);
-			for(DatabaseResponse resp:responses)
-				sheet += "\n"+ resp.csvRow();
-			for(char ch: sheet.toCharArray())
-				os.write((byte)ch);
-		} catch(IOException ex)
-		{
-			logger.info("error writing file to output stream. File was:" + report);
-			throw new RuntimeException("IOError writing file to output stream");
-		}
-	}
-
 
 	@RequestMapping(value = "/{file_name}.xlsx", method = RequestMethod.GET)
 	public void getXLSX(
