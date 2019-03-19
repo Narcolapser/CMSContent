@@ -44,11 +44,12 @@ public class FormDaoImpl implements CMSDocumentDao, DisposableBean
 
 	public CMSDocument getDocument(String Id)
 	{
-		logger.debug("Fetching document with ID of: " + Id);
+		logger.trace("Fetching document with ID of: " + Id);
 		FormDoc doc;
 		try
 		{
 			doc = new FormDoc(this.internalDocumentDao.getDocumentById(Id));
+			doc.setSource("InternalForms");
 			doc.setJspRenderer(jspRenderer);
 		}
 		catch (Exception e)
@@ -67,7 +68,7 @@ public class FormDaoImpl implements CMSDocumentDao, DisposableBean
 	
 	public void saveDocument(CMSDocument val)
 	{
-		this.internalDocumentDao.insertDocument(val);
+		this.internalDocumentDao.insertDocument(new CMSDocument(val));
 	}
 	
 	public String getDaoName()
@@ -82,9 +83,7 @@ public class FormDaoImpl implements CMSDocumentDao, DisposableBean
 
 	public boolean deleteDocument(String Id){return false;}
 
-	public boolean saveEnabled(){return true;}
-	
-	public boolean deleteEnabled(){return true;}
+	public boolean writeEnabled(){return true;}
 	
 	public String getSourceType(){return "form";}
 	

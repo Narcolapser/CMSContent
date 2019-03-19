@@ -36,7 +36,7 @@
 </style>
 
 <div style="width:100%;">
-	<div style="width:400px; float: left;">
+	<div style="width:450px; float: left;">
 
 		<div class="form-group">
 			<label for="doc_title">Title:</label>
@@ -48,6 +48,16 @@
 				<option class="form-control" id="doc_source_InternalForms" value="InternalForms" data-saveEnabled="true" data-deleteEnabled="true" selected="selected">InternalForms</option>
 			</select>
 		</div>
+		<div id="move_div" class="form-group" style="display: none;">
+			<label for="move_from">Moving from:</label>
+			<div>
+				<input id="move_from" type="text" disabled="disabled" style="width: 301px;"></input>
+				<div class="btn-group" role="group">
+					<button id="move_confirm" class="btn btn-warning" onclick="confirm_move();return false" title="Click to move">Confirm</button>
+					<button id="move_cancel" class="btn btn-danger" onclick="cancel_move();return false" title="Click to cancel">Cancel</button>
+				</div>
+			</div>
+		</div>
 		<input type="search" id="doc_tree_search" class="form-control" value="${search}" placeholder="Search..."></input>
 		<div id="doc_tree" style="height: 250px;overflow: hidden;overflow-y: scroll;"></div>
 		<div class="form-group" style="display: none;">
@@ -55,8 +65,8 @@
 			<input id="doc_loc" type="text" class="form-control" name="doc_loc" disabled="disabled">
 		</div>
 		<div class="form-group">
-			<label for="doc_id">Document Name/ID:</label>
-			<input id="doc_id" type="text" class="form-control" name="doc_id">
+			<label for="doc_id">Document ID:</label>
+			<input id="doc_id" type="text" class="form-control" name="doc_id" disabled="disabled">
 		</div>
 		<div class="form-group">
 			<label for="doc_search">Search Terms:</label>
@@ -66,13 +76,14 @@
 			<div class="btn-group" role="group" aria-label="Editor actions">
 				<button id="load_btn" onclick="load();return false" class="btn btn-default" title="Load Selected Document">Load</button>
 				<button id="save_btn" onclick="save();return false" class="btn btn-success" title="save document">Save</button>
-				<button id="delete_btn" onclick="delete_form();return false" class="btn btn-danger" title="delete document">Delete</button>
+				<button id="move_btn" onclick="move_doc();return false" class="btn btn-warning" title="Move Document" >Move</button>
+				<button id="delete_btn" onclick="delete_doc();return false" class="btn btn-danger" title="delete document">Delete</button>
 				<button id="new_btn" onclick="newFolder();return false" class="btn btn-info" title="New Folder">New Folder</button>
 				<a id="return_btn" href="/uPortal/p/cmseditor" class="btn btn-primary">Return</a>
 			</div>
 		</p>
 	</div>
-	<div style="margin-left: 410px;">
+	<div style="margin-left: 460px;">
 		<c:set var="n"><portlet:namespace/></c:set>
 		<c:set var="selected" value=""/>
 		<c:if test="${not empty parameters.get('doc')[0]}">
@@ -240,20 +251,14 @@ function load()
 	//var doc_id = selector.options[myindex].value;
 	
 	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
-	var doc_id = getNodePath(node);
-	if(doc_id.length == 0)
-		doc_id = node.text;
-	else
-		doc_id += "/" + node.text;
-	console.log(doc_id);
+	var doc_id = node.id;
 	
 	var source_selector = document.getElementById("doc_source");
 	var source_index = source_selector.selectedIndex;
 	var source_id = source_selector.options[source_index].value;
 	
 	${n}.jQuery.ajax({dataType:"json",
-		url:"/CMSContent/v1/api/getDocument.json",
-		data:{"source":source_id,"id":doc_id},
+		url:"/CMSContent/v2/documents/"+source_id+"/"+doc_id,
 		success:update_content});
 }
 function update_content(data, textStatus, jqXHR)
@@ -263,16 +268,16 @@ function update_content(data, textStatus, jqXHR)
 	var form_search = document.getElementById("doc_search");
 	var form_resp = document.getElementById("formResp");
 
-	form_title.value=data.doc.title;
-	var idsplit = data.doc.id.split('/');
+	form_title.value=data.title;
+	var idsplit = data.id.split('/');
 	var filename = idsplit[idsplit.length-1];
 	if (filename.substring(filename.length-4) == '.cfm')
 		filename = filename.substring(0,filename.length-4);
 	form_id.value=filename;
 
-	form_search.value=data.doc.keyTerms;
+	form_search.value=data.keyTerms;
 	
-	var form = JSON.parse(data.doc.content);
+	var form = JSON.parse(data.content);
 	//alert("Form: " + form);
 	var new_tbody = document.createElement('tbody');
 	var rtable = document.createElement('tbody');
@@ -345,37 +350,34 @@ function save()
 	for (var i=1,row; row = responder_table.rows[i]; i++)
 		form_json.push(get_responder_config(row));
 
+	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
+	var path = getNodePath(node);
+
 	//get key terms:
 	var keyterms = document.getElementById("doc_search").value;
-	data = JSON.stringify({"content":form_json,"id":get_doc_id(),'title':form_title,'source':'InternalForms','docType':'form','keyTerms':keyterms,'removed':false})
+	data = JSON.stringify({"content":form_json,"id":get_doc_id(),'title':form_title,
+							'source':'InternalForms','docType':'form',
+							'keyTerms':keyterms,'removed':false,'path':path})
 	while (data.includes('  '))
 		data = data.replace('  ',' ');
-		
-	$.ajax({dataType:"json",
-		url:"/CMSContent/v2/document/save.json",
+	
+	${n}.jQuery.ajax({dataType:"json",
+		type: "POST",
+		url:"/CMSContent/v2/documents/InternalForms/"+get_doc_id(),
 		data:{"document":data},
-		success:form_saved});
+		success:doc_saved});
 }
 function get_doc_id()
 {
-	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
-	var doc_id = getNodePath(node);
-	if(node.data['type'] == "folder")
-		if(doc_id.length == 0)
-			doc_id = node.text;
-		else
-			doc_id += "/" + node.text;
-
-	if (doc_id == "InternalForms")
-		doc_id = "";
-
-	var path = doc_id;
-	if(doc_id.length == 0)
-		doc_id = document.getElementById("doc_id").value;
-	else
-		doc_id += "/" + document.getElementById("doc_id").value;
-	console.log(doc_id);
-	return doc_id;
+	var id = document.getElementById("doc_id").value;
+	
+	if (id == "")
+	{
+		id = get_random_id(document.getElementById("doc_title").value);
+		document.getElementById("doc_id").value = id;
+	}
+	
+	return id;
 }
 function get_form_entry(row)
 {
@@ -400,36 +402,115 @@ function get_responder_config(resp_row)
 	resp['options'] = resp_row.cells[2].children[0].value;
 	return resp;
 }
-function form_saved(data, textStatus, jqXHR)
+function doc_saved(data, textStatus, jqXHR)
 {
 	alert("form saved");
 }
 
-function delete_form()
+
+
+function get_random_id(title)
+{
+	var ret = "";
+	for(var i= 0; i<5; i++)
+		ret += Math.floor(Math.random() * 10)
+	ret += title.toLowerCase().replace(/[^a-zA-Z0-9-_]/g, '');
+	return ret;
+}
+
+function move_doc()
 {
 	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
-	var doc_id = getNodePath(node);
 	if(node.data['type'] == "folder")
-		if(doc_id.length == 0)
-			doc_id = node.text;
-		else
-			doc_id += "/" + node.text;
-
-	if(doc_id.length == 0)
-		doc_id = document.getElementById("doc_id").value;
+	{
+		alert("Cannot move folders");
+	}
 	else
-		doc_id += "/" + document.getElementById("doc_id").value;
-	console.log(doc_id);
-		
-	if(confirm('Are you sure you want to delete "'+doc_id+'"?'))
-		$.ajax({dataType:"json",
-			url:"/CMSContent/v2/document/delete",
-			data:{"source":"InternalForms","id":doc_id},
-			success:form_deleted});
+	{
+		var path = getNodePath(node);
+
+		var buttons = ["load_btn","save_btn","move_btn","delete_btn","new_btn"]
+		for(var i=0; i < buttons.length; i++)
+		{
+			var btn = document.getElementById(buttons[i]);
+			var was_disabled = btn.getAttribute("disabled");
+			console.log(was_disabled);
+			if (was_disabled == null || was_disabled == "")
+				btn.setAttribute("data-was_disabled","false");
+			else
+				btn.setAttribute("data-was_disabled","true");
+			btn.setAttribute("disabled","disabled");
+		}
+		var move_div = document.getElementById("move_div");
+		move_div.removeAttribute("style");
+		var move_from = document.getElementById("move_from");
+		move_from.value = path;
+		move_from.setAttribute("data-doc_id",document.getElementById("doc_id").value);
+	}
 }
-function form_deleted(data,textStatus, jqXHR)
+
+function confirm_move()
 {
-	alert("form Deleted");
+	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
+	var path = getNodePath(node);
+	if(node.data['type'] == "folder")
+		if(path.length == 0)
+			path = node.text;
+		else
+			path += "/" + node.text;
+	path += "/";
+
+	var id = move_from.getAttribute("data-doc_id");
+	var source = "InternalForms";
+	
+	${n}.jQuery.ajax({dataType:"json",
+		type: "POST",
+		url:"/CMSContent/v2/documents/"+source+"/"+id,
+		data:{"path":path},
+		success:doc_moved});
+}
+function doc_moved(data, textStatus, jqXHR)
+{
+	onSourceChange();
+	cancel_move();
+	alert("document moved");
+}
+
+function cancel_move()
+{
+	var buttons = ["load_btn","save_btn","move_btn","delete_btn","new_btn"]
+	for(var i=0; i < buttons.length; i++)
+	{
+		var btn = document.getElementById(buttons[i]);
+		var was_disabled = btn.getAttribute("data-was_disabled");
+		console.log(was_disabled);
+		if (was_disabled == "true")
+			btn.setAttribute("disabled","disabled");
+		else
+			btn.removeAttribute("disabled");
+	}
+	var move_div = document.getElementById("move_div");
+	move_div.setAttribute("style","display: none");
+}
+
+function delete_doc()
+{
+	var doc_source = document.getElementById("doc_source").value;
+	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
+	var doc_id = document.getElementById("doc_id").value;
+	
+	if(confirm('Are you sure you want to delete "'+doc_id+'"?'))
+		${n}.jQuery.ajax({dataType:"json",
+			type:"DELETE",
+			url:"/CMSContent/v2/documents/"+doc_source+"/"+doc_id,
+			success:doc_deleted});
+}
+
+function doc_deleted(data,textStatus, jqXHR)
+{
+	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
+	document.getElementById(node.id).style.display = 'none';
+	console.log("Deleted node");
 }
 
 function onSourceChange()
@@ -439,11 +520,9 @@ function onSourceChange()
 	var source_id = source_selector.options[myindex].value;
 	console.log("Changing source to: " + source_id + " can save: " + source_selector.options[myindex].getAttribute("data-saveEnabled"));
 
-	var index = "doc_tree";
 	${n}.jQuery("#doc_source").trigger("chosen:updated");
 	${n}.jQuery.ajax({dataType:"json",
-		url:"/CMSContent/v1/api/getPagesWithIndex.json",
-		data:{"source":source_id,"index":index},
+		url:"/CMSContent/v2/documents/"+source_id,
 		success:populate_documents});
 	
 	if(source_selector.options[myindex].getAttribute("data-saveEnabled") == 'true')
@@ -475,17 +554,22 @@ function onSourceChange()
 
 function populate_documents(data, textStatus, jqXHR)
 {
-	CID = data["index"]
 	${n}.jQuery('#doc_tree').jstree("destroy").empty();
-	var doc_tree = document.getElementById(CID);
+	var doc_tree = document.getElementById("doc_tree");
 	var nodes = [];
 	var paths = [];
-	for( i = 0; i < data["pages"].length; i++ )
+	for( i = 0; i < data.length; i++ )
 	{
-		var val = data["pages"][i]['id'];
-		if(val.charAt(0) == '/')
-			val = val.substring(1);
-		paths.push(val);
+		var val = data[i]['path'];
+		if (val == null)
+		{
+			console.log(data[i]);
+			val = '';
+		}
+		else
+			if(val.charAt(0) == '/')
+				val = val.substring(1);
+		paths.push({'path':val,'title':data[i]['title'],'id':data[i]['id']});
 	}
 	
 	var source_selector = document.getElementById("doc_source");
@@ -506,7 +590,12 @@ function populate_documents(data, textStatus, jqXHR)
 		
 		var doc_id = document.getElementById("doc_id");
 		if(data.instance.get_node(data.selected[0]).data['type']=='document')
-			doc_id.value = data.instance.get_node(data.selected[0]).text;
+		{
+			console.log(data.instance.get_node(data.selected[0]));
+			doc_id.value = data.instance.get_node(data.selected[0]).id;
+		}
+		else
+			doc_id.value = "";
 	})
 	var to = false;
 	${n}.jQuery('#doc_tree_search').keyup(function () {
@@ -517,35 +606,43 @@ function populate_documents(data, textStatus, jqXHR)
 			${n}.jQuery('#doc_tree').jstree(true).search(v);
 		}, 250);
 	});
-}
 
+}
 
 function getNodes(val,name,parent)
 {
-	var keys = {}
-	var nodes = []
-	var files = []
+	var keys = {};
+	var nodes = [];
+	var files = [];
+	console.log("Getting nodes");
 	for(i = 0; i < val.length; i++)
 	{
-		var parts = val[i].split('/');
-		if (parts.length > 1)
+		console.log(val[i]);
+		try
 		{
-			if (parts[0] in keys)
+			var parts = val[i]['path'].split('/');
+			if (parts.length > 1)
 			{
-				keys[parts[0]].push(val[i].substring(val[i].indexOf('/')+1));
+				if (parts[0] in keys)
+				{
+					keys[parts[0]].push({'path':val[i]['path'].substring(val[i]['path'].indexOf('/')+1),
+						'id':val[i]['id'],'title':val[i]['title']});
+				}
+				else
+				{
+					keys[parts[0]] = [{'path':val[i]['path'].substring(val[i]['path'].indexOf('/')+1),
+						'id':val[i]['id'],'title':val[i]['title']}];
+				}
 			}
 			else
 			{
-				keys[parts[0]] = [val[i].substring(val[i].indexOf('/')+1)];
+				files.push({"text":val[i]['title'],
+							"icon":"fa fa-file",
+							"data":{"type":"document","path":parent+'/'+val[i]},"id":val[i]['id']});
 			}
 		}
-		else
-		{
-			//strip .cfm from files:
-			var filename = val[i];
-			if (filename.substring(filename.length-4) == '.cfm')
-				filename = filename.substring(0,filename.length-4);
-			files.push({"text":filename,"icon":"fa fa-file","data":{"type":"document","path":parent+'/'+val[i]},"id":parent+val[i]});
+		catch{
+			console.log(val[i]);
 		}
 	}
 	for(key in keys)
@@ -561,6 +658,7 @@ function getNodes(val,name,parent)
 	}
 	return {"text":name,"children":nodes,"data":{"type":"folder"}};
 }
+
 function getNodePath(node)
 {
 	//var parents = data.instance.get_node(data.selected[i]).parents;
@@ -601,8 +699,7 @@ $(document).ready(function(){
 	ret_button.href=document.referrer;
 	<c:if test="${not empty parameters.get('doc')[0]}">
 	${n}.jQuery.ajax({dataType:"json",
-		url:"/CMSContent/v1/api/getDocument.json",
-		data:{"source":"InternalForms","id":"${parameters.get('doc')[0]}"},
+		url:"/CMSContent/v2/documents/InternalForms/${parameters.get('doc')[0]}",
 		success:update_content});
 	</c:if>
 });

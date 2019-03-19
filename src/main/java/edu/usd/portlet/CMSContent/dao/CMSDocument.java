@@ -35,6 +35,9 @@ public class CMSDocument
 	@Column(name = "id")
 	protected String id;
 	
+	@Column(name = "docPath")
+	protected String path;
+	
 	@Column(name = "title")
 	protected String title;
 	
@@ -55,10 +58,23 @@ public class CMSDocument
 	protected boolean removed;
 
 	public CMSDocument(){}
+	
+	public CMSDocument(CMSDocument val)
+	{
+		this.id = val.id;
+		this.path = val.path;
+		this.title = val.title;
+		this.source = val.source;
+		this.docType = val.docType;
+		this.content = val.content;
+		this.keyTerms = val.keyTerms;
+		this.removed = val.removed;
+	}
 
-	public CMSDocument(String title, String id, String source, String docType, String content, String keyTerms, boolean removed)
+	public CMSDocument(String title, String path, String id, String source, String docType, String content, String keyTerms, boolean removed)
 	{
 		this.title = title;
+		this.path = path;
 		this.id = id;
 		this.source = source;
 		this.docType = docType;
@@ -66,9 +82,10 @@ public class CMSDocument
 		this.keyTerms = keyTerms;
 		this.removed = removed;
 	}
-	public CMSDocument(String title, String id, String source, String docType, String content)
+	public CMSDocument(String title, String path, String id, String source, String docType, String content)
 	{
 		this.title = title;
+		this.path = path;
 		this.id = id;
 		this.source = source;
 		this.docType = docType;
@@ -80,6 +97,7 @@ public class CMSDocument
 	{
 		this.title = "";
 		this.id = "";
+		this.path = "";
 		this.source = "";
 		this.docType = "";
 		this.content = "";
@@ -88,8 +106,9 @@ public class CMSDocument
 		try
 		{
 			JSONObject obj = new JSONObject(json);
-			this.title = obj.getString("title");
 			this.id = obj.getString("id");
+			this.path = obj.getString("path");
+			this.title = obj.getString("title");
 			this.source = obj.getString("source");
 			this.docType = obj.getString("docType");
 			this.content = obj.getString("content");
@@ -121,6 +140,15 @@ public class CMSDocument
 	public void setId(String val)
 	{
 		this.id = val;
+	}
+	public String getPath()
+	{
+		return this.path;
+	}
+	
+	public void setPath(String val)
+	{
+		this.path = val;
 	}
 	public String getSource()
 	{
@@ -205,6 +233,7 @@ public class CMSDocument
 			obj.put("content",this.content);
 			obj.put("keyTerms",this.keyTerms);
 			obj.put("removed",this.removed);
+			obj.put("docPath",this.path);
 			return obj.toString();
 		}
 		catch(JSONException e)

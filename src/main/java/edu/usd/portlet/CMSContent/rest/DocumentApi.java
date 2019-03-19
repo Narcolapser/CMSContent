@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMethod;
 import javax.xml.bind.annotation.XmlElement;
@@ -33,7 +34,7 @@ import edu.usd.portlet.cmscontent.dao.CMSResponder;
  * @author Toben Archer (Toben.Archer@usd.edu)
  */
 @RestController
-@RequestMapping("/v2/document")
+@RequestMapping("/v2/documents")
 public final class DocumentApi {
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
@@ -53,10 +54,10 @@ public final class DocumentApi {
 		return dbo;
 	}
 
-	@RequestMapping("get")
+	@RequestMapping(value="/{source}/{id}", method=RequestMethod.GET)
 	public String getDocument(
-		@RequestParam(value="source", defaultValue = "Internal") String source,
-		@RequestParam(value="id", defaultValue = "") String id
+		@PathVariable(value="source") String source,
+		@PathVariable(value="id") String id
 		)
 	{
 		logger.debug("Recieved request to get a document from: " + source + " with path: " + id);
@@ -75,8 +76,8 @@ public final class DocumentApi {
 		}
 	}
 	
-	@RequestMapping("list")
-	public List<CMSDocument> listDocuments(@RequestParam(value="source", defaultValue = "Internal") String source)
+	@RequestMapping(value="/{source}", method=RequestMethod.GET)
+	public List<CMSDocument> listDocuments(@PathVariable(value="source") String source)
 	{
 		logger.debug("Recieved request to list documents for: " + source);
 
@@ -88,17 +89,20 @@ public final class DocumentApi {
 	}
 	
 	
-	@RequestMapping("save")
+	@RequestMapping(value="/{source}/{id}", method=RequestMethod.POST, params = "document")
 	public String saveDocument(
+		@PathVariable(value="source") String source,
+		@PathVariable(value="id") String id,
 		@RequestParam(value="document", defaultValue = "") String json
 		)
 	{
 		logger.debug("Recieved request to update document: " + json);
-		CMSDocument doc = new CMSDocument(json);
-		CMSDocumentDao dbo = getDbo(doc.getSource());
-		logger.debug(doc);
 		try
 		{
+			CMSDocument doc = new CMSDocument(json);
+			doc.setId(id);
+			CMSDocumentDao dbo = getDbo(source);
+			logger.debug(doc);
 			dbo.saveDocument(doc);
 			logger.debug("Save succesful");
 			return "{\"result\":\"success\"}";
@@ -109,24 +113,48 @@ public final class DocumentApi {
 			return "{\"result\":\"failure\"}";
 		}
 	}
+	
+	@RequestMapping(value="/{source}/{id}", method=RequestMethod.POST, params = "path")
+	public String moveDocument(
+		@PathVariable(value="source") String source,
+		@PathVariable(value="id") String id,
+		@RequestParam(value="path", defaultValue = "") String path
+		)
+	{
+		logger.debug("Recieved request to change document path: " + path);
+		try
+		{
+			CMSDocumentDao dbo = getDbo(source);
+			CMSDocument doc = dbo.getDocument(id);
+			doc.setPath(path);
+			dbo.saveDocument(doc);
+			logger.debug("Save succesful");
+			return "{\"result\":\"success\"}";
+		}
+		catch(Exception e)
+		{
+			logger.error("Error moving document: " + path + e);
+			return "{\"result\":\"failure\"}";
+		}
+	}
 
 
-	@RequestMapping("delete")
+	@RequestMapping(value="/{source}/{id}", method=RequestMethod.DELETE)
 	public String deleteDoc(
-		@RequestParam(value="source", defaultValue = "Internal") String source,
-		@RequestParam(value="id", defaultValue = "") String id
+		@PathVariable(value="source") String source,
+		@PathVariable(value="id") String id
 		)
 	{
 		logger.debug("Recieved delete request for: " + id + " from: " + source);
 		CMSDocumentDao dbo = getDbo(source);
 		logger.debug("Deleting from DBO: " + dbo.getDaoName());
-		if (dbo.deleteEnabled())
+		if (dbo.writeEnabled())
 			dbo.deleteDocument(id);
 
 		return "{\"result\":\"success\"}";
 	}
 	
-	@RequestMapping("sources")
+	@RequestMapping(value="/sources")
 	public String getSources()
 	{
 		String ret = "[";
@@ -143,8 +171,8 @@ public final class DocumentApi {
 		{
 			JSONObject obj = new JSONObject();
 			obj.put("name",val.getDaoName());
-			obj.put("save",val.saveEnabled());
-			obj.put("delete",val.deleteEnabled());
+			obj.put("save",val.writeEnabled());
+			obj.put("delete",val.writeEnabled());
 			obj.put("type",val.getSourceType());
 			return obj.toString();
 		}

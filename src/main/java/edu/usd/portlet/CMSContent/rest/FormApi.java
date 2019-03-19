@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMethod;
 import javax.xml.bind.annotation.XmlElement;
@@ -32,7 +33,7 @@ import edu.usd.portlet.cmscontent.dao.CMSResponder;
  * @author Toben Archer (Toben.Archer@usd.edu)
  */
 @RestController
-@RequestMapping("/v2/form")
+@RequestMapping("/v2/forms")
 public final class FormApi {
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
@@ -52,8 +53,9 @@ public final class FormApi {
 		return dbo;
 	}
 
-	@RequestMapping("response")
+	@RequestMapping(value="/{id}",method=RequestMethod.POST)
 	public String formResponse(
+		@PathVariable(value="id") String form_id,
 		@RequestParam(value="form", defaultValue = "") String form
 		)
 	{
@@ -100,6 +102,16 @@ public final class FormApi {
 		return "{\"result\":\"success\"}";
 	}
 
+	@RequestMapping(value="/responders", method=RequestMethod.GET)
+	public List<CMSResponder> listResponder()
+	{
+		List<CMSResponder> ret = new ArrayList<CMSResponder>();
+		for (CMSResponder resp:responders)
+			if (resp.autoRespond() == false) //auto responders don't get displayed.
+				ret.add(resp);
+		return ret;
+	}
+
 	private CMSResponder getCMSResponder(String name)
 	{
 		for(CMSResponder re:responders)
@@ -108,19 +120,6 @@ public final class FormApi {
 		return null;
 	}
 
-	@RequestMapping("listResponders")
-	public String listResponder()
-	{
-		String ret = "[";
-		for (CMSResponder resp:responders)
-			if (resp.autoRespond() == false) //auto responders don't get displayed.
-				ret += responderAsJson(resp) + ",";
-		
-		//remove the trailing comma and return with the closing bracket.
-		return ret.substring(0,ret.length()-1) + "]";
-	}
-	
-	
 	public List<CMSResponder> getAutoResponders()
 	{
 		List<CMSResponder> ret = new ArrayList<>();
@@ -130,31 +129,6 @@ public final class FormApi {
 		return ret;
 	}
 
-	//This is probably going to be removed, I don't blieve it is necessary.
-	@RequestMapping("getResponder")
-	public String getResponder(@RequestParam(value="name") String name)
-	{
-		for (CMSResponder resp:responders)
-			if(resp.getName().equals(name))
-				return responderAsJson(resp);
-		return "";
-	}
-	
-	private String responderAsJson(CMSResponder val)
-	{
-		try
-		{
-			JSONObject obj = new JSONObject();
-			obj.put("name",val.getName());
-			obj.put("optionInfo",val.getOptionInfo());
-			return obj.toString();
-		}
-		catch(JSONException e)
-		{
-			return "";
-		}
-	}
-	
 	private class ResponderRunner implements Runnable
 	{
 		private String form;
@@ -171,7 +145,7 @@ public final class FormApi {
 		{
 			try
 			{
-				logger.info("Logging from responder thread!");
+				logger.debug("Running responders asynchronous.");
 				
 				//loop over the objects till we find the responders, and then call each responder.
 				for(JSONObject entry: jform)

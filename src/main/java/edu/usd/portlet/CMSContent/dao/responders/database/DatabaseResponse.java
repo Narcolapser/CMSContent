@@ -3,6 +3,7 @@ package edu.usd.portlet.cmscontent.dao;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 
 import javax.persistence.Entity;
@@ -135,9 +136,30 @@ public class DatabaseResponse
 			ret += "\"" + ans.getField().replace("\"","\\\"")+"\":\""+ans.getAnswer().replace("\"","\\\"")+"\",";
 		}
 		ret += "\"Response Number\":\""+this.id+"\",";
-		ret += "\"Date Time\":\""+this.responseTime.replace("\"","\\\"")+"\",";
 		ret += "\"Username\":\""+this.username.replace("\"","\\\"")+"\",";
+		ret += "\"Date Time\":\""+this.responseTime.replace("\"","\\\"")+"\",";
 		ret = ret.replace("\t","");
 		return ret.substring(0,ret.length()-1) + "}";
+	}
+	public String csvRow()
+	{
+		String ret = "";
+		ret += this.id;
+		ret += ",\"" + this.responseTime.replace("\"","\"\"")+"\"";
+		ret += ",\"" + this.username.replace("\"","\"\"")+"\"";
+		for (DatabaseAnswer ans:this.answers)
+			ret += ",\"" + ans.getAnswer().replace("\"","\"\"")+"\"";
+		return ret;
+	}
+	
+	public Map<String,String> asMap()
+	{
+		Map<String,String> ret = new HashMap<>();
+		ret.put("Response Number",""+this.id);
+		ret.put("Username",this.username);
+		ret.put("Date Time",this.responseTime);
+		for (DatabaseAnswer ans:this.answers)
+			ret.put(ans.getField(),ans.getAnswer());
+		return ret;
 	}
 }

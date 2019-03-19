@@ -27,6 +27,7 @@ import edu.usd.portlet.cmscontent.dao.CMSConfigDao;
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.CMSLayout;
 import edu.usd.portlet.cmscontent.dao.CMSSubscription;
+import edu.usd.portlet.cmscontent.dao.CMSId_map;
 
 /**
  * This is an implementation of the CMSConfigDao which leverages the portal's
@@ -48,17 +49,6 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 	//the default getLayout method. It will attempt to return, context aware, the current layout.
 	public CMSLayout getLayout(PortletRequest request)
 	{
-		//If the window state is maximized return the maximized view.
-		WindowState state = request.getWindowState();
-		if (WindowState.MAXIMIZED.equals(state))
-		{
-			CMSLayout max = getLayout(request,"maximized");
-			//if the maximized view has no subscriptions, skip it and go with the normal view.
-			if (max.getSubscriptionsAsDocs().size()!=0)
-				return max;
-		}
-		
-		//Otherwise return the normal view. 
 		return getLayout(request,"normal");
 	}
 	
@@ -75,7 +65,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 		//Iterate over the available layouts and grab the approparite class.
 		for(CMSLayout layout:layouts)
 		{
-			logger.debug("Comparing " + layout.getView() + " to " + view);
+			//logger.debug("Comparing " + layout.getView() + " to " + view);
 			if (layout.getView().equals(view))
 			{
 				//make a copy of that class so that we can get the benefits of polymorphism.
@@ -94,6 +84,10 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			int delimiter = sub.indexOf(";");
 			String source = sub.substring(0,delimiter);
 			String id = sub.substring(delimiter+1);
+			//This will be enough to allow me to do the transition. This will load the documents
+			//with the new id and the portlets will gradually be saved over to the new id.
+			if (CMSId_map.id_map_old.containsKey(id))
+				id = CMSId_map.id_map_old.get(id);
 			CMSSubscription csub = new CMSSubscription();
 			csub.setDocId(id);
 			csub.setDocSource(source);
@@ -103,6 +97,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			csub.setSecurityGroups(Arrays.asList(groups));
 			
 			subscriptions.add(csub);
+			logger.info(csub);
 		}
 		logger.debug("Total subscriptions: " + subscriptions.size());
 		ret.setSubscriptions(subscriptions);
@@ -120,7 +115,7 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 			}
 			catch (Exception e)
 			{
-				logger.debug("Error while trying to load property: " + prop + " Error: " + e);
+				//logger.debug("Error while trying to load property: " + prop + " Error: " + e);
 			}
 		}
 
@@ -205,4 +200,5 @@ public class PropertiesDaoImpl implements CMSConfigDao, DisposableBean
 
 	public void destroy() throws Exception {
 	}
+	
 }

@@ -77,8 +77,8 @@ public class SwallowingJspRenderer implements ServletContextAware
 		// Set up a fake request and response.  We need the mock response
 		// so that we can create the Swallowing response
 		HttpServletRequest request = new MockIncludedHttpServletRequest();
-		logger.debug("Request type: ");
-		logger.debug(request.getMethod());
+		logger.trace("Request type: ");
+		logger.trace(request.getMethod());
 		HttpServletResponse response = new MockHttpServletResponse();
 		HttpServletResponse swallowingResponse = new SwallowingHttpServletResponse(response, sout, "UTF-8");
 

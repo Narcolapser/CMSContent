@@ -52,6 +52,7 @@ public class ReportDoc extends CMSDocument
 	{
 		this.title = val.title;
 		this.id = val.id;
+		this.path = val.path;
 		this.source = val.source;
 		this.docType = val.docType;
 		this.content = val.content;

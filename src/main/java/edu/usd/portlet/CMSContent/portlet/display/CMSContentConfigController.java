@@ -114,29 +114,6 @@ public class CMSContentConfigController
 		//Save the whole layout into to a map for later reference in the jsp.
 		final Map<String, Object> layoutMap = new HashMap<String, Object>();
 		layoutMap.put("normal",normal);
-
-		//Get the maximized layout for this portlet.
-		CMSLayout max = this.conf.getLayout(request,"maximized");
-		
-		//It is possible that no maximized layout is set.
-		if (max != null)
-		{
-			content = max.getSubscriptions();
-			for(CMSSubscription sub : content)
-				for(CMSDocumentDao ds:dataSources)
-					try
-					{
-						if(ds.getDaoName().equals(sub.getDocSource()))
-							sub.setDocTitle(ds.getDocument(sub.getDocId()).getTitle());
-					}
-					catch (java.lang.NullPointerException e)
-					{
-						logger.warn("Could not fetch document \"" + sub.getDocId() + "\" because: " + e);
-					}
-			contentMap.put("maximized",content);
-			String maxDisplayType = max.getView();
-			layoutMap.put("maximized",max);
-		}
 		
 		//Pass in the map of currently subscribed documents.
 		refData.put("activeDocs",contentMap);

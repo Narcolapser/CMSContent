@@ -98,11 +98,11 @@ public class CMSContentViewController {
 		//get user email.
 		refData.put("useremail",((Map)request.getAttribute(PortletRequest.USER_INFO)).get("mail"));
 
-		//Caching
-		String etag = String.valueOf(refData.hashCode());
-		logger.info("etag: " + etag);
-		response.getCacheControl().setETag(etag);
-		response.getCacheControl().setExpirationTime(60);
+//		//Caching
+//		String etag = String.valueOf(refData.hashCode());
+//		logger.info("etag: " + etag);
+//		response.getCacheControl().setETag(etag);
+//		response.getCacheControl().setExpirationTime(60);
 
 		//Get channel ID
 		refData.put("channelId","CMS" + request.getWindowID());

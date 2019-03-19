@@ -4,20 +4,30 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-import java.lang.Thread;
-import java.lang.Runnable;
+import java.util.Arrays;
+import java.io.OutputStream;
+import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.PathVariable;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
 import org.json.JSONException;
 import org.json.JSONArray;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Cell;
 
 import edu.usd.portlet.cmscontent.dao.FormDaoImpl;
 import edu.usd.portlet.cmscontent.dao.FormDoc;
@@ -36,7 +46,7 @@ import edu.usd.portlet.cmscontent.dao.TokenRepo;
  */
 
 @RestController
-@RequestMapping("/v2/report")
+@RequestMapping("/v2/reports")
 public final class ReportApi {
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
@@ -56,43 +66,43 @@ public final class ReportApi {
 	@Autowired
 	private TokenRepo tokenRepo;
 
-	@RequestMapping("pagination")
+	@RequestMapping("/{report_id}")
 	public String pagination(
-		@RequestParam(value="start", defaultValue = "0") String start,
-		@RequestParam(value="end", defaultValue = "25") String end,
-		@RequestParam(value="report") String report,
+		@PathVariable(value="report_id") String report,
+		@RequestParam(value="offset", defaultValue = "0") String offset,
+		@RequestParam(value="limit", defaultValue = "25") String limit,
 		@RequestParam(value="token") String token
 		)
 	{
-		int iStart = Integer.parseInt(start);
-		int iEnd = Integer.parseInt(end);
+		int iOffset = Integer.parseInt(offset);
+		int iLimit = Integer.parseInt(limit);
 		logger.debug("Token: " + token);
 		if(tokenRepo.validateToken(token,report))
 		{
-			logger.debug("End token");
-			List<DatabaseResponse> responses = databaseRepo.getResponsesPaged(report,iStart,iEnd);
+			logger.debug("limit token");
+			List<DatabaseResponse> responses = databaseRepo.getResponsesPaged(report,iOffset,iLimit);
 			logger.debug("Number of responses: " + responses.size());
 			String ret = "[ ";
 			for(DatabaseResponse resp:responses)
 				ret += resp.json() + ",";
-			return ret.substring(0,ret.length()-1) + "]";
+			return (ret.substring(0,ret.length()-1) + "]").replace("\n","");
 		}
 		else
 			return "{\"result\":\"failure\",\"reason\":\"Invalid token\"}";
 	}
 
-	@RequestMapping("rows")
+	@RequestMapping("/{report_id}/rows")
 	public String rows(
-		@RequestParam(value="report") String report
+		@PathVariable(value="report_id") String report
 		)
 	{
 		String ret = "{\"rowCount\":"+databaseRepo.getResponseCount(report)+"}";
 		return ret;
 	}
 
-	@RequestMapping("fields")
+	@RequestMapping("/{report_id}/fields")
 	public String fields(
-		@RequestParam(value="report") String report
+		@PathVariable(value="report_id") String report
 		)
 	{
 		String[] fields = new FormDoc(this.internalDocumentDao.getDocumentById(report)).getFields();
@@ -101,6 +111,83 @@ public final class ReportApi {
 			ret += "\"" + field + "\",";
 		
 		return ret.substring(0,ret.length()-1) + "]";
+	}
+
+	@RequestMapping(value = "/{file_name}.xlsx", method = RequestMethod.GET)
+	public void getXLSX(
+		@PathVariable("file_name") String file_name,
+		@RequestParam(value="token") String token,
+		HttpServletResponse response) throws IOException
+	{
+	
+		if(!tokenRepo.validateToken(token,file_name))
+		{
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized. Please go to report page and try again.");
+			return;
+		}
+		try
+		{
+			OutputStream os = response.getOutputStream();
+			logger.debug(file_name);
+			String[] fields = new FormDoc(this.internalDocumentDao.getDocumentById(file_name)).getFields();
+			
+			Workbook workbook = new XSSFWorkbook();
+			Sheet sheet = workbook.createSheet("Responses");
+			Row header = sheet.createRow(0);
+			Cell headerCell = header.createCell(0);
+			headerCell.setCellValue("Response Number");
+			headerCell = header.createCell(1);
+			headerCell.setCellValue("Username");
+			headerCell = header.createCell(2);
+			headerCell.setCellValue("Date Time");
+			
+			int index = 3;
+			for(String field:fields)
+			{
+				headerCell = header.createCell(index);
+				headerCell.setCellValue(field);
+				index++;
+			}
+			
+			Row row = sheet.createRow(1);
+			row.createCell(0).setCellValue("1");
+			row.createCell(1).setCellValue("John Doe");
+			
+			List<DatabaseResponse> responses = databaseRepo.getResponses(file_name);
+			index = 1;
+			for(DatabaseResponse resp:responses)
+			{
+				Map<String,String> resp_map = resp.asMap();
+				row = sheet.createRow(index);
+				int j = 0;
+				Cell cell =  row.createCell(j);
+				cell.setCellValue(resp_map.get("Response Number"));
+				j++;
+				
+				cell =  row.createCell(j);
+				cell.setCellValue(resp_map.get("Username"));
+				j++;
+				
+				cell =  row.createCell(j);
+				cell.setCellValue(resp_map.get("Date Time"));
+				j++;
+				
+				for(String field:fields)
+				{
+					cell = row.createCell(j);
+					cell.setCellValue(resp_map.get(field));
+					j++;
+				}
+				index++;
+			}
+			
+			workbook.write(os);
+			workbook.close();
+		} catch(IOException ex)
+		{
+			logger.info("error writing file to output stream. File was:" + file_name);
+			throw new RuntimeException("IOError writing file to output stream");
+		}
 	}
 }
 

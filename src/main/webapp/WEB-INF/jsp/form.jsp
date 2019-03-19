@@ -353,8 +353,8 @@ function submit(formId)
 	else
 	{
 		//alert(JSON.stringify(data));
-		$.ajax({dataType:"json",
-			url:"/CMSContent/v2/form/response.json",
+		$.ajax({dataType:"json", type: "POST",
+			url:"/CMSContent/v2/forms/"+formId,
 			data:{"form":JSON.stringify(data)},
 			success:formReponseRecieved});
 		var sub = document.getElementById("submit_btn");

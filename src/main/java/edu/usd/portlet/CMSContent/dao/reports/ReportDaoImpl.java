@@ -89,9 +89,7 @@ public class ReportDaoImpl implements CMSDocumentDao, DisposableBean
 
 	public boolean deleteDocument(String Id){return false;}
 
-	public boolean saveEnabled(){return true;}
-	
-	public boolean deleteEnabled(){return true;}
+	public boolean writeEnabled(){return true;}
 	
 	public String getSourceType(){return "report";}
 	

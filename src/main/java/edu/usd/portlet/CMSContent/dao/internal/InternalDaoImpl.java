@@ -18,6 +18,7 @@ import org.apache.commons.collections.IteratorUtils;
 
 import edu.usd.portlet.cmscontent.dao.CMSDocument;
 import edu.usd.portlet.cmscontent.dao.InternalDocumentDao;
+import edu.usd.portlet.cmscontent.dao.CMSId_map;
 
 /**
  * This class provides CMSContent basic internal storage of documents. This is
@@ -72,6 +73,8 @@ public class InternalDaoImpl implements CMSDocumentDao, DisposableBean
 		try
 		{
 			doc = this.internalDocumentDao.getDocumentById(Id);
+			if (doc == null)
+				doc = this.internalDocumentDao.getDocumentById(CMSId_map.id_map_new.get(Id));
 		}
 		catch (Exception e)
 		{
@@ -103,9 +106,7 @@ public class InternalDaoImpl implements CMSDocumentDao, DisposableBean
 	public void destroy() throws Exception {
 	}
 	
-	public boolean saveEnabled(){return true;}
-	
-	public boolean deleteEnabled(){return true;}
+	public boolean writeEnabled(){return true;}
 	
 	public String getSourceType(){return "html";}
 }

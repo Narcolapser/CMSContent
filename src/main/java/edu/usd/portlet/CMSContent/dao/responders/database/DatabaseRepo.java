@@ -61,13 +61,13 @@ public class DatabaseRepo
 	}
 	
 	@Transactional(readOnly = true)
-	public List<DatabaseResponse> getResponsesPaged(String formId, int start, int end)
+	public List<DatabaseResponse> getResponsesPaged(String formId, int offset, int limit)
 	{
 		Session session = sessionFactory.openSession();
 		String hql = "FROM DatabaseResponse WHERE form = '" + formId + "'";
 		Query query = session.createQuery(hql);
-		query.setFirstResult(start);
-		query.setMaxResults(end-start);
+		query.setFirstResult(offset);
+		query.setMaxResults(limit);
 		List<DatabaseResponse> ret = query.list();
 		return ret;
 	}
