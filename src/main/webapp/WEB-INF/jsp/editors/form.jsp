@@ -12,6 +12,10 @@
 <script src="<c:url value='/webjars/chosen/1.8.2/chosen.jquery.js'/>" type="text/javascript"></script>
 <link rel="stylesheet" href="<c:url value='/webjars/chosen/1.8.2/chosen.min.css'/>" />
 
+<script src="https://vuejs.org/js/vue.js"></script>
+<script src="/CMSContent/components/form-field.js"></script>
+<script src="/CMSContent/components/form-fields.js"></script>
+
 <c:set var="n"><portlet:namespace/></c:set>
 <c:set var="selected" value=""/>
 <c:set var="search" value=""/>
@@ -35,7 +39,7 @@
 	.cke_source { color: #000000; }
 </style>
 
-<div style="width:100%;">
+<div style="width:100%;" id="app">
 	<div style="width:450px; float: left;">
 
 		<div class="form-group">
@@ -104,22 +108,8 @@
 		<button onclick="add_responder();return false" class="btn btn-info" title="Add another control">
 			<i class="fa fa-plus-square"></i>
 		</button>
-
-		<table id="control_table" class="table table-striped">
-			<thead>
-				<th>Position</th>
-				<th>Label</th>
-				<th>Type</th>
-				<th>Options (if applicable, seperated by commas)</th>
-				<th>Required</th>
-				<td></td>
-			</thead>
-			<tbody id="control_body">
-			</tbody>
-		</table>
-		<button onclick="add_control();return false" class="btn btn-info" title="Add another control">
-			<i class="fa fa-plus-square"></i>
-		</button>
+		<hr/>
+		<form-fields ref="fields"></form-fields>
 	</div>
 </div>
 
@@ -141,51 +131,6 @@
 			<input id="formRespOption" class="form-control"/>
 		</td>
 		<td><button class="btn btn-danger" onclick="remove_responder(this);return false;">Remove</button></td>
-	</tr>
-</c:set>
-
-<c:set var="control_row">
-	<tr>
-		<td class="pos_col" >
-			<div class="btn-group" role="group">
-				<button onclick="move_control('up',this);return false" class="btn btn-default">
-					<i class="fa fa-arrow-up"></i>
-				</button>
-				<button onclick="move_control('down',this);return false" class="btn btn-default">
-					<i class="fa fa-arrow-down"></i>
-				</button>
-			</div>
-		</td>
-		<td>
-			<span>Label: </span><input name="label" type="text" class="form-control"></input>
-		</td>
-		<td>
-			<span>Type: </span>
-			<select name="type" class="form-control" onChange="optionChange(this)">
-				<optgroup label="Informative/Structural">
-					<option value="label" data-reqable="false">Label</option>
-					<option value="hr" data-reqable="false">Horrizontal Line</option>
-					<option value="p" data-reqable="false">Paragraph</option>
-				</optgroup>
-				<optgroup label="Entry">
-					<option value="text" data-reqable="true">Text</option>
-					<option value="multi-text" data-reqable="true">Multi-line Text</option>
-					<option value="date" data-reqable="true">Date picker</option>
-					<option value="datetime" data-reqable="true">Date Time</option>
-					<option value="select" data-reqable="true">Drop Down</option>
-					<option value="multi-select" data-reqable="true">Multi-select</option>
-					<option value="checkbox" data-reqable="false">Checkbox</option>
-					<option value="radiobutton" data-reqable="true">Radio Button</option>
-				</optgroup>
-			</select>
-		</td>
-		<td>
-			<span>Options: </span><input name="options" type="text" class="form-control"></input>
-		</td>
-		<td>
-			<input type="checkbox" name="Required" value="required">Required</input>
-		</td>
-		<td><button class="btn btn-danger" onclick="remove_control(this);return false;">Remove</button></td>
 	</tr>
 </c:set>
 
@@ -342,8 +287,13 @@ function save()
 	//assemble document json body
 	var table = document.getElementById("control_table");
 	var form_json = [];
-	for (var i=1,row; row = table.rows[i];i++)
-		form_json.push(get_form_entry(row));
+//	for (var i=1,row; row = table.rows[i];i++)
+//		form_json.push(get_form_entry(row));
+	console.log(app.$refs);
+	var fields = app.$refs.fields.get_fields();
+	console.log(fields);
+	for (var i=0; i < fields.length; i++)
+		form_json.push(fields[i]);
 
 	//assemble responder options.
 	var responder_table = document.getElementById("responder_table");
@@ -361,11 +311,12 @@ function save()
 	while (data.includes('  '))
 		data = data.replace('  ',' ');
 	
-	${n}.jQuery.ajax({dataType:"json",
-		type: "POST",
-		url:"/CMSContent/v2/documents/InternalForms/"+get_doc_id(),
-		data:{"document":data},
-		success:doc_saved});
+	console.log(data);
+//	${n}.jQuery.ajax({dataType:"json",
+//		type: "POST",
+//		url:"/CMSContent/v2/documents/InternalForms/"+get_doc_id(),
+//		data:{"document":data},
+//		success:doc_saved});
 }
 function get_doc_id()
 {
@@ -563,7 +514,7 @@ function populate_documents(data, textStatus, jqXHR)
 		var val = data[i]['path'];
 		if (val == null)
 		{
-			console.log(data[i]);
+//			console.log(data[i]);
 			val = '';
 		}
 		else
@@ -614,10 +565,9 @@ function getNodes(val,name,parent)
 	var keys = {};
 	var nodes = [];
 	var files = [];
-	console.log("Getting nodes");
 	for(i = 0; i < val.length; i++)
 	{
-		console.log(val[i]);
+		//console.log(val[i]);
 		try
 		{
 			var parts = val[i]['path'].split('/');
@@ -702,6 +652,10 @@ $(document).ready(function(){
 		url:"/CMSContent/v2/documents/InternalForms/${parameters.get('doc')[0]}",
 		success:update_content});
 	</c:if>
+});
+
+var app = new Vue({
+	el: '#app',
 });
 </script>
 
