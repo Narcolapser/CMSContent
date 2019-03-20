@@ -4,7 +4,7 @@ Vue.component('form-fields', {
 			fields: []
 		}
 	},
-	props: [],
+	props: ['form_id'],
 	template: `
 	<div>
 		<table id="control_table" class="table table-striped">
@@ -26,7 +26,7 @@ Vue.component('form-fields', {
 						</div>
 					</td>
 					<td>
-						<form-field :id="field" ref="field"></form-field>
+						<form-field ref="field" :label="field['label']" :type="field['type']" :required="field['required']" :options="field['options']"></form-field>
 					</td>
 					<td><button class="btn btn-danger" onclick="remove_control(this);return false;">Remove</button></td>
 				</tr>
@@ -39,6 +39,19 @@ Vue.component('form-fields', {
 	</div>
 	`,
 	mounted: function() {
+		console.log(this.form_id);
+		var self = this;
+		var request = new XMLHttpRequest();
+		//http://localhost:8080/CMSContent/v2/documents/InternalForms/19964-press-release-request-form
+		request.open('GET','/CMSContent/v2/documents/InternalForms/'+this.form_id,true);
+		request.onload = function()
+		{
+			var document = JSON.parse(request.responseText);
+			var content = JSON.parse(document['content']);
+			for(var i = 0; i < content.length; i++)
+				self.fields.push(content[i]);
+		}
+		request.send();
 		
 	},
 	updated: function() {
@@ -47,8 +60,7 @@ Vue.component('form-fields', {
 	{
 		add_field()
 		{
-			console.log("Time for another field!");
-			this.fields.push("child" + this.fields.length);
+			this.fields.push({ type: "label", label: "", required: false, options: []});
 		},
 		get_fields()
 		{
@@ -57,6 +69,7 @@ Vue.component('form-fields', {
 			for(var i = 0; i < this.$refs.field.length; i++)
 				fields.push(this.$refs.field[i].get_structure());
 			
+			console.log(fields);
 			return fields;
 		}
 	}

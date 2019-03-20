@@ -16,7 +16,7 @@ Vue.component('form-field', {
 			},
 		}
 	},
-	props: [],
+	props: ['type','label','required','options'],
 	template: `
 		<div>
 			<div style="width: 50%;float: left;" >
@@ -49,7 +49,10 @@ Vue.component('form-field', {
 						<td><input name="label" type="text" class="form-control field_label" ></input></td>
 					</tr>
 					<tr class="required_row" >
-						<input class="field_required" type="checkbox" name="Required" value="required" >Required</input>
+						<td>Input Required:</td>
+						<td>
+							<input class="field_required" type="checkbox" name="Required" value="required"></input>
+						</td>
 					</tr>
 				</table>
 			</div>
@@ -71,7 +74,24 @@ Vue.component('form-field', {
 		</div>
 	`,
 	mounted: function() {
-		this.type_change()
+		var field_type = this.$el.getElementsByClassName("field_type")[0];
+		for(var i = 0; i < field_type.options.length; i++)
+			if(field_type.options[i].value == this.type)
+				field_type.options[i].selected = true;
+
+		this.$el.getElementsByClassName("field_label")[0].value = this.label;
+
+		var options = this.$el.getElementsByClassName("field_options")[0];
+		for(var i = 0; i < this.options.length; i++)
+		{
+			var new_op = document.createElement("option");
+			new_op.text = this.options[i];
+			options.add(new_op);
+		}
+		
+		this.type_change();
+		
+		this.$el.getElementsByClassName("field_required")[0].checked = this.required;
 	},
 	updated: function() {
 	},
@@ -82,7 +102,10 @@ Vue.component('form-field', {
 			console.log("Gotta change");
 			var field_type = this.$el.getElementsByClassName("field_type")[0].value;
 			if (this.field_types[field_type]["reqable"])
+			{
 				this.$el.getElementsByClassName("required_row")[0].style="";
+				this.$el.getElementsByClassName("field_required")[0].checked = false;
+			}
 			else
 				this.$el.getElementsByClassName("required_row")[0].style="visibility:hidden";
 			
@@ -90,15 +113,20 @@ Vue.component('form-field', {
 				this.$el.getElementsByClassName("options")[0].style=""
 			else
 				this.$el.getElementsByClassName("options")[0].style="visibility:hidden;"
-
 		},
 		get_structure()
 		{
 			var struct = {};
 			struct['type'] = this.$el.getElementsByClassName("field_type")[0].value;
 			struct['label'] = this.$el.getElementsByClassName("field_label")[0].value;
-			struct['required'] = this.$el.getElementsByClassName("field_required")[0].value;
-			struct['options'] = this.$el.getElementsByClassName("field_options")[0].value;
+			struct['required'] = this.$el.getElementsByClassName("field_required")[0].checked;
+			var options_html = this.$el.getElementsByClassName("field_options")[0];
+			var options = [];
+			for(var i = 0; i < options_html; i++)
+			{
+				options.push(options_html.options[i].value);
+			}
+			struct['options'] = options
 			return struct;
 		},
 		remove_option()

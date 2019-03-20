@@ -109,7 +109,12 @@
 			<i class="fa fa-plus-square"></i>
 		</button>
 		<hr/>
-		<form-fields ref="fields"></form-fields>
+
+		<c:set var="form_id"></c:set>
+		<c:if test="${not empty parameters.get('doc')[0]}">
+			<c:set var="form_id">${parameters.get('doc')[0]}</c:set>
+		</c:if>
+		<form-fields ref="fields" form_id="${form_id}"></form-fields>
 	</div>
 </div>
 
