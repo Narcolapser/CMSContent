@@ -213,25 +213,29 @@ function load()
 }
 function update_content(data, textStatus, jqXHR)
 {
+	if (Object.keys(data).length === 0)
+	{
+		console.log("empty object, skipping");
+		return;//odd error. skip loading this, there is no data.
+	}
 	var form_title = document.getElementById("formTitle");
 	var form_id = document.getElementById("doc_id");
 	var form_search = document.getElementById("doc_search");
 	var form_resp = document.getElementById("formResp");
 
 	form_title.value=data.title;
-	var idsplit = data.id.split('/');
-	var filename = idsplit[idsplit.length-1];
-	if (filename.substring(filename.length-4) == '.cfm')
-		filename = filename.substring(0,filename.length-4);
-	form_id.value=filename;
+//	var idsplit = data.id.split('/');
+//	var filename = idsplit[idsplit.length-1];
+//	if (filename.substring(filename.length-4) == '.cfm')
+//		filename = filename.substring(0,filename.length-4);
+	form_id.value=data.id;
 
 	form_search.value=data.keyTerms;
-	
 	var form = JSON.parse(data.content);
 	//alert("Form: " + form);
-	var new_tbody = document.createElement('tbody');
+	//var new_tbody = document.createElement('tbody');
 	var rtable = document.createElement('tbody');
-	new_tbody.id = "control_body";
+	//new_tbody.id = "control_body";
 	rtable.id = "responder_body";
 	for(var i=0; i<form.length; i++)
 	{
@@ -240,22 +244,22 @@ function update_content(data, textStatus, jqXHR)
 			load_resp(rtable,form[i]['label'],form[i]['options']);
 			continue;
 		}
-		var row = new_tbody.insertRow(new_tbody.length);
-		row.innerHTML = `${control_row}`;
-		row.children[1].children[1].value=form[i]["label"];
-		row.children[3].children[1].value=form[i]["options"];
-		if(form[i]["required"] != undefined)
-			row.children[4].children[0].checked = form[i]["required"];
-		for(var j=0; j< row.children[2].children[1].options.length; j++)
-			if (row.children[2].children[1].options[j].value==form[i]["type"])
-			{
-				row.children[2].children[1].selectedIndex = j;
-				break;
-			}
+//		var row = new_tbody.insertRow(new_tbody.length);
+//		row.innerHTML = `${control_row}`;
+//		row.children[1].children[1].value=form[i]["label"];
+//		row.children[3].children[1].value=form[i]["options"];
+//		if(form[i]["required"] != undefined)
+//			row.children[4].children[0].checked = form[i]["required"];
+//		for(var j=0; j< row.children[2].children[1].options.length; j++)
+//			if (row.children[2].children[1].options[j].value==form[i]["type"])
+//			{
+//				row.children[2].children[1].selectedIndex = j;
+//				break;
+//			}
 	}
-	
-	var old_tbody = document.getElementById("control_body");
-	old_tbody.parentNode.replaceChild(new_tbody, old_tbody);
+	app.$refs.fields.load(form_id.value);
+	//var old_tbody = document.getElementById("control_body");
+	//old_tbody.parentNode.replaceChild(new_tbody, old_tbody);
 	var old_rbody = document.getElementById("responder_body");
 	old_rbody.parentNode.replaceChild(rtable, old_rbody);
 }
@@ -474,38 +478,17 @@ function onSourceChange()
 	var source_selector = document.getElementById("doc_source");
 	var myindex = source_selector.selectedIndex;
 	var source_id = source_selector.options[myindex].value;
-	console.log("Changing source to: " + source_id + " can save: " + source_selector.options[myindex].getAttribute("data-saveEnabled"));
 
 	${n}.jQuery("#doc_source").trigger("chosen:updated");
 	${n}.jQuery.ajax({dataType:"json",
 		url:"/CMSContent/v2/documents/"+source_id,
 		success:populate_documents});
-	
-	if(source_selector.options[myindex].getAttribute("data-saveEnabled") == 'true')
-	{
-		console.log("Capable of saving. activating save button");
-		var save_btn = document.getElementById("save_btn");
-		save_btn.removeAttribute("disabled");
-	}
-	else
-	{
-		console.log("in capable of saving. deactivating the save button");
-		var save_btn = document.getElementById("save_btn");
-		save_btn.setAttribute("disabled","disabled");
-	}
 
-	if(source_selector.options[myindex].getAttribute("data-deleteEnabled") == 'true')
-	{
-		console.log("Capable of deleting. activating delete button");
-		var save_btn = document.getElementById("delete_btn");
-		save_btn.removeAttribute("disabled");
-	}
-	else
-	{
-		console.log("in capable of deleting. deactivating the delete button");
-		var save_btn = document.getElementById("delete_btn");
-		save_btn.setAttribute("disabled","disabled");
-	}
+	var save_btn = document.getElementById("save_btn");
+	save_btn.removeAttribute("disabled");
+
+	var save_btn = document.getElementById("delete_btn");
+	save_btn.removeAttribute("disabled");
 }
 
 function populate_documents(data, textStatus, jqXHR)

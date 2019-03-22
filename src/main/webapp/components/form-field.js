@@ -45,8 +45,8 @@ Vue.component('form-field', {
 						</td>
 					</tr>
 					<tr>
-						<td>Label:</td>
-						<td><input name="label" type="text" class="form-control field_label" ></input></td>
+						<td>Field Label:</td>
+						<td><textarea name="label" type="text" class="form-control field_label" ></textarea></td>
 					</tr>
 					<tr class="required_row" >
 						<td>Input Required:</td>
@@ -56,7 +56,7 @@ Vue.component('form-field', {
 					</tr>
 				</table>
 			</div>
-			<div style="width: 50%;float: left;" >
+			<div style="width: 40%;float: left;" >
 				<div class="options" >
 					<h2>Options</h2>
 					<table style="width: 100%;" >
@@ -71,6 +71,7 @@ Vue.component('form-field', {
 					</table>
 				</div>
 			</div>
+			<div style="width: 10%;float: left;" ><button class="btn btn-danger" v-on:click="$emit('remove')">Remove</button></div>
 		</div>
 	`,
 	mounted: function() {
@@ -82,10 +83,11 @@ Vue.component('form-field', {
 		this.$el.getElementsByClassName("field_label")[0].value = this.label;
 
 		var options = this.$el.getElementsByClassName("field_options")[0];
-		for(var i = 0; i < this.options.length; i++)
+		var op_array = this.options.split(",");
+		for(var i = 0; i < op_array.length; i++)
 		{
 			var new_op = document.createElement("option");
-			new_op.text = this.options[i];
+			new_op.text = op_array[i];
 			options.add(new_op);
 		}
 		
@@ -99,7 +101,6 @@ Vue.component('form-field', {
 	{
 		type_change()
 		{
-			console.log("Gotta change");
 			var field_type = this.$el.getElementsByClassName("field_type")[0].value;
 			if (this.field_types[field_type]["reqable"])
 			{
