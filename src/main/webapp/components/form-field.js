@@ -131,7 +131,8 @@ Vue.component('form-field', {
 			{
 				options.push(options_html.options[i].value);
 			}
-			struct['options'] = options
+			options.sort();
+			struct['options'] = options.join();
 			return struct;
 		},
 		remove_option()

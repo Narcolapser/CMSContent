@@ -51,12 +51,13 @@ Vue.component('form-fields', {
 		},
 		get_fields()
 		{
-//			var fields = [];
-//			for(var i = 0; i < this.$refs.field.length; i++)
-//				fields.push(this.$refs.field[i].get_structure());
-//			
-//			return fields;
-			return this.fields;
+			var fields = [];
+			for(var i = 0; i < this.fields.length; i++)
+				for(var j=0; j < this.$refs.field.length; j++)
+					if (this.fields[j]['id'] == this.$refs.field[i]['id'])
+						fields.push(this.$refs.field[j].get_structure());
+			
+			return fields;
 		},
 		load(form_id)
 		{
@@ -101,7 +102,6 @@ Vue.component('form-fields', {
 			if (index == 0)
 				return;
 			var val = this.fields.splice(index,1)[0];
-			console.log(val);
 			this.fields.splice(index-1,0,val);
 		},
 		move_down(index)
@@ -109,7 +109,6 @@ Vue.component('form-fields', {
 			if (index == this.fields.length -1)
 				return;
 			var val = this.fields.splice(index,1)[0];
-			console.log(val);
 			this.fields.splice(index+1,0,val);
 		}
 	}

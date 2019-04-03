@@ -287,6 +287,9 @@ function save()
 		url:"/CMSContent/v2/documents/InternalForms/"+get_doc_id(),
 		data:{"document":data},
 		success:doc_saved});
+
+	var save_btn = document.getElementById("save_btn");
+	save_btn.setAttribute("disabled","disabled");
 }
 function get_doc_id()
 {
@@ -294,7 +297,7 @@ function get_doc_id()
 	
 	if (id == "")
 	{
-		id = get_random_id(document.getElementById("doc_title").value);
+		id = get_random_id(document.getElementById("formTitle").value);
 		document.getElementById("doc_id").value = id;
 	}
 	
@@ -324,6 +327,8 @@ function get_responder_config(resp_row)
 }
 function doc_saved(data, textStatus, jqXHR)
 {
+	var save_btn = document.getElementById("save_btn");
+	save_btn.removeAttribute("disabled");
 	alert("form saved");
 }
 
