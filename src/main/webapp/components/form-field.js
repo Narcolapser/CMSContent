@@ -23,7 +23,7 @@ Vue.component('form-field', {
 				<h2>Form Field</h2>
 				<table style="width:100%">
 					<tr>
-						<td>Field Type: {{id}}</td>
+						<td>Field Type:</td>
 						<td>
 							<select name="type" class="form-control field_type" v-on:change="type_change()" >
 								<optgroup label="Informative/Structural" >
@@ -83,7 +83,11 @@ Vue.component('form-field', {
 		this.$el.getElementsByClassName("field_label")[0].value = this.label;
 
 		var options = this.$el.getElementsByClassName("field_options")[0];
-		var op_array = this.options.split(",");
+		var op_array = [];
+		if(typeof this.options == 'string')
+			op_array = this.options.split(",");
+		else
+			op_array = this.options;
 		for(var i = 0; i < op_array.length; i++)
 		{
 			var new_op = document.createElement("option");
@@ -123,7 +127,7 @@ Vue.component('form-field', {
 			struct['required'] = this.$el.getElementsByClassName("field_required")[0].checked;
 			var options_html = this.$el.getElementsByClassName("field_options")[0];
 			var options = [];
-			for(var i = 0; i < options_html; i++)
+			for(var i = 0; i < options_html.options.length; i++)
 			{
 				options.push(options_html.options[i].value);
 			}

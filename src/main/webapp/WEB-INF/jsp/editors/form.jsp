@@ -165,7 +165,6 @@ function optionChange(selector)
 	selector.parentNode.parentNode.children[4].children[0].checked = false;
 }
 
-
 function remove_responder(responder)
 {
 	responder.parentNode.parentNode.parentNode.deleteRow(responder.parentNode.parentNode.rowIndex-1);
@@ -177,10 +176,8 @@ function remove_control(control)
 }
 function move_control(dir,control)
 {
-	//alert("move: " + dir);
 	var row = control.parentNode.parentNode.parentNode;
 	var table = row.parentNode;
-	//alert(table);
 	var index = row.rowIndex;
 	table.deleteRow(row.rowIndex-1);
 	var nrow=null;
@@ -193,12 +190,8 @@ function move_control(dir,control)
 	nrow.children[3].children[1].value = row.children[3].children[1].value;
 	nrow.children[2].children[1].selectedIndex = row.children[2].children[1].selectedIndex;
 }
-//}
 function load()
 {
-	//var selector = document.getElementById("docselector");
-	//var myindex = selector.selectedIndex;
-	//var doc_id = selector.options[myindex].value;
 	
 	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
 	var doc_id = node.id;
@@ -215,7 +208,6 @@ function update_content(data, textStatus, jqXHR)
 {
 	if (Object.keys(data).length === 0)
 	{
-		console.log("empty object, skipping");
 		return;//odd error. skip loading this, there is no data.
 	}
 	var form_title = document.getElementById("formTitle");
@@ -252,13 +244,6 @@ function load_resp(rtable,rtype,roption)
 	row.cells[2].children[0].value = roption;
 }
 
-function add_control()
-{
-	var table = document.getElementById("control_table");
-	var row = table.insertRow(table.length);
-	row.innerHTML = `${control_row}`;
-}
-
 function add_responder()
 {
 	var table = document.getElementById("responder_table");
@@ -275,11 +260,9 @@ function save()
 	//assemble document json body
 	var table = document.getElementById("control_table");
 	var form_json = [];
-//	for (var i=1,row; row = table.rows[i];i++)
-//		form_json.push(get_form_entry(row));
-	console.log(app.$refs);
+
 	var fields = app.$refs.fields.get_fields();
-	console.log(fields);
+
 	for (var i=0; i < fields.length; i++)
 		form_json.push(fields[i]);
 
@@ -299,12 +282,11 @@ function save()
 	while (data.includes('  '))
 		data = data.replace('  ',' ');
 	
-	console.log(data);
-//	${n}.jQuery.ajax({dataType:"json",
-//		type: "POST",
-//		url:"/CMSContent/v2/documents/InternalForms/"+get_doc_id(),
-//		data:{"document":data},
-//		success:doc_saved});
+	${n}.jQuery.ajax({dataType:"json",
+		type: "POST",
+		url:"/CMSContent/v2/documents/InternalForms/"+get_doc_id(),
+		data:{"document":data},
+		success:doc_saved});
 }
 function get_doc_id()
 {
@@ -335,7 +317,6 @@ function get_form_entry(row)
 function get_responder_config(resp_row)
 {
 	var resp ={};
-	//resp['label'] = resp_row.cells[0].children[0].options[resp_row.cells[0].children[0].selectedIndex];
 	resp['label'] = resp_row.cells[0].children[0].selectedOptions[0].value;
 	resp['type'] = "respType";
 	resp['options'] = resp_row.cells[2].children[0].value;
@@ -345,8 +326,6 @@ function doc_saved(data, textStatus, jqXHR)
 {
 	alert("form saved");
 }
-
-
 
 function get_random_id(title)
 {
@@ -373,7 +352,6 @@ function move_doc()
 		{
 			var btn = document.getElementById(buttons[i]);
 			var was_disabled = btn.getAttribute("disabled");
-			console.log(was_disabled);
 			if (was_disabled == null || was_disabled == "")
 				btn.setAttribute("data-was_disabled","false");
 			else
@@ -422,7 +400,6 @@ function cancel_move()
 	{
 		var btn = document.getElementById(buttons[i]);
 		var was_disabled = btn.getAttribute("data-was_disabled");
-		console.log(was_disabled);
 		if (was_disabled == "true")
 			btn.setAttribute("disabled","disabled");
 		else
@@ -449,7 +426,6 @@ function doc_deleted(data,textStatus, jqXHR)
 {
 	var node = ${n}.jQuery("#doc_tree").jstree("get_selected",true)[0];
 	document.getElementById(node.id).style.display = 'none';
-	console.log("Deleted node");
 }
 
 function onSourceChange()
@@ -472,7 +448,6 @@ function onSourceChange()
 
 function populate_documents(data, textStatus, jqXHR)
 {
-	console.log(data);
 	${n}.jQuery('#doc_tree').jstree("destroy").empty();
 	var doc_tree = document.getElementById("doc_tree");
 	var nodes = [];
@@ -482,7 +457,6 @@ function populate_documents(data, textStatus, jqXHR)
 		var val = data[i]['path'];
 		if (val == null)
 		{
-//			console.log(data[i]);
 			val = '';
 		}
 		else
@@ -510,7 +484,6 @@ function populate_documents(data, textStatus, jqXHR)
 		var doc_id = document.getElementById("doc_id");
 		if(data.instance.get_node(data.selected[0]).data['type']=='document')
 		{
-			console.log(data.instance.get_node(data.selected[0]));
 			doc_id.value = data.instance.get_node(data.selected[0]).id;
 		}
 		else
@@ -518,7 +491,6 @@ function populate_documents(data, textStatus, jqXHR)
 	})
 	var to = false;
 	${n}.jQuery('#doc_tree_search').keyup(function () {
-		console.log("Key stroke up");
 		if(to) { clearTimeout(to); }
 		to = setTimeout(function () {
 			var v = ${n}.jQuery('#doc_tree_search').val();
@@ -535,7 +507,6 @@ function getNodes(val,name,parent)
 	var files = [];
 	for(i = 0; i < val.length; i++)
 	{
-		//console.log(val[i]);
 		try
 		{
 			var parts = val[i]['path'].split('/');
@@ -598,7 +569,6 @@ function newFolder()
 		var parent = node.parent;
 	else
 		var parent = ${n}.jQuery("#doc_tree").jstree('get_selected')[0];
-	console.log(parent);
 	var position = 'inside';
 	var newNode = {"text":fname,"data":{"type":"folder"}}
 	${n}.jQuery("#doc_tree").jstree().create_node('#'+parent, newNode, position, false, false);
@@ -606,9 +576,7 @@ function newFolder()
 
 function responder_change(resp_selector)
 {
-	console.log("resp changed");
 	resp_option = resp_selector.options[resp_selector.selectedIndex].getAttribute("data-option");
-	console.log(resp_option);
 	resp_selector.parentNode.parentNode.children[1].innerHTML = resp_option;
 }
 
@@ -626,18 +594,3 @@ var app = new Vue({
 	el: '#app',
 });
 </script>
-
-
-<!---
-
-<td class="pos_col" >
-	<div class="btn-group" role="group">
-		<button onclick="up_document('${mode}',this);return false" class="btn btn-default">
-			<i class="fa fa-arrow-up"></i>
-		</button>
-		<button onclick="down_document('${mode}',this);return false" class="btn btn-default">
-			<i class="fa fa-arrow-down"></i>
-		</button>
-	</div>
-</td>
--->

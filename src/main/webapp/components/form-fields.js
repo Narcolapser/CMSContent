@@ -51,11 +51,12 @@ Vue.component('form-fields', {
 		},
 		get_fields()
 		{
-			var fields = [];
-			for(var i = 0; i < this.$refs.field.length; i++)
-				fields.push(this.$refs.field[i].get_structure());
-			
-			return fields;
+//			var fields = [];
+//			for(var i = 0; i < this.$refs.field.length; i++)
+//				fields.push(this.$refs.field[i].get_structure());
+//			
+//			return fields;
+			return this.fields;
 		},
 		load(form_id)
 		{
@@ -65,7 +66,6 @@ Vue.component('form-fields', {
 			request.open('GET','/CMSContent/v2/documents/InternalForms/'+form_id,true);
 			request.onload = function()
 			{
-				console.log("Loading fields");
 				var document = JSON.parse(request.responseText);
 				var content = JSON.parse(document['content']);
 				for(var i = 0; i < content.length; i++)
@@ -75,7 +75,6 @@ Vue.component('form-fields', {
 					else
 					{
 						content[i]['id'] = self.new_id();
-						console.log(content[i]);
 						self.fields.push(content[i]);
 					}
 				}
@@ -84,45 +83,34 @@ Vue.component('form-fields', {
 		},
 		clear()
 		{
-			console.log("Clearing fields");
 			while (this.fields.length > 0) this.fields.pop();
 			while (this.responders.length > 0) this.responders.pop();
 		},
-		remove_field(index)
-		{
-			//console.log(this.fields.length - index-1);
-			//this.fields.splice(this.fields.length - index-1,1);
-			//console.log(this.fields.pop(this.fields.length - index-1));
-			//console.log(this.fields);
-			var temp_list = [];
-			var i = 0;
-			while(this.fields.length > 0)
-			{
-				var temp = this.fields.pop();
-				if(i == index)
-					console.log("skipping: " + temp.label + " > " + i);
-				else
-					temp_list.push(temp);
-				i++;
-			}
-			while(temp_list.length > 0)
-				this.fields.push(temp_list.pop());
-//			this.fields.push({ type: "label", label: "", required: false, options: []});
-			console.log(this.fields);
-		},
 		new_id(size)
 		{
-			size = size || 21
-			var url = 'Uint8ArdomValuesObj012345679BCDEFGHIJKLMNPQRSTWXYZ_cfghkpqvwxyz-'
-			var id = ''
-			var bytes = crypto.getRandomValues(new Uint8Array(size))
-			while (0 < size--) {
-				id += url[bytes[size] & 63]
-			}
-			return id
+			size = size || 21;
+			var url = 'Uint8ArdomValuesObj012345679BCDEFGHIJKLMNPQRSTWXYZ_cfghkpqvwxyz-';
+			var id = '';
+			var bytes = crypto.getRandomValues(new Uint8Array(size));
+			while (0 < size--) 
+				id += url[bytes[size] & 63];
+			return id;
+		},
+		move_up(index)
+		{
+			if (index == 0)
+				return;
+			var val = this.fields.splice(index,1)[0];
+			console.log(val);
+			this.fields.splice(index-1,0,val);
+		},
+		move_down(index)
+		{
+			if (index == this.fields.length -1)
+				return;
+			var val = this.fields.splice(index,1)[0];
+			console.log(val);
+			this.fields.splice(index+1,0,val);
 		}
 	}
 })
-
-//								v-on:remove="remove_field(index)"></form-field>
-//								v-on:remove="fields.splice(index,1)"></form-field>
