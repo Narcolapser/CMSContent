@@ -16,14 +16,14 @@ Vue.component('form-field', {
 			},
 		}
 	},
-	props: ['type','label','required','options'],
+	props: ['type','label','required','options','id'],
 	template: `
 		<div>
 			<div style="width: 50%;float: left;" >
 				<h2>Form Field</h2>
 				<table style="width:100%">
 					<tr>
-						<td>Field Type:</td>
+						<td>Field Type: {{id}}</td>
 						<td>
 							<select name="type" class="form-control field_type" v-on:change="type_change()" >
 								<optgroup label="Informative/Structural" >
