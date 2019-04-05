@@ -138,8 +138,10 @@ Vue.component('form-field', {
 		remove_option()
 		{
 			var options = this.$el.getElementsByClassName("field_options")[0];
-			for(var i = 0; i < options; i++)
+			console.log(options);
+			for(var i = 0; i < options.options.length; i++)
 			{
+				console.log(options.options[i].value + ": " + options.options[i].selected)
 				if(options.options[i].selected)
 				{
 					options.remove(i);
