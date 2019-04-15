@@ -55,7 +55,7 @@ public class ConfirmationEmail implements CMSResponder
 			MimeMessage message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(from));
 			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-			message.setSubject("Your submission has been recieved.");
+			message.setSubject("Your submission has been received.");
 			message.setText(options);
 			Transport.send(message);
 			logger.debug("Message sent sucessfully");
