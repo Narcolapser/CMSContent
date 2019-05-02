@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Iterator;
 import javax.mail.*;
 import javax.mail.internet.*;
 import javax.activation.*;
@@ -104,7 +105,10 @@ public class Email implements CMSResponder
 					logger.debug("Key: " + key + " Value does not exist.\n");
 				}
 			}
+			ret += "<tr><td style=\"border: 1px solid black\">Extra info</td></tr>\n";
+			ret += getOffSpec(val,obj);
 			ret += "</tbody></table>";
+			ret += "<p>Raw response: " + json + "</p>";
 		}
 		catch (JSONException e)
 		{
@@ -132,5 +136,32 @@ public class Email implements CMSResponder
 		return ret;
 	}
 	
+	private String getOffSpec(String[] spec, JSONObject obj)
+	{
+		String ret = "";
+		Iterator<String> iter = obj.keys();
+		try
+		{
+			while (iter.hasNext())
+			{
+				String key = iter.next();
+				boolean contains = false;
+				for (String specKey: spec)
+					if(specKey.equals(key))
+					{
+						contains = true;
+						break;
+					}
+				if (!contains)
+					ret += "<tr><td style=\"border: 1px solid black\">" + key + "</td><td style=\"border: 1px solid black\">" + obj.getString(key) + "</td></tr>\n";
+			}
+		}
+		catch (JSONException e)
+		{
+			logger.error("Error processing out of spec: " + e);
+		}
+		return ret;
+	}
+
 	public boolean autoRespond(){return false;}
 }
