@@ -55,10 +55,10 @@
 			<c:forEach var="document" items="${content}">
 				<c:set var="aclass"></c:set>
 				<c:if test="${document.id == active}">
-					<c:set var="aclass">id="defaultOpen"</c:set>
+					<c:set var="aclass">id="defaultOpen_${channelId}"</c:set>
 				</c:if>
-				<button class="tablinks" onclick="openTab(event,'${channelId}-${document.id}',this)" ${aclass}
-					data-docid="${document.id}" data-doctitle="${document.title}">${document.title}</button>
+				<button class="tablinks" onclick="openTab${channelId}(event,'${channelId}-${document.id}',this)" ${aclass}
+					id="btn${channelId}-${document.id}" data-docid="${document.id}" data-doctitle="${document.title}">${document.title}</button>
 			</c:forEach>
 		</div>
 		<c:forEach var="document" items="${content}">
@@ -80,20 +80,23 @@ function setUrl(anchor)
 	var title = anchor.getAttribute("data-doctitle");
 	window.history.pushState("",title,location.protocol + '//' + location.host + location.pathname + "?tab=" + docid);
 }
-function openTab(evt, tabid,button)
+function openTab${channelId}(evt, tabid,button)
 {
 	var i, tabcontent, tablinks;
 	tabcontent = document.getElementsByClassName("tabcontent");
 	for (i = 0; i < tabcontent.length; i++)
-		tabcontent[i].style.display = "none";
+		if (tabcontent[i].id.indexOf("${channelId}") !== -1)
+			tabcontent[i].style.display = "none";
 	
 	tablinks = document.getElementsByClassName("tablinks");
 	for (i = 0; i < tablinks.length; i++)
-		tablinks[i].className = tablinks[i].className.replace(" active","");
+		if (tablinks[i].id.indexOf("${channelId}") !== -1)
+			tablinks[i].className = tablinks[i].className.replace(" active","");
 	
-	document.getElementById(tabid).style.display = "block";
+	var tab = document.getElementById(tabid);
+	tab.style.display = "block";
 	evt.currentTarget.className += " active";
 	setUrl(button);
 }
-document.getElementById("defaultOpen").click();
+document.getElementById("defaultOpen_${channelId}").click();
 </script>
