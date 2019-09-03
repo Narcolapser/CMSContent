@@ -227,6 +227,8 @@ function save()
 		document.getElementById("doc_id").value = id;
 	}
 	
+	path += "/";
+	
 	var doc = {
 		id: id,
 		path: path,
