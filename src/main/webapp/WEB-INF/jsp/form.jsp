@@ -130,7 +130,7 @@
 			</c:otherwise>
 		</c:choose>
 	</c:forEach>
-	<a data-control="submit" id="submit_btn" class="btn btn-default" onclick="submit('${id}');false">Submit</a>
+	<a data-control="submit" id="submit_btn" class="btn btn-default" onclick="upload_form('${id}')">Submit</a>
 	<div id="loading_icon" style="display:none;">
 		<img src="/CMSContent/loading.gif" alt="Please wait..." style="height:50px"/>
 	</div>
@@ -203,9 +203,9 @@ function leapYearCheck(caller)
 			day.remove(28);
 }
 
-function submit(formId)
+function upload_form(formId)
 {
-	//alert(formId);
+	console.log('Submitting form: ' + formId);
 	var form = document.getElementById(formId);
 	var item,value,data={};
 	var missed_reqs = []
@@ -214,8 +214,6 @@ function submit(formId)
 		//set defaults
 		value = "";
 		item = "";
-		
-		//alert("Child" + i + ":" + form.children[i].children[0].innerHTML);
 		if(form.children[i].innerHTML != "Submit")
 			item = form.children[i].children[0].innerText.replace('*','');
 		else
@@ -353,6 +351,7 @@ function submit(formId)
 	else
 	{
 		//alert(JSON.stringify(data));
+		console.log(data);
 		$.ajax({dataType:"json", type: "POST",
 			url:"/CMSContent/v2/forms/"+formId,
 			data:{"form":JSON.stringify(data)},
